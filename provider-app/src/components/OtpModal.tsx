@@ -18,7 +18,7 @@ const OTP_LEN = 6;
 
 export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', onResend }: OtpModalProps) => {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
   const [otp, setOtp] = useState<string[]>(Array(OTP_LEN).fill(''));
@@ -79,7 +79,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
   const submit = async () => {
     const code = otp.join('');
     if (code.length < OTP_LEN) {
-      setError(AR ? 'الرجاء إدخال الرمز كاملاً' : 'Please enter the full code');
+      setError(tt('otp.9112f93b'));
       return;
     }
     setLoading(true);
@@ -90,10 +90,10 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
         setOtp(Array(OTP_LEN).fill(''));
         onClose();
       } else {
-        setError(AR ? 'رمز التحقق غير صحيح' : 'Invalid verification code');
+        setError(tt('otp.67b2dc38'));
       }
     } catch (e: any) {
-      setError(e.message || (AR ? 'حدث خطأ ما' : 'An error occurred'));
+      setError(e.message || (tt('otp.8003dbeb')));
     } finally {
       setLoading(false);
     }
@@ -108,7 +108,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
         <View style={{ backgroundColor: theme.surface, borderTopLeftRadius: R.xl, borderTopRightRadius: R.xl, padding: SP.xl, paddingBottom: Platform.OS === 'ios' ? 40 : SP.xl }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.xl }}>
             <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
-              {AR ? 'رمز التحقق' : 'Verification Code'}
+              {tt('otp.09055b8b')}
             </Text>
             <TouchableOpacity onPress={onClose} style={{ padding: SP.sm, backgroundColor: theme.surface2, borderRadius: R.full }}>
               <NIcon name="close" size={20} color={theme.textSub} />
@@ -120,7 +120,7 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
               {type === 'phone' ? <NIcon name="phone" size={32} color={theme.primary} /> : <NIcon name="email" size={32} color={theme.primary} />}
             </View>
             <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', lineHeight: 24, paddingHorizontal: SP.xl }}>
-              {AR ? 'أدخل الرمز المكون من 6 أرقام المرسل إلى' : 'Enter the 6-digit code sent to'}
+              {tt('otp.d55bf300')}
             </Text>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.xs }}>
               {target}
@@ -168,14 +168,14 @@ export const OtpModal = ({ visible, onClose, onVerify, target, type = 'email', o
           ) : null}
 
           <NBtn
-            label={loading ? (AR ? 'جاري التحقق...' : 'Verifying...') : (AR ? 'تأكيد الرمز' : 'Verify Code')}
+            label={loading ? (tt('otp.745ba323')) : (tt('otp.c470c8c7'))}
             onPress={submit}
             disabled={loading || otp.join('').length < OTP_LEN}
           />
 
           <TouchableOpacity style={{ marginTop: SP.lg, alignItems: 'center' }} onPress={onResend} disabled={!onResend}>
             <Text style={{ fontSize: FS.sm, color: theme.primary, fontWeight: FW.med }}>
-              {AR ? 'إعادة إرسال الرمز' : 'Resend Code'}
+              {tt('otp.a0ad4bbe')}
             </Text>
           </TouchableOpacity>
         </View>

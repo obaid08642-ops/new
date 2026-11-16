@@ -1,5 +1,5 @@
 {
- "commit": "4ba5ed513",
+ "commit": "7f9f7bffa",
  "screens": {
   "PendingDashboard": [
    {
@@ -963,7 +963,7 @@
    },
    {
     "kind": "button",
-    "label": "Online",
+    "label": "{tt('phome.31b0b426')}",
     "src": "POST /provider/ops/availability/toggle-instant",
     "status": "ok",
     "file": "provider-app/src/screens/shared/ProviderHome.tsx",
@@ -989,7 +989,7 @@
     "src": "from PROVIDER_TYPES (prop / derived; not traced)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 193,
+    "line": 191,
     "via": null,
     "note": null,
     "untraced": true
@@ -1000,57 +1000,57 @@
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 196,
+    "line": 194,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[briefcase] Medical Jobs",
+    "label": "[briefcase] {tt('auth.ebb9f1de')}",
     "src": "parent callback onGuestJobs",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 241,
+    "line": 239,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[bookOpen] Drug Index",
+    "label": "[bookOpen] {tt('auth.2a8aa329')}",
     "src": "parent callback onGuestDrugIndex",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 255,
+    "line": 253,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Already have an account? Log In",
+    "label": "{tt('auth.931e6b41')} {tt('auth.978f19f9')}",
     "src": "parent callback onLogin",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 273,
+    "line": 271,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Sign In",
+    "label": "{tt('auth.492ee8f8')}",
     "src": "parent callback onLogin",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 320,
+    "line": 318,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Register",
+    "label": "{tt('auth.61d6a3b3')}",
     "src": "parent callback onSelectType",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 328,
+    "line": 326,
     "via": null,
     "note": null
    }
@@ -1062,107 +1062,107 @@
     "src": "errs: set from user input / local logic",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 360,
+    "line": 358,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "← Back",
+    "label": "{tt('auth.e2994279')}",
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 436,
+    "line": 434,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Email",
+    "label": "{tt('auth.8605844e')}",
     "src": "user input → id (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 455,
+    "line": 453,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Password",
+    "label": "{tt('auth.751ab623')}",
     "src": "user input → pass (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 461,
+    "line": 459,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Remember Me",
+    "label": "{tt('auth.77fabf3f')}",
     "src": "user input → rem (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 467,
+    "line": 465,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "[user] Login with Face ID / Fingerprint",
-    "src": "parent callback bioLogin, onSuccess",
+    "label": "[user] {tt('auth.5446722e')}",
+    "src": "parent callback bioLogin, tt",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 472,
+    "line": 470,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Log In",
+    "label": "{tt('auth.230d2f20')}",
     "src": "POST /provider/auth/login",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 487,
+    "line": 485,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Forgot Password?",
+    "label": "{tt('auth.449500e6')}",
     "src": "parent callback onForgot",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 491,
+    "line": 489,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "No account? Register",
+    "label": "{tt('auth.a8253cfe')} {tt('auth.36d048ad')}",
     "src": "parent callback onRegister",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 500,
+    "line": 498,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Enable Now",
-    "src": "parent callback enableBiometric, onSuccess",
+    "label": "{tt('auth.6fc68c23')}",
+    "src": "parent callback enableBiometric, tt",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 523,
+    "line": 521,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Maybe Later",
+    "label": "{tt('auth.c52ac346')}",
     "src": "parent callback onSuccess",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 524,
+    "line": 522,
     "via": null,
     "note": null
    },
@@ -1172,7 +1172,7 @@
     "src": "local state setShowIpModal",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 529,
+    "line": 527,
     "via": null,
     "note": null
    },
@@ -1182,37 +1182,37 @@
     "src": "user input → customIp → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 544,
+    "line": 542,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Reset",
+    "label": "{tt('auth.35fc41df')}",
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 552,
+    "line": 550,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Save",
+    "label": "{tt('auth.0360038b')}",
     "src": "native action",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 555,
+    "line": 553,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Cancel",
+    "label": "{tt('auth.210b779f')}",
     "src": "local state setShowIpModal",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 559,
+    "line": 557,
     "via": null,
     "note": null
    }
@@ -1220,61 +1220,61 @@
   "ForgotPasswordScreen": [
    {
     "kind": "button",
-    "label": "← Back",
+    "label": "{tt('auth.e2994279')}",
     "src": "parent callback onBack",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 705,
+    "line": 703,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Email Address",
+    "label": "{tt('auth.3bff6660')}",
     "src": "user input → target → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 723,
+    "line": 721,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Send Verification Code",
+    "label": "{tt('auth.4990dc94')}",
     "src": "POST /provider/auth/forgot-password",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 730,
+    "line": 728,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "New Password",
+    "label": "{tt('auth.10a7e435')}",
     "src": "user input → newPass → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 748,
+    "line": 746,
     "via": null,
     "note": null
    },
    {
     "kind": "input",
-    "label": "Confirm Password",
+    "label": "{tt('auth.4171a21c')}",
     "src": "user input → confPass (local)",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 756,
+    "line": 754,
     "via": null,
     "note": null
    },
    {
     "kind": "button",
-    "label": "Change Password",
+    "label": "{tt('auth.a11074f8')}",
     "src": "POST /provider/auth/reset-password, POST /provider/auth/login",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
-    "line": 770,
+    "line": 768,
     "via": null,
     "note": null
    }
@@ -1484,8 +1484,8 @@
    },
    {
     "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
+    "label": "{tt('otp.745ba323')}",
+    "src": "parent callback otp.join, tt",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
     "line": 172,
@@ -1494,7 +1494,7 @@
    },
    {
     "kind": "button",
-    "label": "Resend Code",
+    "label": "{tt('otp.a0ad4bbe')}",
     "src": "parent callback onResend",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
@@ -2350,7 +2350,7 @@
    },
    {
     "kind": "input",
-    "label": "Account Holder Name",
+    "label": "{tt('review.9706b164')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -2360,7 +2360,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('review.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -2380,7 +2380,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name",
+    "label": "{tt('review.321914c8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -2400,7 +2400,7 @@
    },
    {
     "kind": "button",
-    "label": "Re-sign",
+    "label": "{tt('review.d904e855')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -2410,7 +2410,7 @@
    },
    {
     "kind": "button",
-    "label": "Tap to Sign",
+    "label": "{tt('review.173e3464')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -2461,7 +2461,7 @@
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('wizard.f74c02bd')}",
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -2481,7 +2481,7 @@
    },
    {
     "kind": "input",
-    "label": "Enter 6-digit code",
+    "label": "{tt('regdone.d476c74e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -2511,7 +2511,7 @@
    },
    {
     "kind": "button",
-    "label": "Return to Home",
+    "label": "{tt('regdone.44e5dadf')}",
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -2725,8 +2725,8 @@
    },
    {
     "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
+    "label": "{tt('otp.745ba323')}",
+    "src": "parent callback otp.join, tt",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
     "line": 172,
@@ -2735,7 +2735,7 @@
    },
    {
     "kind": "button",
-    "label": "Resend Code",
+    "label": "{tt('otp.a0ad4bbe')}",
     "src": "parent callback onResend",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
@@ -3618,7 +3618,7 @@
    },
    {
     "kind": "input",
-    "label": "Account Holder Name",
+    "label": "{tt('review.9706b164')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -3628,7 +3628,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('review.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -3648,7 +3648,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name",
+    "label": "{tt('review.321914c8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -3668,7 +3668,7 @@
    },
    {
     "kind": "button",
-    "label": "Re-sign",
+    "label": "{tt('review.d904e855')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -3678,7 +3678,7 @@
    },
    {
     "kind": "button",
-    "label": "Tap to Sign",
+    "label": "{tt('review.173e3464')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -3729,7 +3729,7 @@
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('wizard.f74c02bd')}",
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -3749,7 +3749,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -3760,7 +3760,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -3780,7 +3780,7 @@
    },
    {
     "kind": "input",
-    "label": "Enter 6-digit code",
+    "label": "{tt('regdone.d476c74e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -3810,7 +3810,7 @@
    },
    {
     "kind": "button",
-    "label": "Return to Home",
+    "label": "{tt('regdone.44e5dadf')}",
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -4024,8 +4024,8 @@
    },
    {
     "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
+    "label": "{tt('otp.745ba323')}",
+    "src": "parent callback otp.join, tt",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
     "line": 172,
@@ -4034,7 +4034,7 @@
    },
    {
     "kind": "button",
-    "label": "Resend Code",
+    "label": "{tt('otp.a0ad4bbe')}",
     "src": "parent callback onResend",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
@@ -4761,7 +4761,7 @@
    },
    {
     "kind": "input",
-    "label": "Account Holder Name",
+    "label": "{tt('review.9706b164')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -4771,7 +4771,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('review.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -4791,7 +4791,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name",
+    "label": "{tt('review.321914c8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -4811,7 +4811,7 @@
    },
    {
     "kind": "button",
-    "label": "Re-sign",
+    "label": "{tt('review.d904e855')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -4821,7 +4821,7 @@
    },
    {
     "kind": "button",
-    "label": "Tap to Sign",
+    "label": "{tt('review.173e3464')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -4872,7 +4872,7 @@
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('wizard.f74c02bd')}",
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -4892,7 +4892,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -4903,7 +4903,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -4923,7 +4923,7 @@
    },
    {
     "kind": "input",
-    "label": "Enter 6-digit code",
+    "label": "{tt('regdone.d476c74e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -4953,7 +4953,7 @@
    },
    {
     "kind": "button",
-    "label": "Return to Home",
+    "label": "{tt('regdone.44e5dadf')}",
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -5167,8 +5167,8 @@
    },
    {
     "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
+    "label": "{tt('otp.745ba323')}",
+    "src": "parent callback otp.join, tt",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
     "line": 172,
@@ -5177,7 +5177,7 @@
    },
    {
     "kind": "button",
-    "label": "Resend Code",
+    "label": "{tt('otp.a0ad4bbe')}",
     "src": "parent callback onResend",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
@@ -5925,7 +5925,7 @@
    },
    {
     "kind": "input",
-    "label": "Account Holder Name",
+    "label": "{tt('review.9706b164')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -5935,7 +5935,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('review.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -5955,7 +5955,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name",
+    "label": "{tt('review.321914c8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -5975,7 +5975,7 @@
    },
    {
     "kind": "button",
-    "label": "Re-sign",
+    "label": "{tt('review.d904e855')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -5985,7 +5985,7 @@
    },
    {
     "kind": "button",
-    "label": "Tap to Sign",
+    "label": "{tt('review.173e3464')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -6036,7 +6036,7 @@
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('wizard.f74c02bd')}",
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -6056,7 +6056,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -6067,7 +6067,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -6087,7 +6087,7 @@
    },
    {
     "kind": "input",
-    "label": "Enter 6-digit code",
+    "label": "{tt('regdone.d476c74e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -6117,7 +6117,7 @@
    },
    {
     "kind": "button",
-    "label": "Return to Home",
+    "label": "{tt('regdone.44e5dadf')}",
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -6331,8 +6331,8 @@
    },
    {
     "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
+    "label": "{tt('otp.745ba323')}",
+    "src": "parent callback otp.join, tt",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
     "line": 172,
@@ -6341,7 +6341,7 @@
    },
    {
     "kind": "button",
-    "label": "Resend Code",
+    "label": "{tt('otp.a0ad4bbe')}",
     "src": "parent callback onResend",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
@@ -7089,7 +7089,7 @@
    },
    {
     "kind": "input",
-    "label": "Account Holder Name",
+    "label": "{tt('review.9706b164')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -7099,7 +7099,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('review.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -7119,7 +7119,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name",
+    "label": "{tt('review.321914c8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -7139,7 +7139,7 @@
    },
    {
     "kind": "button",
-    "label": "Re-sign",
+    "label": "{tt('review.d904e855')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -7149,7 +7149,7 @@
    },
    {
     "kind": "button",
-    "label": "Tap to Sign",
+    "label": "{tt('review.173e3464')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -7200,7 +7200,7 @@
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('wizard.f74c02bd')}",
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -7220,7 +7220,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -7231,7 +7231,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -7251,7 +7251,7 @@
    },
    {
     "kind": "input",
-    "label": "Enter 6-digit code",
+    "label": "{tt('regdone.d476c74e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -7281,7 +7281,7 @@
    },
    {
     "kind": "button",
-    "label": "Return to Home",
+    "label": "{tt('regdone.44e5dadf')}",
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -7495,8 +7495,8 @@
    },
    {
     "kind": "button",
-    "label": "Verifying...",
-    "src": "parent callback otp.join, onVerify",
+    "label": "{tt('otp.745ba323')}",
+    "src": "parent callback otp.join, tt",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
     "line": 172,
@@ -7505,7 +7505,7 @@
    },
    {
     "kind": "button",
-    "label": "Resend Code",
+    "label": "{tt('otp.a0ad4bbe')}",
     "src": "parent callback onResend",
     "status": "ok",
     "file": "provider-app/src/components/OtpModal.tsx",
@@ -8113,7 +8113,7 @@
    },
    {
     "kind": "input",
-    "label": "Account Holder Name",
+    "label": "{tt('review.9706b164')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -8123,7 +8123,7 @@
    },
    {
     "kind": "input",
-    "label": "Bank IBAN",
+    "label": "{tt('review.730b8353')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -8143,7 +8143,7 @@
    },
    {
     "kind": "input",
-    "label": "Full Name",
+    "label": "{tt('review.321914c8')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -8163,7 +8163,7 @@
    },
    {
     "kind": "button",
-    "label": "Re-sign",
+    "label": "{tt('review.d904e855')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -8173,7 +8173,7 @@
    },
    {
     "kind": "button",
-    "label": "Tap to Sign",
+    "label": "{tt('review.173e3464')}",
     "src": "local state setShowSigModal",
     "status": "ok",
     "file": "provider-app/src/screens/registration/ReviewStep.tsx",
@@ -8224,7 +8224,7 @@
    },
    {
     "kind": "button",
-    "label": "Next",
+    "label": "{tt('wizard.f74c02bd')}",
     "src": "parent callback onNext",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -8244,7 +8244,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "input has no handler",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -8255,7 +8255,7 @@
    },
    {
     "kind": "input",
-    "label": "Licence expiry date",
+    "label": "{tt('wizard.50ede357')}",
     "src": "user input → parent callback d.getTime",
     "status": "ok",
     "file": "provider-app/src/screens/registration/WizardParts.tsx",
@@ -8275,7 +8275,7 @@
    },
    {
     "kind": "input",
-    "label": "Enter 6-digit code",
+    "label": "{tt('regdone.d476c74e')}",
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -8305,7 +8305,7 @@
    },
    {
     "kind": "button",
-    "label": "Return to Home",
+    "label": "{tt('regdone.44e5dadf')}",
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
@@ -8776,7 +8776,7 @@
    },
    {
     "kind": "button",
-    "label": "Request Withdrawal",
+    "label": "{tt('wallet.209888a8')}",
     "src": "navigate → withdrawal_workflow",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
@@ -8786,7 +8786,7 @@
    },
    {
     "kind": "button",
-    "label": "Revenue Insights & Reports",
+    "label": "{tt('wallet.c58f931e')}",
     "src": "navigate (back / dynamic target)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
@@ -8796,7 +8796,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Total Revenue",
+    "label": "Stat: {tt('wallet.b4d65b0a')}",
     "src": "value ← String(totalRevenue)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
@@ -8806,7 +8806,7 @@
    },
    {
     "kind": "number",
-    "label": "Stat: Pending (Escrow)",
+    "label": "Stat: {tt('wallet.9f2e5ce9')}",
     "src": "value ← String(pendingEscrow)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/ProviderWalletScreen.tsx",
