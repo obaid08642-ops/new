@@ -3,13 +3,12 @@
 import React from 'react';
 import {
   View, Text, TouchableOpacity, TextInput, StyleSheet,
-  ActivityIndicator, ViewStyle, TextStyle, StyleProp, Image,
+  ActivityIndicator, ViewStyle, TextStyle, StyleProp,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColors, useApp } from '../context/AppContext';
 import { autoTranslate } from '../i18n';
 import { Icon, IconName } from './Icon';
-import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
 
 /* ----------------------------- Text ----------------------------- */
 // AppText guarantees Cairo font + correct RTL alignment, fixing the
@@ -197,123 +196,6 @@ export function Card({ children, style, onPress, padding = 16, elevated = true }
   }
   return <View style={[cardStyle, style]}>{children}</View>;
 }
-
-/* --------------------------- Doctor Card --------------------------- */
-interface DoctorCardProps {
-  doctor: {
-    id: string;
-    name: string;
-    deg: string;
-    spec: string;
-    rating: number;
-    reviews: number;
-    price: number;
-    wait: string;
-    exp: number;
-    online: boolean;
-    clinic: boolean;
-    home: boolean;
-    ins: boolean;
-    hospital: string;
-    slot: string;
-  };
-  onPress: () => void;
-  onBook: () => void;
-  style?: StyleProp<ViewStyle>;
-}
-
-export function DoctorCard({ doctor, onPress, onBook, style }: DoctorCardProps) {
-  const { colors, isDark } = useApp();
-  const tone = tokens(isDark ? 'dark' : 'light').color.service[String(doctor.id) === '2' ? 'violet' : 'blue'];
-  const cg = [tone.bg, tone.bg] as [string, string];
-  const icColor = tone.fg;
-
-  return (
-    <Card padding={0} style={[{ overflow: 'hidden' }, style]}>
-      <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
-        <View style={{ padding: 14 }}>
-          <View style={styles_dc.docRow}>
-            <LinearGradient colors={cg} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles_dc.avatarContainer}>
-              <Icon name="doctor" size={38} color={icColor} />
-            </LinearGradient>
-            <View style={styles_dc.docInfo}>
-              <AppText variant="h5" style={{ fontWeight: '800' }}>{doctor.name}</AppText>
-              {!!doctor.deg && <Badge label={doctor.deg} color={colors.primary} />}
-              {!!doctor.spec && <AppText variant="bodyXS" color={colors.textSecondary}>{doctor.spec}</AppText>}
-              {doctor.rating != null && (
-                <View style={styles_dc.ratingRow}>
-                  <Icon name="star" size={12} color={colors.gold} />
-                  <AppText variant="labelSM" color={colors.gold}>{doctor.rating}</AppText>
-                  {doctor.reviews != null && <AppText variant="caption" color={colors.textTertiary}>({doctor.reviews})</AppText>}
-                </View>
-              )}
-            </View>
-          </View>
-          
-          <View style={[styles_dc.meta, { borderColor: colors.borderLight }]}>
-            <View style={styles_dc.metaItem}>
-              <AppText variant="labelSM" color={colors.textPrimary}>{doctor.exp != null ? `${doctor.exp} سنة` : '—'}</AppText>
-              <AppText variant="caption" color={colors.textTertiary}>خبرة</AppText>
-            </View>
-            <View style={styles_dc.metaItem}>
-              <AppText variant="labelSM" color={colors.secondary}>{doctor.wait || '—'}</AppText>
-              <AppText variant="caption" color={colors.textTertiary}>انتظار</AppText>
-            </View>
-            <View style={styles_dc.metaItem}>
-              <View style={styles_dc.modeChips}>
-                {doctor.online && <View style={[styles_dc.modeChip, { backgroundColor: colors.primarySurface }]}><Icon name="video" size={11} color={colors.primary} /></View>}
-                {doctor.clinic && <View style={[styles_dc.modeChip, { backgroundColor: colors.primarySurface }]}><Icon name="hospital" size={11} color={colors.primary} /></View>}
-                {doctor.home && <View style={[styles_dc.modeChip, { backgroundColor: colors.primarySurface }]}><Icon name="home" size={11} color={colors.primary} /></View>}
-                {!doctor.online && !doctor.clinic && !doctor.home && <AppText variant="caption" color={colors.textTertiary}>—</AppText>}
-              </View>
-              <AppText variant="caption" color={colors.textTertiary}>الزيارة</AppText>
-            </View>
-          </View>
-          
-          {(!!doctor.hospital || doctor.ins) && (
-            <View style={styles_dc.footerRow}>
-              {doctor.ins && <Badge label="تأمين" color={colors.success} icon="shield" />}
-              {!!doctor.hospital && (
-                <>
-                  <Icon name="location" size={12} color={colors.textTertiary} />
-                  <AppText variant="caption" color={colors.textTertiary} numberOfLines={1} style={{ flex: 1 }}>{doctor.hospital}</AppText>
-                </>
-              )}
-            </View>
-          )}
-        </View>
-        
-        <View style={[styles_dc.bottomBar, { backgroundColor: colors.primary }]}>
-          <View style={{ alignItems: 'flex-start', gap: 2 }}>
-            {doctor.rating != null && (
-              <AppText variant="labelSM" color={colors.textInverse} style={{ fontWeight:"800" }}> {doctor.rating}{doctor.reviews != null ? ` (${doctor.reviews})` : ''}</AppText>
-            )}
-            {!!doctor.slot && <AppText variant="caption" color={colors.textInverse} style={{ fontWeight:'400' }}> {doctor.slot}</AppText>}
-          </View>
-          <TouchableOpacity onPress={onBook} activeOpacity={0.8} style={[styles_dc.bookBtn, { backgroundColor: colors.surface }]}>
-            <AppText variant="labelSM" color={colors.primary} style={{ fontWeight: '800' }}>{doctor.price != null ? `احجز ${doctor.price} ر.س` : 'احجز الآن'}</AppText>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    </Card>
-  );
-}
-
-const styles_dc = StyleSheet.create({
-  docRow: { flexDirection: 'row-reverse', gap: 12 },
-  avatarContainer: { width: 68, height: 68, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
-  docInfo: { flex: 1, alignItems: 'flex-end', gap: 3 },
-  ratingRow: { flexDirection: 'row-reverse', gap: 4, alignItems: 'center' },
-  meta: { flexDirection: 'row-reverse', justifyContent: 'space-around', borderTopWidth: 1, borderBottomWidth: 1, paddingVertical: 10, marginTop: 12 },
-  metaItem: { alignItems: 'center', gap: 2, flex: 1 },
-  modeChips: { flexDirection: 'row-reverse', gap: 3 },
-  modeChip: { width: 20, height: 20, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
-  footerRow: { flexDirection: 'row-reverse', gap: 8, alignItems: 'center', marginTop: 10 },
-  bottomBar: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between', padding: 12 },
-  bookBtn: { flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 18, height: 42, borderRadius: 14 },
-  priceRow: { flexDirection: 'row-reverse', alignItems: 'baseline', gap: 2 },
-  slotRow: { flexDirection: 'row-reverse', gap: 3, alignItems: 'center' },
-});
 
 /* ----------------------------- Input ----------------------------- */
 interface InputProps {

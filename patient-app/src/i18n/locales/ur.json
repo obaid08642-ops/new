@@ -4079,5 +4079,12 @@
   "ds.search.filtersActive": "فلٹر فعال ہیں",
   "ds.search.filters": "فلٹر کھولیں",
   "ds.toast.close": "بند کریں",
-  "ds.back": "واپس"
+  "ds.back": "واپس",
+  "tour.title": "رہنمائی ٹور",
+  "tour.fallbackDescription": "اس فیچر پر ایک مختصر نظر۔",
+  "tour.skip": "چھوڑیں",
+  "tour.next": "اگلا",
+  "errors.adminRequired": "رسائی مسترد۔ یہ حصہ صرف منتظمین کے لیے ہے۔",
+  "map.preview": "نقشے کا پیش منظر",
+  "map.marker": "نقشے کا نشان"
 }

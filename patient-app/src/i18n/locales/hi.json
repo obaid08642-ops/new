@@ -4079,5 +4079,12 @@
   "ds.search.filtersActive": "फ़िल्टर चालू हैं",
   "ds.search.filters": "फ़िल्टर खोलें",
   "ds.toast.close": "बंद करें",
-  "ds.back": "वापस"
+  "ds.back": "वापस",
+  "tour.title": "गाइडेड टूर",
+  "tour.fallbackDescription": "इस सुविधा पर एक संक्षिप्त नज़र।",
+  "tour.skip": "छोड़ें",
+  "tour.next": "अगला",
+  "errors.adminRequired": "पहुँच अस्वीकृत। यह क्षेत्र केवल प्रशासकों के लिए है।",
+  "map.preview": "मानचित्र पूर्वावलोकन",
+  "map.marker": "मानचित्र चिह्न"
 }

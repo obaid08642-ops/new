@@ -3,6 +3,7 @@ import { View, ActivityIndicator, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAppSelector } from '../../store/hooks';
 import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
+import { deviceText } from '../../i18n/deviceText';
 const T = tokens('light').color;
 
 export interface AdminGuardProps {
@@ -41,7 +42,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
         <Text style={{ fontSize: 18, color: T.status.danger.fg, textAlign: 'center' }}>
-          Access Denied. Admin privileges required.
+          {deviceText('errors.adminRequired')}
         </Text>
       </View>
     );
