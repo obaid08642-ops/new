@@ -74,4 +74,22 @@ describe('MedicinesService.filtered', () => {
     expect(calls.options).toEqual({ maxTimeMS: 8000 });
     expect(service.model.countDocuments).toHaveBeenCalledWith(expect.anything(), { maxTimeMS: 8000 });
   });
+
+  it('a brand or form that is a value of the facet lists is filtered by an exact $in (index); anything else keeps the substring regex', async () => {
+    const { service, calls } = serviceWith([{ id: 'a' }]);
+    service.filters = async () => ({ brands: ['Panadol', 'GSK'], forms: ['Tablet'] });
+    await service.filtered(undefined, undefined, { forms: ['tablet'], brands: [' panadol ', 'gsk', 'Pfi'], rx_only: false }, 'price_desc', 1, 20);
+    const and = calls.query.$and as any[];
+    expect(and).toHaveLength(2);
+    expect(and[0]).toEqual({ form: { $in: ['Tablet'] } });                                   // case and spaces resolved to the facet value
+    expect(and[1].$or[0]).toEqual({ manufacturer: { $in: ['Panadol', 'GSK'] } });             // two exact values in one $in
+    expect(JSON.stringify(and[1].$or[1])).toContain('Pfi');                                    // a value that is not a facet value stays a regex
+  });
+
+  it('when the facet lists cannot be read, the old regex filter is used (nothing is dropped)', async () => {
+    const { service, calls } = serviceWith([{ id: 'a' }]);
+    service.filters = async () => { throw new Error('db down'); };
+    await service.filtered(undefined, undefined, { forms: [], brands: ['GSK'], rx_only: false }, 'price_desc', undefined, 20);
+    expect(JSON.stringify(calls.query.$and)).toContain('$regex');
+  });
 });

@@ -821,9 +821,21 @@ export class MedicinesService {
     const q: any = this.buildQuery(search, (category && category !== 'all') ? category : undefined, false);
     const and: any[] = q.$and ? [...q.$and] : [];
     delete q.$and;
+    // A brand or form the screens send is a value of the facet lists (`filters()`): an exact `$in` on it is answered from the index, while the case-insensitive substring regex below read every document
+    // (the count fetched ALL ~21k, a brand sorted by relevance fetched every document whose brand merely contained the text: run 133). A value that is not a facet value keeps the regex, as before.
     const anyOf = (field: string, values: string[]) => ({ $or: values.map((v) => ({ [field]: { $regex: escapeRegex(v), $options: 'i' } })) });
-    if (f.forms.length) and.push(anyOf('form', f.forms));
-    if (f.brands.length) and.push(anyOf('manufacturer', f.brands));
+    const facetClause = async (field: 'manufacturer' | 'form', values: string[]) => {
+      const known = await this.facetValues(field === 'manufacturer' ? 'brands' : 'forms');
+      const byLower = new Map(known.map((k) => [k.toLowerCase(), k]));
+      const exact: string[] = []; const loose: string[] = [];
+      for (const v of values) { const hit = byLower.get(String(v).trim().toLowerCase()); if (hit !== undefined) exact.push(hit); else loose.push(v); }
+      const parts: Record<string, unknown>[] = [];
+      if (exact.length) parts.push({ [field]: { $in: [...new Set(exact)] } });
+      if (loose.length) parts.push(...anyOf(field, loose).$or);
+      return parts.length === 1 ? parts[0] : { $or: parts };
+    };
+    if (f.forms.length) and.push(await facetClause('form', f.forms));
+    if (f.brands.length) and.push(await facetClause('manufacturer', f.brands));
     if (f.rx_only) q.requires_prescription = true;
     if (f.min_price !== undefined || f.max_price !== undefined) {
       q.price = { $gt: 0, ...(f.min_price !== undefined ? { $gte: f.min_price } : {}), ...(f.max_price !== undefined ? { $lte: f.max_price } : {}) };
@@ -1199,6 +1211,14 @@ export class MedicinesService {
       }))
       .sort((a, b) => b.count - a.count);
     return result;
+  }
+
+  /** The brand or form values of the public catalogue (the facet lists the screens offer), from the hot-cached `filters()`; [] when they cannot be read (the callers then fall back to the regex). */
+  async facetValues(kind: 'brands' | 'forms'): Promise<string[]> {
+    try {
+      const all: any = await this.filters();
+      return Array.isArray(all?.[kind]) ? all[kind].filter((v: unknown): v is string => typeof v === 'string' && v.length > 0) : [];
+    } catch { return []; }
   }
 
   async filters() {

@@ -63,4 +63,25 @@ describe('the catalogue list orders and counts are served by indexes (explain, r
     const stats = plan.stages?.[0]?.$cursor?.executionStats ?? plan.executionStats;
     expect(stats.totalDocsExamined).toBe(0);
   });
+
+  describe('a brand filter by exact facet value instead of a substring regex', () => {
+    const base = { ...publicMedicineFilter(), price: { $gt: 0 } };
+    const count = async (q: any) => {
+      const plan: any = await col.aggregate([{ $match: q }, { $count: 'n' }]).explain('executionStats');
+      return (plan.stages?.[0]?.$cursor?.executionStats ?? plan.executionStats).totalDocsExamined as number;
+    };
+
+    it('the old regex count fetched every public document; the exact $in count fetches only the brand', async () => {
+      const regexQ = { ...base, $and: [{ $or: [{ manufacturer: { $regex: 'M3', $options: 'i' } }] }] };
+      const exactQ = { ...base, $and: [{ manufacturer: { $in: ['M3'] } }] };
+      expect(await count(regexQ)).toBeGreaterThanOrEqual(N);              // documents the problem: the whole catalogue was fetched
+      expect(await count(exactQ)).toBeLessThanOrEqual(N / 20);            // one brand of 40
+    });
+
+    it('a page of one brand by price is read in index order from the brand, not from the catalogue', async () => {
+      const q = { ...base, $and: [{ manufacturer: { $in: ['M3'] } }] };
+      const plan: any = await col.find(q as any, { projection: { _id: 0, id: 1 } }).sort({ price: -1, id: 1 }).skip(0).limit(30).explain('executionStats');
+      expect(plan.executionStats.totalDocsExamined).toBeLessThanOrEqual(N / 10);
+    });
+  });
 });
