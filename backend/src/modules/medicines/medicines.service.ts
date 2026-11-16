@@ -26,6 +26,8 @@ import { localizeMedicineStructured, DbLang, missingPublicMedicineTranslations, 
 import { normalizeRankingSort, popularPage, ProductRankingService } from '../product-ranking/product-ranking.service';
 import { ManualBoostsService } from '../product-ranking/manual-boosts.service';
 import { escapeRegex } from '../../common/slug.util';
+import { ConcurrencyGate } from '../../common/concurrency-gate';
+import { createHash } from 'crypto';
 import { ScheduledOnce } from '../../common/scheduled-once';
 
 /** A trending term needs at least this many searches in the week before it is shown to everyone. */
@@ -564,6 +566,8 @@ export class MedicinesService {
    */
   /** A list or count query that cannot finish in this time is cancelled (the caller answers an error / its cached copy) instead of piling up in mongod (run 133: 108 slow queries in a minute). */
   static readonly LIST_QUERY_OPTIONS = { maxTimeMS: 8000 } as const;
+  /** At most CATALOGUE_MAX_CONCURRENCY (default 3) uncached catalogue list builds run at once in this process; the others wait up to 4 s, then answer 503 `catalogue_busy` (a stale cached copy is served instead when there is one). */
+  static readonly LIST_GATE = new ConcurrencyGate(Math.max(1, Number(process.env.CATALOGUE_MAX_CONCURRENCY) || 3), 4000, 'catalogue_busy');
 
   private static readonly CARD_PROJECTION = {
     _id: 0, __v: 0,
@@ -724,7 +728,7 @@ export class MedicinesService {
     const safePage = clampPageInt(page, 1);
     if (typeof category === 'string') category = category.replace(/[\u0000-\u001F\u007F-\u009F]/g, '').trim().slice(0, 100) || undefined;
     const cacheKey = `med:page:governed-v2:${search || ''}:${category || ''}:${includeUnverified}:${safePage}:${safeLimit}:${sort}:${pharmacyId || 'global'}`;
-    const build = () => this.paginateUncached(search, category, safePage, safeLimit, includeUnverified, sort, pharmacyId);
+    const build = () => MedicinesService.LIST_GATE.run(() => this.paginateUncached(search, category, safePage, safeLimit, includeUnverified, sort, pharmacyId));
     // HotCache: fresh for LIST_CACHE_TTL, then the old page is still served (up to LIST_SWR_SECONDS) while ONE caller rebuilds it, so no reader waits for the database
     if (this.hotCache) return this.hotCache.get(cacheKey, { ttl: MedicinesService.LIST_CACHE_TTL, swr: MedicinesService.LIST_SWR_SECONDS }, build);
     const cached = await this.redis.getJson<any>(cacheKey);
@@ -811,6 +815,22 @@ export class MedicinesService {
    * is asked, else { data, total, page, limit, total_pages }.
    */
   async filtered(
+    search: string | undefined,
+    category: string | undefined,
+    f: { forms: string[]; brands: string[]; rx_only: boolean; min_price?: number; max_price?: number },
+    sort: string,
+    page: number | undefined,
+    limit = 30,
+  ) {
+    // This was the one list path with NO cache: every request ran its queries (run 133: 108 slow ones in a minute). Now like `paginate`: fresh for LIST_CACHE_TTL, then the old answer is still served
+    // (LIST_SWR_SECONDS) while ONE caller rebuilds it, and a build waits for a place in the gate.
+    const build = () => MedicinesService.LIST_GATE.run(() => this.filteredUncached(search, category, f, sort, page, limit));
+    if (!this.hotCache) return build();
+    const key = `med:filtered-v1:${createHash('sha1').update(JSON.stringify([search ?? '', category ?? '', f.forms, f.brands, f.rx_only, f.min_price ?? null, f.max_price ?? null, sort, page ?? null, limit])).digest('hex')}`;
+    return this.hotCache.get(key, { ttl: MedicinesService.LIST_CACHE_TTL, swr: MedicinesService.LIST_SWR_SECONDS }, build);
+  }
+
+  private async filteredUncached(
     search: string | undefined,
     category: string | undefined,
     f: { forms: string[]; brands: string[]; rx_only: boolean; min_price?: number; max_price?: number },
