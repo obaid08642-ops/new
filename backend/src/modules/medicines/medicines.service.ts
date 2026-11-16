@@ -562,6 +562,9 @@ export class MedicinesService {
    * 6-language translations map) weighs ~24KB; cards need ~2KB. Details()
    * still returns everything. This is what keeps the catalog fast at 21k docs.
    */
+  /** A list or count query that cannot finish in this time is cancelled (the caller answers an error / its cached copy) instead of piling up in mongod (run 133: 108 slow queries in a minute). */
+  static readonly LIST_QUERY_OPTIONS = { maxTimeMS: 8000 } as const;
+
   private static readonly CARD_PROJECTION = {
     _id: 0, __v: 0,
     // Keep ONLY the translated display names per language on cards (needed so
@@ -790,10 +793,10 @@ export class MedicinesService {
     const [data, total] = await Promise.all([
       byRank
         ? this.rankedCards(q, skipN, safeLimit, !(category && category !== 'all'))
-        : this.model.find(q, MedicinesService.CARD_PROJECTION)
+        : this.model.find(q, MedicinesService.CARD_PROJECTION, MedicinesService.LIST_QUERY_OPTIONS)
           .sort({ verified: -1, usage_count: -1, name_ar: 1 })
           .skip(skipN).limit(safeLimit),
-      (this.model as any).countDocuments ? (this.model as any).countDocuments(q) : Promise.resolve(0),
+      (this.model as any).countDocuments ? (this.model as any).countDocuments(q, MedicinesService.LIST_QUERY_OPTIONS) : Promise.resolve(0),
     ]);
     const result = {
       data: await this.applySponsored((data as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m))),
@@ -838,10 +841,10 @@ export class MedicinesService {
     const safePage = page === undefined ? 1 : clampPageInt(page, 1);
     const find = byRank
       ? this.rankedCards(q, (safePage - 1) * safeLimit, safeLimit, !(category && category !== 'all'))
-      : this.model.find(q, MedicinesService.CARD_PROJECTION).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
+      : this.model.find(q, MedicinesService.CARD_PROJECTION, MedicinesService.LIST_QUERY_OPTIONS).sort(order).skip((safePage - 1) * safeLimit).limit(safeLimit);
     const rows = (await find as any[]).map((m: any) => this.withBadges(m?.toObject ? m.toObject() : m));
     if (page === undefined) return rows;
-    const total = await (this.model as any).countDocuments(q);
+    const total = await (this.model as any).countDocuments(q, MedicinesService.LIST_QUERY_OPTIONS);
     return { data: rows, total, page: safePage, limit: safeLimit, total_pages: Math.ceil(total / safeLimit) };
   }
 
