@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 19:20 UTC — provider token audit step 1 (PR #2719); #2714 still open
+- Raw #FFF/#FFFFFF -> C.white in 26 provider files: client-token-sync 396 -> 335. tsc clean, jest 433/433, other baselines unchanged.
+- Remaining provider colours: constants/index.ts legacy palette (62), ui.tsx (21), VideoCallRoom (16), rgba white overlays; they need a token decision for overlays (no token exists) -> asking lead below.
+- QUESTION (lead/owner): is there an approved overlay/scrim token for rgba(255,255,255,a) on coloured headers? I will not add one without approval.
+
 ## 2026-11-16 18:20 UTC — provider literals slice 5 (PR #2714); #2713 merged
 - 1957 -> 1456 (14 screens). parity ok, token-sync 396, no-emoji 40 -> 39, tsc clean, jest 433/433, no test changed.
 - Left: ~1456 literals, mostly template strings with ${} and pairs in plain functions/callbacks (needs a manual pass passing `t`). Slice 6 after #2714 merges; then token audit.
