@@ -491,7 +491,7 @@ function VisitChecklist({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <TouchableOpacity key={item.id} onPress={()=>toggle(item.id)}
  style={[st.checkRow,{backgroundColor:item.done?theme.successBg:theme.surface2,borderColor:item.done?theme.success:theme.border,flexDirection:AR?'row-reverse':'row'}]}>
  <View style={{width:24,height:24,borderRadius:R.sm,borderWidth:2,borderColor:item.done?tokens.success:theme.border,backgroundColor:item.done?tokens.success:'transparent',alignItems:'center',justifyContent:'center'}}>
- {item.done && <I name="check" size={12} color="#FFF" />}
+ {item.done && <I name="check" size={12} color={C.white} />}
  </View>
  <Text style={{flex:1,fontSize:FS.md,color:item.done?theme.success:theme.text,textAlign:AR?'right':'left',textDecorationLine:item.done?'line-through':'none'}}>
  {AR?item.task:item.taskEn}

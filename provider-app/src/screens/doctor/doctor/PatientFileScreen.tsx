@@ -14,7 +14,7 @@ import {
  NBottomNav, NDivider, NPriceInput, NProfileImageUploader
 } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
-import { SP, R, FS, FW, API_BASE } from '../../../constants';
+import { SP, R, FS, FW, API_BASE, C } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
@@ -300,7 +300,7 @@ export function PatientFileScreen({ patient, onBack }:
  justifyContent: 'center'
  }}
  >
- <Text style={{ color: '#FFF', fontSize: 24, fontWeight: FW.bold }}>+</Text>
+ <Text style={{ color: C.white, fontSize: 24, fontWeight: FW.bold }}>+</Text>
  </TouchableOpacity>
  </View>
  </NCard>

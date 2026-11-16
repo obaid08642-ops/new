@@ -14,7 +14,7 @@ import {
  NBottomNav, NDivider, NPriceInput, NProfileImageUploader
 } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
-import { SP, R, FS, FW, API_BASE } from '../../../constants';
+import { SP, R, FS, FW, API_BASE, C } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
@@ -210,7 +210,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
  {AR ? 'الخدمات المتاحة' : 'Available Services'}
  </Text>
  <TouchableOpacity onPress={() => setShowAddSheet(true)} style={{ backgroundColor: theme.primary, paddingHorizontal: SP.lg, paddingVertical: SP.sm, borderRadius: R.md }}>
- <Text style={{ color: '#FFF', fontWeight: FW.bold }}> {AR ? 'إضافة خدمة' : 'Add Service'}</Text>
+ <Text style={{ color: C.white, fontWeight: FW.bold }}> {AR ? 'إضافة خدمة' : 'Add Service'}</Text>
  </TouchableOpacity>
  </View>
 

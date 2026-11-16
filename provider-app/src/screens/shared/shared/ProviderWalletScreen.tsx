@@ -95,14 +95,14 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
       <NHeader title={tt('wallet.4bb94d0d')} onBack={embedded ? undefined : onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <NCard style={{ backgroundColor: theme.primary, alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg }}>
-          <Text style={{ color: '#fff', opacity: 0.8, fontSize: FS.sm }}>{tt('wallet.a0b8ab41')}</Text>
-          <Text style={{ color: '#fff', fontSize: 36, fontWeight: FW.bold, marginVertical: SP.sm }}>
+          <Text style={{ color: C.white, opacity: 0.8, fontSize: FS.sm }}>{tt('wallet.a0b8ab41')}</Text>
+          <Text style={{ color: C.white, fontSize: 36, fontWeight: FW.bold, marginVertical: SP.sm }}>
             {balance} <Text style={{ fontSize: FS.md }}>{tt('wallet.0e39e6ca')}</Text>
           </Text>
           <NBtn 
             label={tt('wallet.209888a8')} 
             onPress={() => onNavigate && onNavigate('withdrawal_workflow')} 
-            style={{ backgroundColor: '#fff', marginTop: SP.md }} 
+            style={{ backgroundColor: C.white, marginTop: SP.md }} 
             labelStyle={{ color: theme.primary }} 
           />
         </NCard>

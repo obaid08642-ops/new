@@ -16,7 +16,7 @@ import {
  NBottomNav, NDivider, NPriceInput, NProfileImageUploader
 } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
-import { SP, R, FS, FW, API_BASE } from '../../../constants';
+import { SP, R, FS, FW, API_BASE, C } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
@@ -291,24 +291,24 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
    <TouchableOpacity 
      onPress={() => onNavigate('medical_jobs')}
      style={{ flex: 1, backgroundColor: theme.primary, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
-     <I name="profile" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+     <I name="profile" size={32} color={C.white} />
+     <Text style={{ color: C.white, fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
        {tt('dochome.ebb9f1de')}
      </Text>
    </TouchableOpacity>
    <TouchableOpacity 
      onPress={() => onNavigate('drug_index')}
      style={{ flex: 1, backgroundColor: theme.info, borderRadius: R.md, padding: SP.lg, alignItems: 'center' }}>
-     <I name="document" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+     <I name="document" size={32} color={C.white} />
+     <Text style={{ color: C.white, fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
        {tt('dochome.2a8aa329')}
      </Text>
    </TouchableOpacity>
    <TouchableOpacity 
      onPress={() => onNavigate('inbound_reports')}
      style={{ width: '100%', backgroundColor: theme.success, borderRadius: R.md, padding: SP.lg, alignItems: 'center', marginTop: SP.sm }}>
-     <I name="folder" size={32} color="#FFF" />
-     <Text style={{ color: '#FFF', fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
+     <I name="folder" size={32} color={C.white} />
+     <Text style={{ color: C.white, fontWeight: FW.bold, marginTop: SP.sm, textAlign: 'center' }}>
        {tt('dochome.795a57dd')}
      </Text>
    </TouchableOpacity>

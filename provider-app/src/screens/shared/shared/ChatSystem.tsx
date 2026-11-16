@@ -107,7 +107,7 @@ export function ChatSystem({ onBack }: { onBack: () => void }) {
               </View>
               {conv.unread > 0 && (
                 <View style={[st.unreadBadge, { backgroundColor: theme.primary }]}>
-                  <Text style={{ color: '#FFF', fontSize: 10, fontWeight: '700' }}>{conv.unread}</Text>
+                  <Text style={{ color: C.white, fontSize: 10, fontWeight: '700' }}>{conv.unread}</Text>
                 </View>
               )}
             </TouchableOpacity>

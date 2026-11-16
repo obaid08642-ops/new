@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { I as NIcon } from './icons';
 import { useTheme, useLang } from '../context';
-import { FS, FW, R, SP } from '../constants';
+import { FS, FW, R, SP, C } from '../constants';
 import { tokens, withAlpha } from '../theme/tokens';
 
 interface SuccessScreenProps {
@@ -46,7 +46,7 @@ export const SuccessScreen = ({ onDone, title, message }: SuccessScreenProps) =>
           onPress={onDone}
           style={{ width: width - SP.xl * 2, backgroundColor: theme.primary, paddingVertical: 16, borderRadius: R.md, alignItems: 'center', position: 'absolute', bottom: SP.xxl }}
         >
-          <Text style={{ color: '#FFF', fontSize: FS.md, fontWeight: FW.bold }}>
+          <Text style={{ color: C.white, fontSize: FS.md, fontWeight: FW.bold }}>
             {AR ? 'العودة للرئيسية' : 'Back to Home'}
           </Text>
         </TouchableOpacity>

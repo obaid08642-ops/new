@@ -4,7 +4,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { useTheme, useLang, useToast, useAuth } from '../../context';
 import { NHeader, NCard, NBtn, NInput, NBadge, NScroll, NEmpty, NSecHeader } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW, publicPageUrl } from '../../constants';
+import { SP, FS, FW, publicPageUrl, C } from '../../constants';
 import client from '../../api/client';
 
 // 1. PHARMACY QR MENU SCREEN
@@ -82,7 +82,7 @@ export function ChronicDiseaseProgramScreen({ onBack }: { onBack: () => void }) 
       <NHeader title={tt('rse.58d6ed4d')} onBack={onBack} />
       <NScroll pad>
         <NCard style={{ marginBottom: SP.md, backgroundColor: theme.primary, padding: SP.lg }}>
-          <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: '#fff', textAlign: AR ? 'right' : 'left' }}>
+          <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: C.white, textAlign: AR ? 'right' : 'left' }}>
              {tt('rse.beedbf90')}
           </Text>
           <Text style={{ fontSize: FS.xs, color: '#e0f2fe', marginTop: 4, textAlign: AR ? 'right' : 'left' }}>

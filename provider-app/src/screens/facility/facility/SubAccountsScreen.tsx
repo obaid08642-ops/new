@@ -119,7 +119,7 @@ export function SubAccountsScreen({ onBack, onNavigate }: {
  <TouchableOpacity onPress={() => onNavigate('add_subaccount', null)}>
  <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: theme.primary,
  alignItems: 'center', justifyContent: 'center' }}>
- <Text style={{ color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold }}>+</Text>
+ <Text style={{ color: C.white, fontSize: FS.lg, fontWeight: FW.bold }}>+</Text>
  </View>
  </TouchableOpacity>
  </View>

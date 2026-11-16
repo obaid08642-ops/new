@@ -279,7 +279,7 @@ export function NCheckbox({ label, value, onChange, style }:
  backgroundColor:value?theme.primary:'transparent',
  transform:[{scale:sc}],
  }]}>
- {value && <I name="check" size={11} color="#FFF" />}
+ {value && <I name="check" size={11} color={C.white} />}
  </Animated.View>
  {label && <Text style={{ flex:1, fontSize:FS.md, color:theme.text, textAlign:isRTL?'right':'left' }}>{label}</Text>}
  </TouchableOpacity>
@@ -835,7 +835,7 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: '#000', paddingTop: insets.top }}>
         <View style={{ minHeight: 60, backgroundColor: '#111', flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
-          <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>
+          <Text style={{ color: C.white, fontSize: 16, fontWeight: 'bold' }}>
             {AR ? ' تحسين وتفريغ الصورة' : ' Remove Background'}
           </Text>
           <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
@@ -1215,7 +1215,7 @@ const st = StyleSheet.create({
  container: { marginTop: SP.sm, width: '100%' },
  helperTxt: { fontSize: FS.sm, lineHeight: 20 },
  actionBtn: { paddingVertical: SP.sm, paddingHorizontal: SP.lg, borderRadius: R.md, alignItems: 'center', justifyContent: 'center' },
- actionBtnTxt: { color: '#FFF', fontWeight: FW.bold, fontSize: FS.sm },
+ actionBtnTxt: { color: C.white, fontWeight: FW.bold, fontSize: FS.sm },
  statusRow: { flexDirection: 'row', alignItems: 'center', gap: SP.sm, marginTop: SP.md },
  statusTxt: { fontSize: FS.xs, fontWeight: FW.semi },
 });

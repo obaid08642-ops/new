@@ -5,7 +5,7 @@ import { View, Text, Modal, TouchableOpacity, StyleSheet, Platform, Alert } from
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SignatureScreen from 'react-native-signature-canvas';
 import { useTheme, useLang } from '../context';
-import { FS, FW, R, SP } from '../constants';
+import { FS, FW, R, SP, C } from '../constants';
 import { I as NIcon } from './icons';
 
 interface SignatureCanvasModalProps {
@@ -49,7 +49,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
               </TouchableOpacity>
             </View>
 
-            <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+            <View style={{ flex: 1, backgroundColor: C.white }}>
               <SignatureScreen
                 ref={ref}
                 onOK={handleOK}
@@ -81,7 +81,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
                 onPress={handleConfirm} 
                 style={{ paddingVertical: SP.sm, paddingHorizontal: SP.xl, borderRadius: R.md, backgroundColor: theme.primary }}
               >
-                <Text style={{ color: '#FFF', fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'حفظ التوقيع' : 'Save Signature'}</Text>
+                <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'حفظ التوقيع' : 'Save Signature'}</Text>
               </TouchableOpacity>
             </View>
 

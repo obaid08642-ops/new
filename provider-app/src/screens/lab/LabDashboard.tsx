@@ -716,7 +716,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
             onBarcodeScanned={({ data }: any) => { if (data) { setBarcode(String(data)); setShowCam(false); } }}
           />
           <TouchableOpacity onPress={()=>setShowCam(false)} style={{ position: 'absolute', bottom: 60, alignSelf: 'center', backgroundColor: '#00000099', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 28 }}>
-            <Text style={{ color: '#fff', fontWeight: FW.bold, fontSize: FS.md }}>{tt('labdash.210b779f')}</Text>
+            <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{tt('labdash.210b779f')}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -804,7 +804,7 @@ function SampleTracking({ onBack, onNav }:{ onBack:()=>void; onNav:(s:string,p?:
  {SAMPLE_STAGES.map((st2,i)=>(
  <React.Fragment key={st2.key}>
  <View style={{width:22,height:22,borderRadius:11,backgroundColor:i<=si?st2.color:theme.surface2,alignItems:'center',justifyContent:'center'}}>
- {i<=si && <I name="check" size={10} color="#FFF" />}
+ {i<=si && <I name="check" size={10} color={C.white} />}
  </View>
  {i<SAMPLE_STAGES.length-1 && <View style={{flex:1,height:2,backgroundColor:i<si?SAMPLE_STAGES[i+1].color:theme.border}} />}
  </React.Fragment>
