@@ -128,16 +128,27 @@ export async function popularPage(col: PageCollection, filter: Record<string, un
  * list can round-robin across categories with a plain sort. Run by the ranking job; one aggregate, no document loaded by the app.
  */
 export async function refreshCategoryPositions(col: { aggregate(p: Record<string, unknown>[], options?: Record<string, unknown>): { toArray(): Promise<unknown[]> } }): Promise<void> {
-  await col.aggregate([
+  await col.aggregate(categoryPositionPipeline(), RANKING_JOB_AGGREGATE_OPTIONS).toArray();
+}
+
+/**
+ * The pipeline of refreshCategoryPositions. It reads only the fields of the covering index `ranking_category_positions_covering_v1` (no document is loaded: ~21,000 documents of about
+ * 20 KB each were read on every run), carries each product's CURRENT position through the grouping, and writes ONLY the products whose position changed. On most runs almost none do, so
+ * the $merge no longer rewrites the whole catalogue every 30 minutes.
+ */
+export function categoryPositionPipeline(): Record<string, unknown>[] {
+  return [
     { $match: { category: { $type: 'string' } } },
-    { $project: { category: 1, ...POPULAR_SORT_PROJECTION } },
+    { $project: { category: 1, category_pos: 1, ...POPULAR_SORT_PROJECTION } },
     { $addFields: { _in_stock: POPULAR_SORT_FIELDS._in_stock, _has_image: POPULAR_SORT_FIELDS._has_image, category: '$category' } },
     { $sort: { _in_stock: -1, _has_image: -1, usage_count: -1, _id: 1 } },
-    { $group: { _id: '$category', ids: { $push: '$_id' } } },
-    { $unwind: { path: '$ids', includeArrayIndex: 'i' } },
-    { $project: { _id: '$ids', category_pos: { $add: ['$i', 1] } } },
+    { $group: { _id: '$category', rows: { $push: { id: '$_id', cur: '$category_pos' } } } },
+    { $unwind: { path: '$rows', includeArrayIndex: 'i' } },
+    { $project: { _id: '$rows.id', category_pos: { $add: ['$i', 1] }, cur: '$rows.cur' } },
+    { $match: { $expr: { $ne: ['$cur', '$category_pos'] } } },
+    { $project: { _id: 1, category_pos: 1 } },
     { $merge: { into: 'medicines', on: '_id', whenMatched: 'merge', whenNotMatched: 'discard' } },
-  ], RANKING_JOB_AGGREGATE_OPTIONS).toArray();
+  ];
 }
 
 @Injectable()
@@ -242,6 +253,22 @@ export class ProductRankingService {
    * products with no new event) and refreshes the ZSets and the medicines' rank_score. Run by the cron and by
    * POST /admin/ranking/recompute.
    */
+  /**
+   * May the TIMER run the score job now? No while the process is younger than RANKING_MIN_UPTIME_SEC (default 600): a restart must not start a full-catalogue job at once (run 131: mongod was
+   * killed, the worker restarted and the job ran again at once, a loop). No when a run started less than RANKING_MIN_INTERVAL_SEC (default 1200) ago, in ANY process and across restarts
+   * (a Redis key set with NX and never released). Fails open when Redis is unreachable: the other guards still hold. The admin "recompute now" button does not use this.
+   */
+  async mayRunTimerJob(uptimeSec: number = process.uptime()): Promise<{ run: boolean; reason?: string }> {
+    const minUptime = Number(process.env.RANKING_MIN_UPTIME_SEC ?? 600);
+    if (uptimeSec < minUptime) return { run: false, reason: `process up ${Math.round(uptimeSec)} s, under ${minUptime} s` };
+    const minInterval = Math.max(1, Number(process.env.RANKING_MIN_INTERVAL_SEC ?? 1200));
+    try {
+      const ok = await (this.redisService as any).getClient().set('ranking:timer_job:last_run', String(Date.now()), 'EX', minInterval, 'NX');
+      if (ok !== 'OK') return { run: false, reason: `a run started less than ${minInterval} s ago` };
+    } catch { /* Redis unreachable: fail open */ }
+    return { run: true };
+  }
+
   async recomputeAll(): Promise<{ updated: number }> {
     let updated = 0;
     const cursor = this.metricsModel.find({ pharmacy_id: 'global' }).cursor();
@@ -277,7 +304,7 @@ export class ProductRankingService {
         updated++;
       }
       await refreshCategoryPositions(medicines as any).catch((err) => this.logger.warn(`category_pos refresh failed: ${(err as Error).message}`));
-      const stale: any[] = await medicines.find({ rank_score: { $gt: 0 } }, { projection: { id: 1 } }).toArray();
+      const stale: any[] = await medicines.find({ rank_score: { $gt: 0 } }, { projection: { _id: 0, id: 1 } }).toArray();   // `_id: 0`: answered from the index `ranking_scored_ids_v1`, no document loaded
       for (const m of stale) {
         if (m?.id && !withMetrics.has(String(m.id)) && !seeded.has(String(m.id))) await this.writeRankScore(String(m.id), 0);
       }

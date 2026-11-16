@@ -16,6 +16,8 @@ export class RankingScoreJob {
   @Cron(CronExpression.EVERY_30_MINUTES)
   @ScheduledOnce()
   async run(): Promise<void> {
+    const gate = await this.ranking.mayRunTimerJob();
+    if (!gate.run) { this.logger.log(`ranking recompute skipped: ${gate.reason}`); return; }
     try {
       const { updated } = await this.ranking.recomputeAll();
       this.logger.log(`ranking recomputed for ${updated} products`);
