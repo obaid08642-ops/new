@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-16 09:30 UTC — item 1 (provider-app literals) PR
+- #2692 provider-app literals 5277 -> 3020 (-2257), ar+en, three commits: common first-session screens (-258), doctor (-313), facility/radiology/nursing/pharmacy/lab registration+dashboards (-1686). Method: every `AR ? 'ar' : 'en'` pair with Arabic text on the Arabic side became one key looked up with `t` (identical text; layout ternaries untouched; pairs inside plain functions/module-level callbacks that only receive `AR` stay as pairs, so ~3000 literals remain: secondary screens, template strings, one-sided text). tsc 0 errors, jest 433/433 after each slice, locale-parity ok (about 20 Arabic values lost their English-in-brackets, which the rule requires), token-sync 396 -> 396. No assertion changed: 5 test suites got a language mock that returns the real locale text.
+- Question still open (also in the 07:10 entry): provider locales are ar+en only; ur/hi/bn/fil for ~1,350 new keys is your decision (I will not machine-translate screens providers sign in with).
+- Next: item 6 (merge-map rows from lead/OWNER_DECISIONS.md, UI parts only), then the second round of item 1 (the remaining ~3000: secondary screens).
+
 ## 2026-11-16 07:10 UTC — new queue (stop lifted): PRs for items 2, 3, 4, 5
 (One line per PR; lead merges when green. #2677 merged earlier.)
 - #2684 item 3 (payment URL): app already safe (trustedPaymentUrl host allow-list + phishing test in checkout-payment-screens.test) and app social login already sends tokens only to the backend (no client verification); the one unguarded sink was web diagnostics-checkout-form (`location.href = checkout_url` with no check): now https-only like the other pay screens. Test extended.
