@@ -4079,5 +4079,12 @@
   "ds.search.filtersActive": "Filters on",
   "ds.search.filters": "Open filters",
   "ds.toast.close": "Close",
-  "ds.back": "Back"
+  "ds.back": "Back",
+  "tour.title": "Guided tour",
+  "tour.fallbackDescription": "Here is a quick look at this feature.",
+  "tour.skip": "Skip",
+  "tour.next": "Next",
+  "errors.adminRequired": "Access denied. This area is for administrators only.",
+  "map.preview": "Map preview",
+  "map.marker": "Map marker"
 }

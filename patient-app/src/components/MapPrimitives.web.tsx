@@ -1,6 +1,7 @@
 import React, { forwardRef, useImperativeHandle } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { tokens } from '../../../packages/design-tokens/dist/ts/tokens';
+import { deviceText } from '../i18n/deviceText';
 const T = tokens('light').color;
 
 export const PROVIDER_DEFAULT = 'web-fallback';
@@ -27,8 +28,8 @@ export default forwardRef(function WebMapView({ children, style, initialRegion, 
   }), []);
   const activeRegion = region || initialRegion;
   return (
-    <View style={[styles.map, style]} accessibilityLabel="Map preview">
-      <Text style={styles.label}>Map preview</Text>
+    <View style={[styles.map, style]} accessibilityLabel={deviceText('map.preview')}>
+      <Text style={styles.label}>{deviceText('map.preview')}</Text>
       {activeRegion ? (
         <Text style={styles.coordinates}>
           {activeRegion.latitude.toFixed(5)}, {activeRegion.longitude.toFixed(5)}
@@ -41,7 +42,7 @@ export default forwardRef(function WebMapView({ children, style, initialRegion, 
 
 export function Marker({ coordinate, title, children, style }: any) {
   return (
-    <View style={[styles.marker, style]} accessibilityLabel={title || 'Map marker'}>
+    <View style={[styles.marker, style]} accessibilityLabel={title || deviceText('map.marker')}>
       {children || <Text style={styles.markerDot}>●</Text>}
     </View>
   );

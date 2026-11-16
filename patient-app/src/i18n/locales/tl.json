@@ -4079,5 +4079,12 @@
   "ds.search.filtersActive": "Naka-on ang mga filter",
   "ds.search.filters": "Buksan ang mga filter",
   "ds.toast.close": "Isara",
-  "ds.back": "Bumalik"
+  "ds.back": "Bumalik",
+  "tour.title": "Gabay na paglilibot",
+  "tour.fallbackDescription": "Isang mabilis na tingin sa feature na ito.",
+  "tour.skip": "Laktawan",
+  "tour.next": "Susunod",
+  "errors.adminRequired": "Walang access. Para lang sa mga administrator ang bahaging ito.",
+  "map.preview": "Preview ng mapa",
+  "map.marker": "Marker ng mapa"
 }
