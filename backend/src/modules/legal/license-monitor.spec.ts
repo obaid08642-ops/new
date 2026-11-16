@@ -6,7 +6,7 @@ describe('licence monitor', () => {
   const run = async (profile: any, account: any = { id: 'acc-1', status: 'approved' }) => {
     const updates: any[] = [];
     const notes: any[] = [];
-    const profiles = { find: () => ({ toArray: async () => [profile] }), updateOne: async (_q: any, u: any) => { updates.push(u.$set); } };
+    const profiles = { find: () => ({ async *[Symbol.asyncIterator]() { yield profile; } }), updateOne: async (_q: any, u: any) => { updates.push(u.$set); } };
     const notifications = { insertOne: async (d: any) => { notes.push(d); } };
     const accountUpdates: any[] = [];
     const accounts = { findOne: async () => account, updateOne: async (q: any, u: any) => { accountUpdates.push({ q, u }); return { modifiedCount: 1 }; } };

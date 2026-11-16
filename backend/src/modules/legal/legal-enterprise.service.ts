@@ -236,11 +236,13 @@ export class LegalEnterpriseService {
   /** Called directly by licenseMonitorRun (manual run): never skipped by a lease. */
   async licenseMonitor() {
     const now = Date.now();
-    const profiles = await this.conn.collection('provider_profiles').find(
-      { license_expiry_date: { $ne: null }, status: { $ne: 'suspended' } } as any,
-    ).toArray();
     const thresholds = [30, 14, 7, 3, 1];
-    for (const p of profiles as any[]) {
+    // Streamed with a projection of the fields this job reads (it loaded every whole profile into memory; mongod and the worker were being OOM-killed, 2026-11).
+    const profiles = this.conn.collection('provider_profiles').find(
+      { license_expiry_date: { $ne: null }, status: { $ne: 'suspended' } } as any,
+      { projection: { id: 1, user_id: 1, account_id: 1, license_expiry_date: 1, license_warn_expiry: 1, ...Object.fromEntries(thresholds.map((t) => [`license_warn_${t}d`, 1])) }, batchSize: 200, maxTimeMS: 120_000 },
+    );
+    for await (const p of profiles as any) {
       const expiry = new Date(p.license_expiry_date).getTime();
       const daysLeft = Math.ceil((expiry - now) / (24 * 3600 * 1000));
 
