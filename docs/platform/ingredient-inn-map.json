@@ -1,0 +1,6 @@
+{
+  "version": 1,
+  "approved_by": null,
+  "note": "EMPTY ON PURPOSE. entries maps a NORMALIZED spelling (see normalizeKey in backend/src/modules/medicines/ingredient-parse.ts) to one INN. The candidate spellings come from the read-only task 96s; a pharmacist/the owner approves each entry and sets approved_by. A table with approved_by empty is ignored whole.",
+  "entries": {}
+}
