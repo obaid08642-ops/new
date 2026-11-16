@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text } from 'react-native';
-import { useTheme, useToast } from '../../context';
+import { useTheme, useToast, useLang } from '../../context';
 import { NBtn, NCard, NHeader, NScroll, NToggle, NPriceInput, NSearch, NInput } from '../../components/ui';
 import { SP, FS, FW } from '../../constants';
 import { OrderingApi, type InsurerOption, type OrderMode, type OrderingSettings } from '../../api/ordering';
@@ -13,6 +13,7 @@ const TOTAL = 4;
 // Ord30: 4-step provider setup wizard. Every field is a real field of PUT /provider/ordering/settings.
 export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenProps) {
   const AR = useAR();
+  const { t: tt } = useLang();
   const { theme } = useTheme();
   const { show } = useToast();
   const k = useKind(kind);
@@ -41,7 +42,7 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
     return (insurers.data ?? []).filter((c) => !needle || `${c.ar} ${c.en}`.toLowerCase().includes(needle));
   }, [insurers.data, q]);
 
-  if (!k) return <NScroll><NHeader title={AR ? 'إعداد خدماتك' : 'Set up your services'} onBack={onBack} /><Label sub>{AR ? 'هذه الميزة للمختبرات والأشعة والتمريض فقط' : 'Only for labs, radiology and nursing'}</Label></NScroll>;
+  if (!k) return <NScroll><NHeader title={tt('oset.44bd35c7')} onBack={onBack} /><Label sub>{tt('oset.68604433')}</Label></NScroll>;
 
   const patch = (p: Partial<OrderingSettings>) => { setStepError(null); setS((x) => (x ? { ...x, ...p } : x)); };
   const toggleMode = (m: OrderMode) => patch({ modes: toggleIn(s!.modes, m) as OrderMode[] });
@@ -61,7 +62,7 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
     setSaving(true);
     try {
       await OrderingApi.putSettings(buildSettingsPayload(draft));
-      show(AR ? 'تم حفظ إعداداتك' : 'Your setup is saved', 'success');
+      show(tt('oset.8cf3aa92'), 'success');
       onNav('ordering_items');
     } catch (e) { setStepError(orderingErrorMessage(e, AR)); } finally { setSaving(false); }
   };
@@ -71,7 +72,7 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
       <Label bold>{title}</Label>
       <Label sub>{sub}</Label>
       <Text style={{ color: s!.modes.includes(m) ? theme.primary : theme.textHint, fontWeight: FW.semi, textAlign: AR ? 'right' : 'left' }}>
-        {s!.modes.includes(m) ? (AR ? 'مفعّل' : 'On') : (AR ? 'غير مفعّل' : 'Off')}
+        {s!.modes.includes(m) ? (tt('oset.c51dd876')) : (tt('oset.3a33b038'))}
       </Text>
     </NCard>
   );
@@ -82,30 +83,30 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
   return (
     <NScroll>
       <NHeader onBack={step === 1 ? onBack : () => setStep(step - 1)} step={step} total={TOTAL}
-        title={[AR ? 'طريقة الخدمة' : 'How you serve', AR ? 'التأمين' : 'Insurance', AR ? 'القبول والدوام' : 'Acceptance', AR ? 'الطاقم والمراجعة' : 'Staff and review'][step - 1]}
-        sub={AR ? 'إعداد خدماتك' : 'Set up your services'} />
+        title={[tt('oset.2b49ca14'), tt('oset.5e936739'), tt('oset.4b22364d'), tt('oset.c56daf3d')][step - 1]}
+        sub={tt('oset.44bd35c7')} />
       <LoadState loading={settings.loading} error={settings.error} onRetry={settings.reload}>
         {s && (
           <View style={{ gap: SP.md, paddingTop: SP.md }}>
             {step === 1 && (<>
-              {modeCard('home', AR ? 'زيارة منزلية' : 'Home visit', AR ? 'فريقك يذهب إلى المريض' : 'Your team goes to the patient')}
-              {modeCard('facility', AR ? 'في المنشأة' : 'At the facility', AR ? 'المريض يأتي إليك' : 'The patient comes to you')}
+              {modeCard('home', tt('oset.69ba9eb5'), tt('oset.d7fb4772'))}
+              {modeCard('facility', tt('oset.0255c256'), tt('oset.c7d92582'))}
               {s.modes.includes('home') && (<>
-                <NPriceInput label={AR ? 'رسوم الزيارة المنزلية' : 'Home-visit fee'} value={fee} onChange={(v) => { setStepError(null); setFee(v); }} />
-                <Label sub>{AR ? 'تظهر للمريض منفصلة عن أسعار الفحوص' : 'Shown to the patient separately from test prices'}</Label>
-                <Label bold>{AR ? 'نطاق الخدمة' : 'Service radius'}</Label>
+                <NPriceInput label={tt('oset.94dd25eb')} value={fee} onChange={(v) => { setStepError(null); setFee(v); }} />
+                <Label sub>{tt('oset.00d66e06')}</Label>
+                <Label bold>{tt('oset.e151b46e')}</Label>
                 <Row>
                   {RADII.map((r) => <Chip key={r} label={AR ? `${r} كم` : `${r} km`} on={parseAmount(radius) === r} onPress={() => { setStepError(null); setRadius(String(r)); }} />)}
                 </Row>
-                <NInput kbType="numeric" value={radius} onChange={(v) => { setStepError(null); setRadius(v.replace(/[^0-9.]/g, '')); }} label={AR ? 'نطاق آخر (كم، حتى 50)' : 'Other radius (km, up to 50)'} />
-                <Label sub>{AR ? 'يراك المريض داخل هذا النطاق فقط' : 'Patients see you only inside this radius'}</Label>
+                <NInput kbType="numeric" value={radius} onChange={(v) => { setStepError(null); setRadius(v.replace(/[^0-9.]/g, '')); }} label={tt('oset.11e1a075')} />
+                <Label sub>{tt('oset.dd8ad388')}</Label>
               </>)}
             </>)}
 
             {step === 2 && (<>
-              <NSearch value={q} onChange={setQ} placeholder={AR ? 'ابحث عن شركة تأمين' : 'Search insurance company'} />
+              <NSearch value={q} onChange={setQ} placeholder={tt('oset.873fc521')} />
               <LoadState loading={insurers.loading} error={insurers.error} onRetry={insurers.reload}>
-                {list.length === 0 && <Label sub>{AR ? 'لا توجد شركات مطابقة' : 'No matching companies'}</Label>}
+                {list.length === 0 && <Label sub>{tt('oset.3c84d492')}</Label>}
                 {list.map((c) => {
                   const cur = s.accepted_insurance.find((x) => x.company_id === c.id)?.classes ?? [];
                   return (
@@ -116,7 +117,7 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
                           <Chip key={cl} label={cl} on={cur.includes(cl)} onPress={() => patch({ accepted_insurance: setInsurerClasses(s.accepted_insurance, c.id, toggleIn(cur, cl)) })} />
                         ))}
                         {c.classes.length > 0 && (
-                          <Chip label={AR ? 'اختيار كل الفئات' : 'Select all classes'} on={cur.length === c.classes.length}
+                          <Chip label={tt('oset.611e519d')} on={cur.length === c.classes.length}
                             onPress={() => patch({ accepted_insurance: setInsurerClasses(s.accepted_insurance, c.id, cur.length === c.classes.length ? [] : c.classes) })} />
                         )}
                       </Row>
@@ -128,36 +129,36 @@ export function OrderingSettingsScreen({ kind, onBack, onNav }: OrderingScreenPr
             </>)}
 
             {step === 3 && (<>
-              <NToggle label={AR ? 'القبول التلقائي' : 'Auto-accept'} sub={AR ? 'تقبل الطلب العاجل فور وصوله وتظهر أولًا للمرضى القريبين' : 'Accepts an urgent request on arrival and shows first to nearby patients'} value={s.auto_accept} onChange={(v) => patch({ auto_accept: v })} />
+              <NToggle label={tt('oset.70a5ac6f')} sub={tt('oset.bf07182e')} value={s.auto_accept} onChange={(v) => patch({ auto_accept: v })} />
               {s.modes.includes('facility') && (
-                <NToggle label={AR ? 'بدون موعد (رمز QR)' : 'Walk-in (QR code)'} sub={AR ? 'الحجز في المنشأة' : 'Booking at the facility'} value={s.walk_in} onChange={(v) => patch({ walk_in: v })} />
+                <NToggle label={tt('oset.ab513fe3')} sub={tt('oset.17d1edf9')} value={s.walk_in} onChange={(v) => patch({ walk_in: v })} />
               )}
-              {s.modes.includes('home') && <Label sub>{AR ? 'الزيارات المنزلية تُحجز في نوافذ مدتها ساعتان' : 'Home visits are booked in 2-hour windows'}</Label>}
+              {s.modes.includes('home') && <Label sub>{tt('oset.2794f73f')}</Label>}
             </>)}
 
             {step === 4 && (<>
-              <Label bold>{AR ? 'جنس الطاقم المتاح' : 'Staff genders available'}</Label>
+              <Label bold>{tt('oset.c2e39a71')}</Label>
               <Row>
-                <Chip label={AR ? 'رجال' : 'Men'} on={s.staff_genders.includes('male')} onPress={() => patch({ staff_genders: toggleIn(s.staff_genders, 'male') })} />
-                <Chip label={AR ? 'نساء' : 'Women'} on={s.staff_genders.includes('female')} onPress={() => patch({ staff_genders: toggleIn(s.staff_genders, 'female') })} />
+                <Chip label={tt('oset.81665b9c')} on={s.staff_genders.includes('male')} onPress={() => patch({ staff_genders: toggleIn(s.staff_genders, 'male') })} />
+                <Chip label={tt('oset.2f85e528')} on={s.staff_genders.includes('female')} onPress={() => patch({ staff_genders: toggleIn(s.staff_genders, 'female') })} />
               </Row>
-              <Label sub>{AR ? 'يستخدمه المريض عند تفضيل جنس الممرض أو الفني' : 'Used when the patient prefers a nurse or technician gender'}</Label>
+              <Label sub>{tt('oset.320e6dc6')}</Label>
               <NCard>
-                <Label bold>{AR ? 'مراجعة سريعة' : 'Quick review'}</Label>
-                <Label>{AR ? 'طرق الخدمة: ' : 'Modes: '}{s.modes.map((m) => (m === 'home' ? (AR ? 'منزلي' : 'Home') : (AR ? 'منشأة' : 'Facility'))).join(' + ') || '-'}</Label>
-                {s.modes.includes('home') && <Label>{AR ? 'الزيارة المنزلية: ' : 'Home visit: '}{fmtMoney(parseAmount(fee) ?? 0, AR)}{' · '}{AR ? `${radius || '-'} كم` : `${radius || '-'} km`}</Label>}
-                <Label>{AR ? 'التأمين: ' : 'Insurance: '}{AR ? `${sum.companies} شركات · ${sum.classes} فئات` : `${sum.companies} companies · ${sum.classes} classes`}</Label>
+                <Label bold>{tt('oset.292017df')}</Label>
+                <Label>{tt('oset.0b4b5c90')}{s.modes.map((m) => (m === 'home' ? (tt('oset.8ca476d4')) : (tt('oset.0b2554a1')))).join(' + ') || '-'}</Label>
+                {s.modes.includes('home') && <Label>{tt('oset.b2c00419')}{fmtMoney(parseAmount(fee) ?? 0, AR)}{' · '}{AR ? `${radius || '-'} كم` : `${radius || '-'} km`}</Label>}
+                <Label>{tt('oset.a7e2891e')}{AR ? `${sum.companies} شركات · ${sum.classes} فئات` : `${sum.companies} companies · ${sum.classes} classes`}</Label>
                 {draft && draft.accepted_insurance.map((x) => <Label key={x.company_id} sub>{nameOf(x.company_id)}{': '}{x.classes.join(', ')}</Label>)}
-                <Label>{AR ? 'القبول التلقائي: ' : 'Auto-accept: '}{s.auto_accept ? (AR ? 'مفعّل' : 'On') : (AR ? 'متوقف' : 'Off')}</Label>
+                <Label>{tt('oset.e0e910f2')}{s.auto_accept ? (tt('oset.c51dd876')) : (tt('oset.3e566413'))}</Label>
               </NCard>
-              <Label sub>{AR ? 'تضيف الأسعار في الخطوة التالية، ويمكنك تعديل كل شيء لاحقًا' : 'You add prices next, and can change everything later'}</Label>
+              <Label sub>{tt('oset.d0b04cba')}</Label>
             </>)}
 
             {stepError && <Text accessibilityRole="alert" style={{ color: theme.danger, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{stepError}</Text>}
             <Row style={{ justifyContent: 'space-between' }}>
               {step < TOTAL
-                ? <NBtn label={AR ? 'التالي' : 'Next'} onPress={next} />
-                : <NBtn label={AR ? 'ابدأ استقبال الطلبات' : 'Start receiving orders'} onPress={save} loading={saving} />}
+                ? <NBtn label={tt('oset.65c136c7')} onPress={next} />
+                : <NBtn label={tt('oset.d67c6709')} onPress={save} loading={saving} />}
             </Row>
           </View>
         )}
