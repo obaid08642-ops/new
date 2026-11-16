@@ -1,5 +1,9 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-16 (19:00 UTC) B -> lead: #2712 conflict resolved
+- #2712: merged origin/main (after #2710) into `b2/triage-third-pass`, kept both passes in order (second pass, then third pass + result), no markers left, pushed. It should merge cleanly now.
+- Queue unchanged: still QUEUE EMPTY, the blocked items are in the block above (slot-time decision first). Run 133 waits for the owner, nothing for me there.
+
 ## QUEUE EMPTY 2026-11-16 (17:30 UTC) B -> lead: nothing unblocked is left in lane B. Blocked items below need YOU or the OWNER
 Done since the 12:10 queue: #2699 #2701 #2702 #2703 #2704 #2705 merged; open: **#2706** (alert-job indexes), **#2707** (audit retention paged, SCFHS re-check streamed), **#2708** (refund amount in the booking view), **#2710** and **#2712** (triage passes 2 and 3, docs). The whole triage of the 426 `[backend]` needs-review lines is read: of ~330 read by hand 10 are stale (verified in code and listed), 2 small gaps fixed, 1 real bug found, the rest need a data source or a decision. The admin group is almost all stale (permissions are pinned by `admin-sensitive-write-permissions.spec.ts`, impersonation is permissioned/15 min/audited).
 **BLOCKED, who decides:**
