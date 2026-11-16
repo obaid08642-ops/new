@@ -194,6 +194,7 @@ export const HOME_CARE_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_vi
 halalaShadowPlugin(HomeCareBookingSchema, HOME_CARE_BOOKING_HALALA_FIELDS);
 HomeCareBookingSchema.index({ patient_id: 1, createdAt: -1 });
 HomeCareBookingSchema.index({ state: 1, scheduled_at: 1 });
+HomeCareBookingSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });
 
 HomeCareBookingSchema.pre('save', function (next) {
   const self = this as any;
