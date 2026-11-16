@@ -231,4 +231,5 @@ export const RADIOLOGY_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_vi
 halalaShadowPlugin(RadiologyBookingSchema, RADIOLOGY_BOOKING_HALALA_FIELDS);
 RadiologyBookingSchema.index({ patient_id: 1, createdAt: -1 });
 RadiologyBookingSchema.index({ state: 1, scheduled_at: 1 });
+RadiologyBookingSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });
 

@@ -36,6 +36,8 @@ export class Transaction {
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
 halalaShadowPlugin(TransactionSchema, ['amount', 'refunded_amount']);
 TransactionSchema.index({ booking_kind: 1, booking_id: 1, createdAt: -1 });
+// failed payments in the last hour: the urgent-alert job (every 5 minutes) and the admin today screen count { status in failed/cancelled, updatedAt >= since }
+TransactionSchema.index({ status: 1, updatedAt: 1 }, { name: 'alerts_failed_payments_v1' });
 // At most one gateway-intent reservation may be active for a booking. Deployment
 // must run the duplicate-active-intent preflight documented in Phase 8 before
 // building this index against existing production data.

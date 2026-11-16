@@ -173,6 +173,9 @@ export const LAB_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fe
 halalaShadowPlugin(LabBookingSchema, LAB_BOOKING_HALALA_FIELDS);
 LabBookingSchema.index({ patient_id: 1, createdAt: -1 });
 LabBookingSchema.index({ state: 1, scheduled_at: 1 });
+// The urgent-alert job (admin/alerts, every 5 minutes) and the admin "today" screen ask for breached SLAs (sla_due_at < t, not closed, oldest first). No index held sla_due_at, so each run
+// scanned the whole collection (explain, ops-alert-indexes.spec.ts); it only grows with launch traffic. The stuck-order query is already served by the state-prefixed indexes.
+LabBookingSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });
 
 @Schema({ timestamps: true, collection: 'lab_samples' })
 export class LabSample extends Document {

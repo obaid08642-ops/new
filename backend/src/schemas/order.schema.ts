@@ -130,6 +130,7 @@ export const ORDER_HALALA_FIELDS = ['subtotal', 'delivery_fee', 'total', 'wallet
 halalaShadowPlugin(OrderSchema, ORDER_HALALA_FIELDS);
 OrderSchema.index({ patient_id: 1, createdAt: -1 });
 OrderSchema.index({ pharmacy_id: 1, state: 1 });
+OrderSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });   // the SLA-breach query of the urgent-alert job (every 5 minutes)
 
 @Schema({ timestamps: true, collection: 'pharmacy_bids' })
 export class PharmacyBid extends Document {
