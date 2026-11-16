@@ -2,7 +2,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import { MedicineSchema } from '../../schemas/medicine.schema';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
-import { POPULAR_KEY_STAGES, POPULAR_ORDER_STAGES, POPULAR_SORT_PROJECTION, popularPage } from './product-ranking.service';
+import { PAGE_AGGREGATE_OPTIONS, POPULAR_KEY_STAGES, POPULAR_ORDER_STAGES, POPULAR_SORT_PROJECTION, popularPage } from './product-ranking.service';
 
 /**
  * `/public` p95 alerts (2026-10-25..27): the popular order carried whole documents through its $sort. `popularPage` reads the same order
@@ -70,5 +70,13 @@ describe('popularPage = the old popular order, read the cheap way', () => {
     const firstRxIndex = all.findIndex((d) => d.requires_prescription);
     const topScoreNonRx = all.findIndex((d) => !d.requires_prescription && d.rank_score > 0);
     expect(topScoreNonRx).toBeLessThan(firstRxIndex + 1);
+  });
+
+  it('the aggregate is bounded: a time limit and disk spill, so a stuck or large sort cannot grow mongod (OOM kills 2026-11)', async () => {
+    const calls: any[] = [];
+    const spy = { aggregate: (p: any, o?: any) => { calls.push(o); return col.aggregate(p, o); }, find: (f: any, o?: any) => col.find(f, o) };
+    await popularPage(spy as any, filter, 0, 24, projection);
+    expect(calls).toEqual([PAGE_AGGREGATE_OPTIONS]);
+    expect(PAGE_AGGREGATE_OPTIONS).toEqual({ maxTimeMS: 15_000, allowDiskUse: true });
   });
 });

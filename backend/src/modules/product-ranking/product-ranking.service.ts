@@ -93,8 +93,12 @@ export const POPULAR_SORT_PROJECTION = { rank_score: 1, requires_prescription: 1
 /** The same plus the round-robin position, for the "All" list. */
 export const POPULAR_MIX_SORT_PROJECTION = { ...POPULAR_SORT_PROJECTION, category_pos: 1 } as const;
 
+/** Every aggregate here is bounded: a query that cannot finish in time is cancelled (the public page then serves its last good copy) and may spill to disk instead of growing mongod's memory (mongod was OOM-killed at its container limit, 2026-11). */
+export const PAGE_AGGREGATE_OPTIONS = { maxTimeMS: 15_000, allowDiskUse: true } as const;
+export const RANKING_JOB_AGGREGATE_OPTIONS = { maxTimeMS: 180_000, allowDiskUse: true } as const;
+
 type PageCollection = {
-  aggregate(pipeline: Record<string, unknown>[]): { toArray(): Promise<any[]> };
+  aggregate(pipeline: Record<string, unknown>[], options?: Record<string, unknown>): { toArray(): Promise<any[]> };
   find(filter: Record<string, unknown>, options?: Record<string, unknown>): { toArray(): Promise<any[]> };
 };
 
@@ -106,7 +110,7 @@ type PageCollection = {
  * the page alone. Same order as POPULAR_ORDER_STAGES (same stages), same rows, same projection.
  */
 export async function popularPage(col: PageCollection, filter: Record<string, unknown>, skip: number, limit: number, projection: Record<string, unknown>, mix = false): Promise<any[]> {
-  const picked = await col.aggregate([{ $match: filter }, { $project: mix ? POPULAR_MIX_SORT_PROJECTION : POPULAR_SORT_PROJECTION }, ...popularKeyStages(mix), { $skip: skip }, { $limit: limit }, { $project: { _id: 1 } }]).toArray();
+  const picked = await col.aggregate([{ $match: filter }, { $project: mix ? POPULAR_MIX_SORT_PROJECTION : POPULAR_SORT_PROJECTION }, ...popularKeyStages(mix), { $skip: skip }, { $limit: limit }, { $project: { _id: 1 } }], PAGE_AGGREGATE_OPTIONS).toArray();
   if (!picked.length) return [];
   const order = picked.map((d) => d._id);
   const docs = await col.find({ _id: { $in: order } }, { projection: { ...projection, _id: 1 } }).toArray();
@@ -123,7 +127,7 @@ export async function popularPage(col: PageCollection, filter: Record<string, un
  * Numbers every product inside its top-level category (1 = the category's best by in stock, image, usage count, id) so the "All"
  * list can round-robin across categories with a plain sort. Run by the ranking job; one aggregate, no document loaded by the app.
  */
-export async function refreshCategoryPositions(col: { aggregate(p: Record<string, unknown>[]): { toArray(): Promise<unknown[]> } }): Promise<void> {
+export async function refreshCategoryPositions(col: { aggregate(p: Record<string, unknown>[], options?: Record<string, unknown>): { toArray(): Promise<unknown[]> } }): Promise<void> {
   await col.aggregate([
     { $match: { category: { $type: 'string' } } },
     { $project: { category: 1, ...POPULAR_SORT_PROJECTION } },
@@ -133,7 +137,7 @@ export async function refreshCategoryPositions(col: { aggregate(p: Record<string
     { $unwind: { path: '$ids', includeArrayIndex: 'i' } },
     { $project: { _id: '$ids', category_pos: { $add: ['$i', 1] } } },
     { $merge: { into: 'medicines', on: '_id', whenMatched: 'merge', whenNotMatched: 'discard' } },
-  ]).toArray();
+  ], RANKING_JOB_AGGREGATE_OPTIONS).toArray();
 }
 
 @Injectable()
