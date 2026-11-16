@@ -11,7 +11,7 @@ import { HomeSections } from '../../components/HomeSections';
 export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
   const { theme } = useTheme();
   const { user, logout, toggleOnline } = useAuth();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const isOnline = Boolean(user?.isOnline);
 
@@ -52,14 +52,14 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
     setRefreshing(false);
   };
 
-  const displayName = profile?.display_name_ar || profile?.display_name || user?.name || user?.email || (AR ? 'مزود الخدمة' : 'Service Provider');
+  const displayName = profile?.display_name_ar || profile?.display_name || user?.name || user?.email || (tt('phome.aa620811'));
   const providerType = (user?.providerType || profile?.provider_type || 'provider').toLowerCase();
   const isApproved = profile?.status === 'approved' || user?.status === 'approved';
 
   return (
     <View style={[styles.container, { backgroundColor: theme.bg }]}>
       <NHeader
-        title={AR ? 'بوابة المزود الموحدة' : 'Provider Hub'}
+        title={tt('phome.f31ef890')}
         right={
           <TouchableOpacity onPress={onLogout || logout} style={styles.logoutBtn}>
             <I name="log-out" size={20} color={theme.danger} />
@@ -100,16 +100,16 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
           <View style={[styles.toggleRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
             <View style={{ flex: 1 }}>
               <Text style={[styles.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-                {AR ? 'حالة الاستقبال الفوري' : 'Instant Availability'}
+                {tt('phome.77a0dfca')}
               </Text>
               <Text style={[styles.bodyText, { color: theme.textSub, textAlign: AR ? 'right' : 'left' }]}>
                 {isOnline
-                  ? (AR ? 'أنت متصل وجاهز لاستقبال الطلبات الفورية' : 'Online & ready to receive incoming requests')
-                  : (AR ? 'أنت غير متصل حالياً لاستقبال الطلبات' : 'Offline — not receiving instant requests')}
+                  ? (tt('phome.40e4e120'))
+                  : (tt('phome.5800b2e6'))}
               </Text>
             </View>
             <NBtn
-              label={isOnline ? (AR ? 'متاح الآن' : 'Online') : (AR ? 'غير متاح' : 'Offline')}
+              label={isOnline ? (tt('phome.31b0b426')) : (tt('phome.b2a7fe2e'))}
               variant={isOnline ? 'primary' : 'outline'}
               size="sm"
               onPress={toggleOnline}
@@ -119,40 +119,38 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
 
         {/* Operational Statistics */}
         <Text style={[styles.groupTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'مؤشرات الأداء التشغيلي' : 'Operational Performance'}
+          {tt('phome.81f11ae2')}
         </Text>
         <View style={[styles.statsGrid, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
           <NCard style={styles.statBox}>
             <I name="activity" size={24} color={theme.primary} />
             <Text style={[styles.statVal, { color: theme.text }]}>{stats.active_orders || 0}</Text>
-            <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'الطلبات النشطة' : 'Active Orders'}</Text>
+            <Text style={[styles.statLbl, { color: theme.textSub }]}>{tt('phome.13f7ffe8')}</Text>
           </NCard>
           <NCard style={styles.statBox}>
             <I name="check" size={24} color={tokens.success} />
             <Text style={[styles.statVal, { color: theme.text }]}>{stats.completed_today || 0}</Text>
-            <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'المكتملة اليوم' : 'Completed Today'}</Text>
+            <Text style={[styles.statLbl, { color: theme.textSub }]}>{tt('phome.d73669fd')}</Text>
           </NCard>
           <NCard style={styles.statBox}>
             <I name="credit-card" size={24} color={tokens.warning} />
-            <Text style={[styles.statVal, { color: theme.text }]}>{stats.wallet_balance || 0} {AR ? 'ر.س' : 'SAR'}</Text>
-            <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'رصيد المحفظة' : 'Balance'}</Text>
+            <Text style={[styles.statVal, { color: theme.text }]}>{stats.wallet_balance || 0} {tt('phome.91d5796f')}</Text>
+            <Text style={[styles.statLbl, { color: theme.textSub }]}>{tt('phome.e0f01978')}</Text>
           </NCard>
           <NCard style={styles.statBox}>
             <I name="star" size={24} color={tokens.warning} />
             <Text style={[styles.statVal, { color: theme.text }]}>{typeof stats.rating === 'number' ? stats.rating.toFixed(1) : '—'}</Text>
-            <Text style={[styles.statLbl, { color: theme.textSub }]}>{AR ? 'التقييم العام' : 'Rating'}</Text>
+            <Text style={[styles.statLbl, { color: theme.textSub }]}>{tt('phome.3725b573')}</Text>
           </NCard>
         </View>
 
         {/* Status Notice */}
         <NCard style={[styles.noticeCard, { borderColor: theme.border }]}>
           <Text style={[styles.noticeTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-            {AR ? 'منظومة نبض بلس للحوكمة والامتثال' : 'Nabd+ Compliance & Audit Hub'}
+            {tt('phome.29fc7a91')}
           </Text>
           <Text style={[styles.noticeBody, { color: theme.textSub, textAlign: AR ? 'right' : 'left' }]}>
-            {AR
-              ? 'كافة العمليات السريرية والمالية وإصدار التقارير الطبية تخضع لرقابة وتدقيق الأنظمة الصحية المعتمدة. يمكنك متابعة طلباتك وإدارة المواعيد من لوحة التحكم المخصصة لقطاعك.'
-              : 'All clinical, financial, and diagnostic operations comply with accredited health authority regulations. You may manage appointments, requests, and payouts through your dedicated sector dashboard.'}
+            {tt('phome.fde46ce9')}
           </Text>
         </NCard>
       </ScrollView>

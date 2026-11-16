@@ -82,7 +82,7 @@ const Stack = createNativeStackNavigator();
 export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) {
  const [activeTab, setTab] = useState('home');
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const AR = lang === 'ar';
  const { toggleOnline } = useAuth();
 
@@ -105,10 +105,10 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
   }, []);
 
   const tabs = [
-    { key: 'orders', icon: 'radar', label: AR ? 'الرادار' : 'Radar' },
-    { key: 'b2b', icon: 'activity', label: AR ? 'النواقص' : 'B2B Procurement' },
-    { key: 'dispatch', icon: 'truck', label: AR ? 'الطلبات' : 'Orders' },
-    { key: 'settings', icon: 'settings', label: AR ? 'المزيد' : 'More' },
+    { key: 'orders', icon: 'radar', label: tt('phdash.33519de2') },
+    { key: 'b2b', icon: 'activity', label: tt('phdash.016446d5') },
+    { key: 'dispatch', icon: 'truck', label: tt('phdash.68fdab11') },
+    { key: 'settings', icon: 'settings', label: tt('phdash.4ec28739') },
   ];
 
  return (
@@ -123,7 +123,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
              {(!unlocked) ? (
                 <View style={{flex:1, alignItems:'center', justifyContent:'center', padding:SP.xl}}>
                   <Text style={{color:theme.danger, fontSize:FS.md, textAlign:'center', marginBottom:SP.lg}}>{bioError}</Text>
-                  <NBtn label={AR ? 'إعادة المحاولة' : 'Try Again'} onPress={() => { setBioError(''); Biometric.authenticate('قم بالمصادقة').then(r => r.success ? setUnlocked(true) : setBioError('فشلت المصادقة الحيوية')); }} />
+                  <NBtn label={tt('phdash.7a5b6c48')} onPress={() => { setBioError(''); Biometric.authenticate('قم بالمصادقة').then(r => r.success ? setUnlocked(true) : setBioError('فشلت المصادقة الحيوية')); }} />
                 </View>
              ) : (
                 <>
@@ -194,7 +194,7 @@ const s = StyleSheet.create({
 
 function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
   const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const AR = lang === 'ar';
   const insets = useSafeAreaInsets();
   const { show } = useToast();
@@ -289,11 +289,11 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
   const [rejectOrderId, setRejectOrderId] = useState<string|null>(null);
 
   const REJECT_REASONS = [
-    { id: 'OUT_OF_STOCK_COMPLETELY', label: AR ? 'الكمية غير متوفرة إطلاقاً' : 'Out of stock completely' },
-    { id: 'PRESCRIPTION_INVALID', label: AR ? 'الوصفة الطبية غير صالحة' : 'Invalid Prescription' },
-    { id: 'INSURANCE_ISSUE', label: AR ? 'مشكلة في التغطية التأمينية' : 'Insurance Issue' },
-    { id: 'OUT_OF_DELIVERY_ZONE', label: AR ? 'خارج نطاق التوصيل' : 'Out of Delivery Zone' },
-    { id: 'PHARMACY_CLOSING', label: AR ? 'الصيدلية ستغلق قريباً' : 'Pharmacy closing soon' }
+    { id: 'OUT_OF_STOCK_COMPLETELY', label: tt('phdash.497bbbc4') },
+    { id: 'PRESCRIPTION_INVALID', label: tt('phdash.66c683af') },
+    { id: 'INSURANCE_ISSUE', label: tt('phdash.0ec9ca5b') },
+    { id: 'OUT_OF_DELIVERY_ZONE', label: tt('phdash.e9cbeba9') },
+    { id: 'PHARMACY_CLOSING', label: tt('phdash.8d172332') }
   ];
 
   const openOfferComposer = (broadcast: any) => {
@@ -305,11 +305,11 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
     try {
       await client.post(`/provider/pharmacy/broadcasts/${rejectOrderId}/reject`, { reason: reasonId });
       setBroadcasts(prev => prev.filter(b => b.order_id !== rejectOrderId));
-      show(AR ? 'تم رفض الطلب' : 'Order rejected', 'info');
+      show(tt('phdash.d2642fc6'), 'info');
       setShowRejectModal(false);
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر رفض الطلب، حاول مجدداً' : 'Could not reject the order, try again'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('phdash.09931ded')), 'error');
     }
   };
 
@@ -318,10 +318,10 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
       <View style={[s.topBar, { backgroundColor: theme.surface, borderBottomColor: theme.border, paddingTop: Math.max(insets.top, 16) }]}>
         <View>
           <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text }}>
-            {AR ? 'الرادار المباشر' : 'Live Radar'}
+            {tt('phdash.e7d5d321')}
           </Text>
           <Text style={{ color: isOnline ? 'green' : 'gray', fontSize: 12, fontWeight: 'bold' }}>
-            {isOnline? (AR?' متصل - جاهز لاستقبال الطلبات':' Online - Ready'): (AR?' غير متصل':' Offline')}
+            {isOnline? (tt('phdash.efd02f02')): (tt('phdash.50ba6805'))}
           </Text>
         </View>
         <Switch value={isOnline} onValueChange={() => { void toggleOnline(); }} trackColor={{ true: theme.primary }} />
@@ -330,11 +330,11 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
       <SetupChecklist compact onNavigate={onNavigate} onToggleOnline={onToggleOnline} onOpenMore={() => onSwitchTab('settings')} />
 
       {!isOnline ? (
-        <NEmpty icon="moon" title={AR ? 'أنت غير متصل' : 'You are offline'} sub={AR ? 'قم بتفعيل الاتصال لاستقبال الطلبات' : 'Go online to receive orders'} />
+        <NEmpty icon="moon" title={tt('phdash.a5a74648')} sub={tt('phdash.3c4b98b6')} />
       ) : (
         <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
           {broadcasts.length === 0 ? (
-            <NEmpty icon="radar" title={AR ? 'لا توجد طلبات حالياً' : 'No active orders'} sub={AR ? 'ستظهر الطلبات القريبة هنا' : 'Nearby orders will appear here'} />
+            <NEmpty icon="radar" title={tt('phdash.a2f9769e')} sub={tt('phdash.00e1e4b8')} />
           ) : (
             broadcasts.map((b, idx) => (
               <NCard key={b.id || idx} style={{ marginBottom: 16, padding: 16, borderColor: theme.primary, borderWidth: 2 }}>
@@ -346,28 +346,28 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                     <Text style={{ color: theme.textSub, fontSize: 12 }}>{AR ? `الجولة ${b.current_round || '—'} · النطاق ${b.current_radius_km || '—'} كم` : `Round ${b.current_round || '—'} · radius ${b.current_radius_km || '—'} km`}</Text>
                   </View>
                   <Text style={{ fontWeight: 'bold', fontSize: 13, color: theme.primary }}>
-                    {b.payment_summary?.method === 'insurance' ? (AR ? 'تأمين' : 'Insurance')
-                      : b.payment_summary?.method === 'cod' ? (AR ? 'عند الاستلام' : 'COD')
-                      : b.payment_summary?.method === 'cash' ? (AR ? 'نقدي' : 'Cash')
-                      : b.payment_summary?.method === 'card' ? (AR ? 'بطاقة' : 'Card')
-                      : (AR ? 'طريقة الدفع غير متاحة' : 'Payment method unavailable')}
+                    {b.payment_summary?.method === 'insurance' ? (tt('phdash.150549c6'))
+                      : b.payment_summary?.method === 'cod' ? (tt('phdash.cf195174'))
+                      : b.payment_summary?.method === 'cash' ? (tt('phdash.84c27552'))
+                      : b.payment_summary?.method === 'card' ? (tt('phdash.6fc762d8'))
+                      : (tt('phdash.8fb2243e'))}
                   </Text>
                 </View>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-                  <NBadge size="xs" variant="info" label={b.fulfillment_method === 'pickup' ? (AR ? 'استلام ذاتي' : 'Self pickup') : (AR ? 'توصيل' : 'Delivery')} />
+                  <NBadge size="xs" variant="info" label={b.fulfillment_method === 'pickup' ? (tt('phdash.8ea908c6')) : (tt('phdash.50457f57'))} />
                   {b.approx_distance_km != null && (
-                    <NBadge size="xs" variant="default" label={(AR ? 'يبعد تقريباً ' : 'Approx. ') + b.approx_distance_km + (AR ? ' كم' : ' km')} />
+                    <NBadge size="xs" variant="default" label={(tt('phdash.43a9ee61')) + b.approx_distance_km + (tt('phdash.e27714ae'))} />
                   )}
                   {!!b.approx_area && <NBadge size="xs" variant="default" label={b.approx_area} />}
                 </View>
                 {b.payment_summary?.method === 'insurance' && b.insurance && (
                   <View style={{ backgroundColor: theme.infoBg, borderRadius: 8, padding: 10, marginBottom: 12 }}>
                     <Text style={{ color: theme.info, fontWeight: 'bold', fontSize: 13, textAlign: AR ? 'right' : 'left' }}>
-                      {(AR ? 'شركة التأمين: ' : 'Insurance: ') + (b.insurance.company_name_ar || b.insurance.company_name_en || '—')}
+                      {(tt('phdash.53f3bc13')) + (b.insurance.company_name_ar || b.insurance.company_name_en || '—')}
                     </Text>
                     {!!b.insurance.category && (
                       <Text style={{ color: theme.info, fontSize: 12, textAlign: AR ? 'right' : 'left' }}>
-                        {(AR ? 'الفئة: ' : 'Category: ') + b.insurance.category}
+                        {(tt('phdash.1751d09b')) + b.insurance.category}
                       </Text>
                     )}
                   </View>
@@ -375,7 +375,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                 {b.attachments.length > 0 && (
                   <View style={{ marginBottom: 12 }}>
                     <Text style={{ color: theme.textSub, fontSize: 12, marginBottom: 6, textAlign: AR ? 'right' : 'left' }}>
-                      {AR ? 'مرفقات الروشتة' : 'Prescription attachments'}
+                      {tt('phdash.c813d385')}
                     </Text>
                     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: 8 }}>
                       {b.attachments.map((a: any, ai: number) => (
@@ -395,7 +395,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
                   ))}
                 </View>
                 <View style={{ flexDirection: 'row', gap: 12 }}>
-                  <NBtn label={AR ? 'رفض' : 'Reject'} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.order_id); setShowRejectModal(true); }} />
+                  <NBtn label={tt('phdash.8a223f36')} variant="outline" style={{ flex: 1 }} onPress={() => { setRejectOrderId(b.order_id); setShowRejectModal(true); }} />
                   <NBtn label={b.my_offer_status === 'submitted' ? t('audit2.pharmacy.offerSentEdit') : b.my_offer_status === 'draft' ? t('audit2.pharmacy.continueDraft') : t('audit2.pharmacy.createOffer')} variant="secondary" style={{ flex: 2 }} onPress={() => openOfferComposer(b)} />
                 </View>
               </NCard>
@@ -405,7 +405,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
       )}
 
       {/* REJECTION REASONS MODAL */}
-      <NSheet visible={showRejectModal} onClose={() => setShowRejectModal(false)} title={AR ? 'سبب الرفض' : 'Rejection Reason'}>
+      <NSheet visible={showRejectModal} onClose={() => setShowRejectModal(false)} title={tt('phdash.9e63f799')}>
         <View style={{ padding: 16, paddingBottom: 40 }}>
           {REJECT_REASONS.map(r => (
             <TouchableOpacity key={r.id} onPress={() => confirmReject(r.id)} style={{ paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: theme.border }}>
@@ -422,7 +422,7 @@ function PharmacyHomeTab({ onNavigate, onSwitchTab, onToggleOnline }: any) {
 function B2BSupplyRequestScreen({ onBack }: any) {
   const uploadsOn = useUploadsEnabled();
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -436,7 +436,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
     setReturnsLoading(true);
     client.get('/pharmacy/returns/provider/list')
       .then((res: any) => setReturnsList(Array.isArray(res.data) ? res.data : []))
-      .catch(() => { setReturnsList([]); show(AR ? 'تعذر جلب المرتجعات — تحقق من الاتصال' : 'Could not load returns — check connection', 'error'); })
+      .catch(() => { setReturnsList([]); show(tt('phdash.1616a178'), 'error'); })
       .finally(() => setReturnsLoading(false));
   }, [mode]);
 
@@ -464,21 +464,21 @@ function B2BSupplyRequestScreen({ onBack }: any) {
       const res = await client.post('/pharmacy/procurement/analyze-file', payload);
       const items = analysisItems(res);
       if (items.length === 0) {
-        show(AR ? 'لم يتعرف الذكاء الاصطناعي على أصناف — جرّب صورة أوضح أو الكتابة اليدوية' : 'AI found no items — try a clearer image or text', 'info');
+        show(tt('phdash.9d10ef21'), 'info');
       }
       setCart(prev => [...prev, ...items.map((it: any) => ({ ...it }))]);
     } catch {
-      show(AR ? 'فشل التحليل — تحقق من الاتصال' : 'Analysis failed — check connection', 'error');
+      show(tt('phdash.d51aed52'), 'error');
     } finally { setAnalyzing(false); }
   };
 
   const submitB2B = async (method: string) => {
     if (method === 'voice') {
-      show(AR ? 'الإدخال الصوتي غير متاح حالياً — استخدم الكتابة أو تصوير الرف' : 'Voice input is not available yet — use text or shelf photo', 'info');
+      show(tt('phdash.2f34c02f'), 'info');
       return;
     }
     if (method === 'manual') {
-      if (!b2bText.trim()) { show(AR ? 'اكتب طلب التوريد أولاً' : 'Enter the supply order first', 'error'); return; }
+      if (!b2bText.trim()) { show(tt('phdash.96250f60'), 'error'); return; }
       await runAnalysis({ text: b2bText.trim() });
       setB2bText('');
       return;
@@ -486,13 +486,13 @@ function B2BSupplyRequestScreen({ onBack }: any) {
     // OCR: pick or capture a photo → base64 → AI vision analysis
     try {
       const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) { show(AR ? 'يلزم إذن الوصول للصور' : 'Photo permission required', 'error'); return; }
+      if (!perm.granted) { show(tt('phdash.17a09021'), 'error'); return; }
       const picked = await ImagePicker.launchImageLibraryAsync({ base64: true, quality: 0.6, allowsEditing: false });
       if (picked.canceled || !picked.assets?.[0]?.base64) return;
       const asset = picked.assets[0];
       await runAnalysis({ file_base64: asset.base64, mime_type: asset.mimeType || 'image/jpeg' });
     } catch {
-      show(AR ? 'تعذر فتح الصور' : 'Could not open photos', 'error');
+      show(tt('phdash.9e779a61'), 'error');
     }
   };
 
@@ -508,50 +508,50 @@ function B2BSupplyRequestScreen({ onBack }: any) {
           category_group: it.category_group || 'medical',
         })),
       });
-      show(AR ? 'تم إرسال طلب عرض السعر للإدارة — سيصلك الرد هنا' : 'Quote request sent to admin', 'success');
+      show(tt('phdash.bdc0066c'), 'success');
       setCart([]);
       loadMyRequests();
     } catch {
-      show(AR ? 'فشل إرسال الطلب' : 'Failed to send request', 'error');
+      show(tt('phdash.51398431'), 'error');
     } finally { setSubmitting(false); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'المستودع والإمداد' : 'Warehouse & Procurement'} onBack={onBack} />
+      <NHeader title={tt('phdash.a331ac93')} onBack={onBack} />
       
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', padding: 16, gap: 10 }}>
-        <NBtn label={AR ? 'طلب توريد (B2B)' : 'Order Supply (B2B)'} variant={mode === 'b2b' ? 'primary' : 'outline'} onPress={() => setMode('b2b')} style={{ flex: 1 }} />
-        <NBtn label={AR ? 'المرتجعات (Returns)' : 'Returns Manager'} variant={mode === 'returns' ? 'primary' : 'outline'} onPress={() => setMode('returns')} style={{ flex: 1 }} />
+        <NBtn label={tt('phdash.c1f5dce9')} variant={mode === 'b2b' ? 'primary' : 'outline'} onPress={() => setMode('b2b')} style={{ flex: 1 }} />
+        <NBtn label={tt('phdash.bcfbde8e')} variant={mode === 'returns' ? 'primary' : 'outline'} onPress={() => setMode('returns')} style={{ flex: 1 }} />
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 100 }}>
         {mode === 'b2b' ? (
           <NCard>
             <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'الطلب الذكي من المستودعات' : 'Smart B2B Procurement'}
+              {tt('phdash.88634537')}
             </Text>
             <Text style={{ color: theme.textSub, marginBottom: 16, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'اطلب النواقص عن طريق التحدث أو التصوير أو الكتابة، وسيقوم الذكاء الاصطناعي بتصنيفها وإرسالها لأفضل الموردين.' : 'Order shortages using Voice, OCR, or Text. Our AI will route to the best suppliers.'}
+              {tt('phdash.6836ab5d')}
             </Text>
             
             {/* Tabs for B2B Methods */}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, marginBottom: 16, backgroundColor: theme.surface2, padding: 4, borderRadius: 8 }}>
               <TouchableOpacity style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: b2bTab === 'manual' ? theme.surface : 'transparent' }} onPress={() => setB2bTab('manual')}>
-                <Text style={{ textAlign: 'center', color: b2bTab === 'manual' ? theme.primary : theme.textSub, fontWeight: 'bold' }}>{AR ? 'كتابة' : 'Text'}</Text>
+                <Text style={{ textAlign: 'center', color: b2bTab === 'manual' ? theme.primary : theme.textSub, fontWeight: 'bold' }}>{tt('phdash.8ca5c52a')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: b2bTab === 'voice' ? theme.surface : 'transparent' }} onPress={() => setB2bTab('voice')}>
-                <Text style={{ textAlign: 'center', color: b2bTab === 'voice' ? theme.primary : theme.textSub, fontWeight: 'bold' }}>{AR ? 'صوت' : 'Voice'}</Text>
+                <Text style={{ textAlign: 'center', color: b2bTab === 'voice' ? theme.primary : theme.textSub, fontWeight: 'bold' }}>{tt('phdash.38daef7c')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={{ flex: 1, padding: 8, borderRadius: 6, backgroundColor: b2bTab === 'ocr' ? theme.surface : 'transparent' }} onPress={() => setB2bTab('ocr')}>
-                <Text style={{ textAlign: 'center', color: b2bTab === 'ocr' ? theme.primary : theme.textSub, fontWeight: 'bold' }}>{AR ? 'تصوير الرف' : 'OCR'}</Text>
+                <Text style={{ textAlign: 'center', color: b2bTab === 'ocr' ? theme.primary : theme.textSub, fontWeight: 'bold' }}>{tt('phdash.9d873c25')}</Text>
               </TouchableOpacity>
             </View>
 
             {b2bTab === 'manual' && (
               <View>
-                <TextInput placeholder={AR ? 'اكتب أسماء الأدوية المطلوبة هنا...' : 'Type medication names here...'} value={b2bText} onChangeText={setB2bText} multiline style={{ height: 120, textAlignVertical: 'top', backgroundColor: theme.surface, padding: 12, borderRadius: 8, color: theme.text }} />
-                <NBtn label={AR ? 'إرسال الطلب' : 'Submit Order'} onPress={() => submitB2B('manual')} style={{ marginTop: 12 }} />
+                <TextInput placeholder={tt('phdash.d024a13c')} value={b2bText} onChangeText={setB2bText} multiline style={{ height: 120, textAlignVertical: 'top', backgroundColor: theme.surface, padding: 12, borderRadius: 8, color: theme.text }} />
+                <NBtn label={tt('phdash.30940e27')} onPress={() => submitB2B('manual')} style={{ marginTop: 12 }} />
               </View>
             )}
 
@@ -560,7 +560,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
               // that sent nothing. Say so, and point to the two ways that work.
               <NCard style={{ padding: 16 }}>
                 <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'الطلب الصوتي غير متاح في التطبيق بعد. اكتب أسماء الأدوية في تبويب «يدوي» أو صوّر الرف أو الفاتورة في تبويب «تصوير».' : 'Voice orders are not available in the app yet. Type the medicine names in the Manual tab, or photograph the shelf or invoice in the Scan tab.'}
+                  {tt('phdash.495e6faf')}
                 </Text>
               </NCard>
             )}
@@ -570,11 +570,11 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                 <View style={{ height: 200, backgroundColor: theme.surface2, borderRadius: 8, borderWidth: 2, borderColor: theme.primary, borderStyle: 'dashed', justifyContent: 'center', alignItems: 'center', marginBottom: 16 }}>
                   <View style={{ marginBottom: 8 }}><I name="camera" size={40} color={theme.textSub} /></View>
                   <Text style={{ color: theme.textSub, textAlign: 'center', paddingHorizontal: 16 }}>
-                    {AR ? 'قم بتوجيه الكاميرا نحو الرف أو الفاتورة لاستخراج النواقص تلقائياً' : 'Point camera at shelf or invoice to extract shortages automatically'}
+                    {tt('phdash.e66e3af8')}
                   </Text>
                 </View>
                 {uploadsOn ? (
-<NBtn label={AR ? 'اختيار صورة الرف/الفاتورة وتحليلها' : 'Pick shelf/invoice photo & analyze'} onPress={() => submitB2B('ocr')} />
+<NBtn label={tt('phdash.64383d7b')} onPress={() => submitB2B('ocr')} />
 ) : <UploadsUnavailable />}
               </View>
             )}
@@ -582,7 +582,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
             {analyzing && (
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'center', marginTop: 12 }}>
                 <ActivityIndicator color={theme.primary} />
-                <Text style={{ color: theme.textSub, marginHorizontal: 8 }}>{AR ? 'الذكاء الاصطناعي يحلل الأصناف…' : 'AI is analyzing items…'}</Text>
+                <Text style={{ color: theme.textSub, marginHorizontal: 8 }}>{tt('phdash.a261aa29')}</Text>
               </View>
             )}
 
@@ -598,13 +598,13 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                   return (
                     <View key={g} style={{ marginBottom: 10 }}>
                       <Text style={{ color: theme.primary, fontWeight: 'bold', textAlign: AR ? 'right' : 'left', marginBottom: 4 }}>
-                        {g === 'medical' ? (AR ? '💊 أدوية' : '💊 Medications') : (AR ? '🧴 غير دوائية' : '🧴 Non-medical')}
+                        {g === 'medical' ? (tt('phdash.243d2ddc')) : (tt('phdash.6fc1411c'))}
                       </Text>
                       {items.map(({ it, idx }) => (
                         <View key={idx} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', backgroundColor: theme.surface2, borderRadius: 8, padding: 8, marginBottom: 6 }}>
                           <View style={{ flex: 1 }}>
                             <Text style={{ color: theme.text, fontWeight: '600', textAlign: AR ? 'right' : 'left' }}>{it.medicine_name || it.raw_name_string}</Text>
-                            {!it.matched && <Text style={{ color: theme.danger, fontSize: 11, textAlign: AR ? 'right' : 'left' }}>{AR ? 'غير مطابق للكتالوج — سيُراجع يدوياً' : 'Not in catalog — manual review'}</Text>}
+                            {!it.matched && <Text style={{ color: theme.danger, fontSize: 11, textAlign: AR ? 'right' : 'left' }}>{tt('phdash.d9eb7fc7')}</Text>}
                           </View>
                           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                           <TouchableOpacity onPress={() => setCart(c => c.map((x, i) => i === idx ? { ...x, requested_quantity: Math.max(1, (x.requested_quantity || 1) - 1) } : x))} style={{ padding: 6 }}><Text style={{ color: theme.primary, fontSize: 18 }}>−</Text></TouchableOpacity>
@@ -617,22 +617,22 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                     </View>
                   );
                 })}
-                <NBtn label={submitting ? (AR ? 'جارٍ الإرسال…' : 'Sending…') : (AR ? 'إرسال طلب عرض سعر للمستودع' : 'Send price-quote request')} onPress={submitCart} style={{ marginTop: 4, opacity: submitting ? 0.6 : 1 }} />
+                <NBtn label={submitting ? (tt('phdash.00ca780c')) : (tt('phdash.ff7e4919'))} onPress={submitCart} style={{ marginTop: 4, opacity: submitting ? 0.6 : 1 }} />
               </View>
             )}
 
             {/* ── طلباتي السابقة وحالاتها ── */}
             {myRequests.length > 0 && (
               <View style={{ marginTop: 16 }}>
-                <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 6 }}>{AR ? 'طلباتي السابقة' : 'My previous requests'}</Text>
+                <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 6 }}>{tt('phdash.eef132c8')}</Text>
                 {myRequests.slice(0, 5).map((r: any) => (
                   <View key={r._id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', backgroundColor: theme.surface2, borderRadius: 8, padding: 10, marginBottom: 6 }}>
                     <Text style={{ color: theme.textSub, fontSize: 12 }}>{(r.items || []).length} {AR ? 'صنف' : 'items'}</Text>
                     <Text style={{ color: r.status === 'QUOTATION_ISSUED' ? theme.primary : theme.text, fontSize: 12, fontWeight: 'bold' }}>
-                      {r.status === 'PENDING_ADMIN_REVIEW' ? (AR ? 'بانتظار عرض السعر' : 'Awaiting quote')
-                        : r.status === 'QUOTATION_ISSUED' ? (AR ? 'وصل عرض السعر ✓' : 'Quote received ✓')
-                        : r.status === 'COMPLETED' ? (AR ? 'مكتمل' : 'Completed')
-                        : r.status === 'CANCELLED' ? (AR ? 'ملغي' : 'Cancelled') : r.status}
+                      {r.status === 'PENDING_ADMIN_REVIEW' ? (tt('phdash.ac4a96c5'))
+                        : r.status === 'QUOTATION_ISSUED' ? (tt('phdash.560fa9c3'))
+                        : r.status === 'COMPLETED' ? (tt('phdash.a78b4dfb'))
+                        : r.status === 'CANCELLED' ? (tt('phdash.9a82e155')) : r.status}
                     </Text>
                   </View>
                 ))}
@@ -643,13 +643,13 @@ function B2BSupplyRequestScreen({ onBack }: any) {
         ) : (
           <NCard>
             <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'مرتجعات المرضى على طلبات الصيدلية' : 'Patient Returns on Pharmacy Orders'}
+              {tt('phdash.d6defc9d')}
             </Text>
             {returnsLoading ? (
               <ActivityIndicator color={theme.primary} style={{ marginVertical: 24 }} />
             ) : returnsList.length === 0 ? (
               <Text style={{ color: theme.textSub, textAlign: 'center', marginVertical: 24 }}>
-                {AR ? 'لا توجد طلبات إرجاع من المرضى على طلبات صيدليتك' : 'No patient return requests on your pharmacy orders'}
+                {tt('phdash.fcf3dd55')}
               </Text>
             ) : returnsList.map((r: any) => (
               <View key={r.id || r._id} style={{ backgroundColor: theme.surface2, padding: 12, borderRadius: 8, marginBottom: 12 }}>
@@ -657,13 +657,13 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                   <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left' }}>
                     {AR ? `طلب إرجاع ${r.order_id || ''}` : `Return ${r.order_id || ''}`}
                   </Text>
-                  <NBadge label={r.status === 'approved' || r.status === 'completed' ? (AR ? 'مقبول' : 'Approved') : r.status === 'rejected' ? (AR ? 'مرفوض' : 'Rejected') : (AR ? 'قيد المعالجة' : 'Processing')} variant={r.status === 'approved' || r.status === 'completed' ? 'success' : r.status === 'rejected' ? 'danger' : 'warning'} size="xs" />
+                  <NBadge label={r.status === 'approved' || r.status === 'completed' ? (tt('phdash.aecf1337')) : r.status === 'rejected' ? (tt('phdash.8290f876')) : (tt('phdash.6a7f7505'))} variant={r.status === 'approved' || r.status === 'completed' ? 'success' : r.status === 'rejected' ? 'danger' : 'warning'} size="xs" />
                 </View>
                 <Text style={{ color: theme.textSub, fontSize: 12, marginTop: 6, textAlign: AR ? 'right' : 'left' }}>
-                  {(AR ? 'السبب: ' : 'Reason: ') + (r.reason || '—') + ' · ' + (AR ? 'المبلغ: ' : 'Amount: ') + (r.amount ?? 0) + (AR ? ' ر.س' : ' SAR')}
+                  {(tt('phdash.61065b69')) + (r.reason || '—') + ' · ' + (tt('phdash.701975cb')) + (r.amount ?? 0) + (tt('phdash.8cecd4af'))}
                 </Text>
                 <Text style={{ color: theme.textSub, fontSize: 11, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                  {AR ? 'قرار القبول/الرفض والاسترداد يتم من إدارة المنصة' : 'Approval and refund decisions are handled by platform admin'}
+                  {tt('phdash.d3330933')}
                 </Text>
               </View>
             ))}
@@ -675,7 +675,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
 }
 function ReturnsRMAScreen({ onBack }: any) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -685,15 +685,15 @@ function ReturnsRMAScreen({ onBack }: any) {
 
   const statusMeta = (s: string) => {
     const k = (s || '').toLowerCase();
-    if (k === 'approved' || k === 'completed') return { label: AR ? 'مقبول' : 'Approved', variant: 'success' as any };
-    if (k === 'rejected') return { label: AR ? 'مرفوض' : 'Rejected', variant: 'danger' as any };
-    return { label: AR ? 'قيد المعالجة' : 'Processing', variant: 'warning' as any };
+    if (k === 'approved' || k === 'completed') return { label: tt('phdash.aecf1337'), variant: 'success' as any };
+    if (k === 'rejected') return { label: tt('phdash.8290f876'), variant: 'danger' as any };
+    return { label: tt('phdash.6a7f7505'), variant: 'warning' as any };
   };
 
   const loadReturns = () => {
     client.get('/pharmacy/returns/provider/list')
       .then((res: any) => setReturns(res.data || []))
-      .catch(() => { setReturns([]); show(AR ? 'تعذر جلب المرتجعات' : 'Failed to load returns', 'error'); })
+      .catch(() => { setReturns([]); show(tt('phdash.52cb2332'), 'error'); })
       .finally(() => setLoading(false));
   };
   useEffect(() => { loadReturns(); }, []);
@@ -702,11 +702,11 @@ function ReturnsRMAScreen({ onBack }: any) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'مراجعة المرتجعات (RMA)' : 'Returns Management'} onBack={onBack} />
+      <NHeader title={tt('phdash.acfbe454')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {loading && <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />}
         {!loading && returns.length === 0 && (
-          <NEmpty title={AR ? 'لا توجد مرتجعات' : 'No returns'} subtitle={AR ? 'لم يقدم أي مريض طلب إرجاع على طلباتك بعد' : 'No patient has filed a return on your orders yet'} />
+          <NEmpty title={tt('phdash.12a5434c')} subtitle={tt('phdash.5b15d880')} />
         )}
         {!loading && returns.map((r: any) => {
           const meta = statusMeta(r.status);
@@ -719,7 +719,7 @@ function ReturnsRMAScreen({ onBack }: any) {
                 <NBadge label={meta.label} variant={meta.variant} size="xs" />
               </View>
               <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: 4 }}>
-                {(AR ? 'السبب: ' : 'Reason: ') + (r.reason || '—')}
+                {(tt('phdash.61065b69')) + (r.reason || '—')}
               </Text>
               {!!r.details && (
                 <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: 4 }} numberOfLines={2}>
@@ -727,11 +727,11 @@ function ReturnsRMAScreen({ onBack }: any) {
                 </Text>
               )}
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginTop: 6 }}>
-                <Text style={{ color: theme.text, fontWeight: '600' }}>{(r.amount ?? 0) + (AR ? ' ر.س' : ' SAR')}</Text>
+                <Text style={{ color: theme.text, fontWeight: '600' }}>{(r.amount ?? 0) + (tt('phdash.8cecd4af'))}</Text>
                 <Text style={{ color: theme.textSub, fontSize: 12 }}>{(r.createdAt || '').slice(0, 10)}</Text>
               </View>
               <Text style={{ color: theme.textSub, fontSize: 11, marginTop: 6, textAlign: AR ? 'right' : 'left' }}>
-                {AR ? 'اضغط للتفاصيل والرد. قرار القبول/الرفض والاسترداد يتم من إدارة المنصة' : 'Tap for details and to answer. Approval and refund decisions are handled by platform admin'}
+                {tt('phdash.e69d74c8')}
               </Text>
             </NCard>
           );
@@ -754,7 +754,7 @@ const ORDER_SECTION_STATUSES: Record<OrderSection, string[]> = {
 };
 function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void; initialSection?: OrderSection }) {
   const { theme } = useTheme();
-  const { lang, t } = useLang();
+  const { lang, t, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -780,7 +780,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
       const res = await client.get('/provider/pharmacy/allocations');
       setAllocations(Array.isArray(res.data) ? res.data : []);
     } catch {
-      if (!quiet) show(AR ? 'تعذر تحميل الطلبات' : 'Unable to load orders', 'error');
+      if (!quiet) show(tt('phdash.b53f3523'), 'error');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -812,20 +812,20 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
     setActionId(id);
     try {
       await client.post(`/provider/pharmacy/allocations/${id}/${action}`, body || {});
-      show(AR ? 'تم تحديث حالة الطلب' : 'Order status updated', 'success');
+      show(tt('phdash.a45cde89'), 'success');
       setCourierFor(null); setCollectFor(null);
       await load();
     } catch (e: any) {
       const code = e?.response?.data?.message;
       const known: Record<string, string> = {
-        cod_collection_proof_required: AR ? 'يجب إدخال إثبات تحصيل المبلغ' : 'Collection proof is required',
-        collected_amount_must_match_selected_quote_total: AR ? 'المبلغ المحصّل يجب أن يطابق إجمالي العرض المختار بالضبط' : 'Collected amount must exactly match the selected quote total',
-        pickup_orders_are_handed_over_not_shipped: AR ? 'طلبات الاستلام الذاتي تُسلَّم ولا تُشحَن' : 'Pickup orders are handed over, not shipped',
-        payment_confirmation_required: AR ? 'لم يُؤكَّد الدفع بعد' : 'Payment is not confirmed yet',
-        insurance_decision_required: AR ? 'قرار التأمين مطلوب أولاً' : 'Insurance decision required first',
-        cod_policy_confirmation_required: AR ? 'سياسة الدفع عند الاستلام غير مؤكدة' : 'COD policy not confirmed',
+        cod_collection_proof_required: tt('phdash.fa7f6759'),
+        collected_amount_must_match_selected_quote_total: tt('phdash.da8d68c1'),
+        pickup_orders_are_handed_over_not_shipped: tt('phdash.f02c49da'),
+        payment_confirmation_required: tt('phdash.f550cbb4'),
+        insurance_decision_required: tt('phdash.afd25c11'),
+        cod_policy_confirmation_required: tt('phdash.f08aabfc'),
       };
-      show(known[code] || code || (AR ? 'تعذر تنفيذ الإجراء' : 'Action failed'), 'error');
+      show(known[code] || code || (tt('phdash.b1ec89a1')), 'error');
     } finally {
       setActionId(null);
     }
@@ -873,17 +873,17 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
           <NBadge label={meta.label} variant={meta.variant} size="xs" />
         </View>
         <Text style={{ color: theme.textSub, fontSize: 12, textAlign: AR ? 'right' : 'left' }}>
-          {(AR ? 'الأصناف: ' : 'Items: ') + (Array.isArray(a.items) ? a.items.length : 0) + ' · ' + (AR ? 'الإجمالي: ' : 'Total: ') + (a.totals?.total ?? 0) + (AR ? ' ر.س' : ' SAR')}
+          {(tt('phdash.b3010efc')) + (Array.isArray(a.items) ? a.items.length : 0) + ' · ' + (tt('phdash.44f01864')) + (a.totals?.total ?? 0) + (tt('phdash.8cecd4af'))}
         </Text>
         {d?.patient_contact && (
           <View style={{ backgroundColor: theme.surface2, borderRadius: 8, padding: 10, marginTop: 8 }}>
             <Text style={{ color: theme.text, fontSize: 13, textAlign: AR ? 'right' : 'left' }}>
-              {(AR ? 'المريض: ' : 'Patient: ') + (d.patient_contact.name || '—')}
+              {(tt('phdash.83917b90')) + (d.patient_contact.name || '—')}
             </Text>
             {!!d.patient_contact.phone && (
               <TouchableOpacity onPress={() => Linking.openURL(`tel:${d.patient_contact.phone}`)}>
                 <Text style={{ color: theme.primary, fontSize: 13, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                  {(AR ? 'هاتف: ' : 'Phone: ') + d.patient_contact.phone}
+                  {(tt('phdash.8f5fd9b2')) + d.patient_contact.phone}
                 </Text>
               </TouchableOpacity>
             )}
@@ -891,11 +891,11 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
         )}
         {courierFor === a.id && (
           <View style={{ marginTop: 10, gap: 8 }}>
-            <NInput placeholder={AR ? 'اسم المندوب (اختياري)' : 'Courier name (optional)'} value={courierName} onChange={setCourierName} />
-            <NInput placeholder={AR ? 'هاتف المندوب (اختياري)' : 'Courier phone (optional)'} value={courierPhone} onChange={setCourierPhone} kbType="phone-pad" />
+            <NInput placeholder={tt('phdash.ab85dd26')} value={courierName} onChange={setCourierName} />
+            <NInput placeholder={tt('phdash.2fdc9bb8')} value={courierPhone} onChange={setCourierPhone} kbType="phone-pad" />
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" style={{ flex: 1 }} onPress={() => setCourierFor(null)} />
-              <NBtn label={AR ? 'تأكيد الانطلاق' : 'Confirm dispatch'} style={{ flex: 2 }} loading={actionId === a.id}
+              <NBtn label={tt('phdash.210b779f')} variant="outline" style={{ flex: 1 }} onPress={() => setCourierFor(null)} />
+              <NBtn label={tt('phdash.2eb7f735')} style={{ flex: 2 }} loading={actionId === a.id}
                 onPress={() => doAction(a.id, 'out-for-delivery', { courier_name: courierName || undefined, courier_phone: courierPhone || undefined })} />
             </View>
           </View>
@@ -903,22 +903,22 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
         {collectFor === a.id && (
           <View style={{ marginTop: 10, gap: 8 }}>
             <Text style={{ color: theme.text, fontWeight: '600', textAlign: AR ? 'right' : 'left' }}>
-              {(AR ? 'إثبات تحصيل الدفع عند الاستلام — المبلغ المطلوب: ' : 'COD collection proof — expected: ') + (expectedTotal ?? 0) + (AR ? ' ر.س' : ' SAR')}
+              {(tt('phdash.d04cd6df')) + (expectedTotal ?? 0) + (tt('phdash.8cecd4af'))}
             </Text>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8 }}>
               {(['cash', 'card_terminal'] as const).map((m) => (
                 <TouchableOpacity key={m} onPress={() => setCollectMethod(m)}
                   style={{ flex: 1, paddingVertical: 10, borderRadius: 8, borderWidth: 1.5, alignItems: 'center', backgroundColor: collectMethod === m ? theme.primary : theme.surface2, borderColor: collectMethod === m ? theme.primary : theme.border }}>
                   <Text style={{ color: collectMethod === m ? '#FFF' : theme.text, fontWeight: '600' }}>
-                    {m === 'cash' ? (AR ? 'نقداً' : 'Cash') : (AR ? 'شبكة' : 'Card terminal')}
+                    {m === 'cash' ? (tt('phdash.af153030')) : (tt('phdash.e8db4c6d'))}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <NInput placeholder={AR ? 'المبلغ المحصّل' : 'Collected amount'} value={collectAmount} onChange={setCollectAmount} kbType="numeric" />
+            <NInput placeholder={tt('phdash.495c192a')} value={collectAmount} onChange={setCollectAmount} kbType="numeric" />
             <View style={{ flexDirection: 'row', gap: 8 }}>
-              <NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="outline" style={{ flex: 1 }} onPress={() => setCollectFor(null)} />
-              <NBtn label={AR ? 'تأكيد التسليم' : 'Confirm delivery'} style={{ flex: 2 }} loading={actionId === a.id}
+              <NBtn label={tt('phdash.210b779f')} variant="outline" style={{ flex: 1 }} onPress={() => setCollectFor(null)} />
+              <NBtn label={tt('phdash.d426198f')} style={{ flex: 2 }} loading={actionId === a.id}
                 onPress={() => doAction(a.id, 'delivered', { collection: { method: collectMethod, amount_collected: Number(collectAmount) } })} />
             </View>
           </View>
@@ -929,14 +929,14 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
               <NBtn label={t('insuranceDecisionRecord')} size="sm" icon="shield" onPress={() => onNavigate('insurance_decision_order', { allocation_id: a.id })} />
             )}
             {['pending_review', 'partially_confirmed'].includes(String(a.status)) && (
-              <NBtn label={AR ? 'تأكيد' : 'Confirm'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
+              <NBtn label={tt('phdash.449fee30')} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'confirm')} />
             )}
-            <NBtn label={AR ? 'محادثة الطلب' : 'Order chat'} size="sm" variant="outline" onPress={() => onNavigate?.('pharmacy_chat', { order_id: a.order_id, lines: (Array.isArray(a.items) ? a.items : []).map((it: any) => ({ order_item_id: it.order_item_id, name: it.name })) })} />
+            <NBtn label={tt('phdash.1fcdbb86')} size="sm" variant="outline" onPress={() => onNavigate?.('pharmacy_chat', { order_id: a.order_id, lines: (Array.isArray(a.items) ? a.items : []).map((it: any) => ({ order_item_id: it.order_item_id, name: it.name })) })} />
             {String(a.status) === 'confirmed' && (
-              <NBtn label={AR ? 'بدء التجهيز' : 'Start preparing'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
+              <NBtn label={tt('phdash.0c1e39d3')} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'preparing')} />
             )}
             {String(a.status) === 'preparing' && (
-              <NBtn label={AR ? 'جاهز' : 'Ready'} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'ready')} />
+              <NBtn label={tt('phdash.31453506')} size="sm" loading={actionId === a.id} onPress={() => doAction(a.id, 'ready')} />
             )}
             {String(a.status) === 'ready_for_pickup' && (
               <>
@@ -949,11 +949,11 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
               </>
             )}
             {String(a.status) === 'out_for_delivery' && (
-              <NBtn label={AR ? 'تم التسليم' : 'Mark delivered'} size="sm" loading={actionId === a.id}
+              <NBtn label={tt('phdash.2571479b')} size="sm" loading={actionId === a.id}
                 onPress={() => { if (isCod || !details[a.id]) { setCollectFor(a.id); if (!details[a.id]) loadDetail(a.id); setCollectAmount(String(expectedTotal ?? '')); } else doAction(a.id, 'delivered'); }} />
             )}
             {!d && ['ready_for_pickup', 'out_for_delivery'].includes(String(a.status)) && (
-              <NBtn label={AR ? 'التفاصيل' : 'Details'} size="sm" variant="outline" onPress={() => loadDetail(a.id)} />
+              <NBtn label={tt('phdash.c4ac0a1d')} size="sm" variant="outline" onPress={() => loadDetail(a.id)} />
             )}
           </View>
         )}
@@ -963,7 +963,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'الطلبات' : 'Orders'} onBack={onBack} right={onNavigate ? <TouchableOpacity onPress={() => onNavigate('insurance_decisions')} style={{ padding: SP.sm }}><I name="shield" size={22} color={theme.primary} /></TouchableOpacity> : undefined} />
+      <NHeader title={tt('phdash.68fdab11')} onBack={onBack} right={onNavigate ? <TouchableOpacity onPress={() => onNavigate('insurance_decisions')} style={{ padding: SP.sm }}><I name="shield" size={22} color={theme.primary} /></TouchableOpacity> : undefined} />
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, paddingHorizontal: 16, paddingBottom: 8, flexWrap: 'wrap' }}>
         {sectionTabs.map((t) => {
           const count = inSection(t.key).length;
@@ -981,7 +981,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
         {loading ? (
           <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
         ) : shown.length === 0 ? (
-          <NEmpty icon="moon" title={AR ? 'لا توجد طلبات هنا' : 'No orders here'} sub={section === 'new' ? (AR ? 'ستظهر الطلبات المختارة هنا بعد اختيار المريض لعرضك' : 'Selected orders will appear here once a patient picks your offer') : (AR ? 'لا توجد طلبات في هذا القسم' : 'No orders in this section')} />
+          <NEmpty icon="moon" title={tt('phdash.9f6e9f04')} sub={section === 'new' ? (tt('phdash.1e1cff63')) : (tt('phdash.f3373e35'))} />
         ) : (
           (section === 'done' ? shown.slice(0, 50) : shown).map(renderCard)
         )}
@@ -995,7 +995,7 @@ function DispatchWorkflowScreen({ onBack, onNavigate, initialSection = 'new' }: 
 // ══════════════════════════════════════════════════════════════════════════════
 function SmartBarcodeScannerScreen({ onBack }: any) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [permission, requestPermission] = useCameraPermissions();
@@ -1014,10 +1014,10 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
       const rows = Array.isArray(response.data) ? response.data : (response.data?.items || response.data?.data || []);
       const matched = rows[0] || null;
       setProduct(matched);
-      show(matched ? (AR ? 'تم التحقق من المنتج من الخادم' : 'Product verified by the server') : (AR ? 'الباركود غير موجود في المخزون' : 'Barcode was not found in inventory'), matched ? 'success' : 'warning');
+      show(matched ? (tt('phdash.4c2140cc')) : (tt('phdash.ddd11469')), matched ? 'success' : 'warning');
     } catch (error: any) {
       setProduct(null);
-      show(error?.response?.data?.message || (AR ? 'تعذر التحقق من الباركود' : 'Unable to verify the barcode'), 'error');
+      show(error?.response?.data?.message || (tt('phdash.1afc268f')), 'error');
     } finally {
       setLoading(false);
     }
@@ -1029,10 +1029,10 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
   if (!permission.granted) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        <NHeader title={AR ? 'ماسح الباركود' : 'Barcode Scanner'} onBack={onBack} />
+        <NHeader title={tt('phdash.81e207b7')} onBack={onBack} />
         <View style={{ flex: 1, justifyContent: 'center', padding: SP.xl, gap: SP.lg }}>
-          <NEmpty title={AR ? 'يلزم إذن الكاميرا' : 'Camera permission required'} sub={AR ? 'لا يمكن قراءة الباركود أو تعديل المخزون دون إذن الكاميرا.' : 'Camera permission is required to scan and verify inventory.'} icon="camera" />
-          <NBtn label={AR ? 'منح الإذن' : 'Grant permission'} onPress={requestPermission} />
+          <NEmpty title={tt('phdash.818d9b89')} sub={tt('phdash.1669b293')} icon="camera" />
+          <NBtn label={tt('phdash.29a31c35')} onPress={requestPermission} />
         </View>
       </View>
     );
@@ -1040,7 +1040,7 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#000' }}>
-      <NHeader title={AR ? 'ماسح الباركود الذكي' : 'Smart Barcode Scanner'} onBack={onBack} />
+      <NHeader title={tt('phdash.ae852e74')} onBack={onBack} />
       {!product && <CameraView style={{ flex: 1 }} facing="back" barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'qr', 'datamatrix', 'pdf417'] }} onBarcodeScanned={scanned ? undefined : onBarcodeScanned} />}
       <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111', gap: SP.md }}>
         {loading && <ActivityIndicator color={theme.primary} />}
@@ -1051,7 +1051,7 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
             <Text style={{ color: theme.textSub, marginTop: SP.xs }}>{AR ? `المخزون المتاح: ${product.stock ?? product.quantity ?? 0}` : `Available stock: ${product.stock ?? product.quantity ?? 0}`}</Text>
           </NCard>
         )}
-        <NBtn label={AR ? 'مسح باركود آخر' : 'Scan another barcode'} variant="outline" onPress={() => { setScanned(false); setBarcode(null); setProduct(null); }} />
+        <NBtn label={tt('phdash.71aaf3a6')} variant="outline" onPress={() => { setScanned(false); setBarcode(null); setProduct(null); }} />
       </View>
     </View>
   );
@@ -1063,7 +1063,7 @@ type LowStockAlert = { id: string; inventory_item_id: string; sku: string; name:
 
 function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -1106,20 +1106,20 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
       await client.post(`/provider/inventory/low-stock-alerts/${id}/ack`);
       await fetchAlerts();
     } catch {
-      show(AR ? 'تعذر تأكيد التنبيه' : 'Could not acknowledge the alert', 'error');
+      show(tt('phdash.16cdfc2e'), 'error');
     } finally { setAlertBusy(null); }
   };
   const restockAlert = async (a: LowStockAlert) => {
     const qty = Math.floor(Number(restockQty[a.id]));
-    if (!Number.isFinite(qty) || qty <= 0) { show(AR ? 'أدخل كمية أكبر من صفر' : 'Enter a quantity above zero', 'error'); return; }
+    if (!Number.isFinite(qty) || qty <= 0) { show(tt('phdash.79d6a501'), 'error'); return; }
     setAlertBusy(a.id);
     try {
       await client.post(`/provider/inventory/${a.inventory_item_id}/restock`, { qty });
       setRestockQty(prev => ({ ...prev, [a.id]: '' }));
-      show(AR ? 'تمت إضافة الكمية للمخزون' : 'Stock added', 'success');
+      show(tt('phdash.cdbc489c'), 'success');
       await Promise.all([fetchAlerts(), fetchInventory()]);
     } catch {
-      show(AR ? 'تعذر تحديث المخزون' : 'Could not update stock', 'error');
+      show(tt('phdash.da887bc1'), 'error');
     } finally { setAlertBusy(null); }
   };
 
@@ -1132,11 +1132,11 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
     try {
       const res = await client.post('/provider/capabilities/pharmacy', editable({ ...item, ...patch }));
       if ((res?.data as any)?.pending_review) {
-        show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+        show(tt('phdash.14f4e375'), 'success');
         fetchInventory();
       }
     } catch {
-      show(AR ? 'تعذر حفظ التحديث على الخادم' : 'Could not save update to server', 'error');
+      show(tt('phdash.979a39ba'), 'error');
       fetchInventory();
     }
   };
@@ -1182,31 +1182,31 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
       setCatalogResults(rows.filter((m: any) => m?.id));
     } catch {
       setCatalogResults([]);
-      show(AR ? 'تعذر البحث في الكتالوج' : 'Catalog search failed', 'error');
+      show(tt('phdash.8f0d9a6f'), 'error');
     } finally { setCatalogBusy(false); }
   };
   const addFromCatalog = async () => {
     const price = Number(newPrice);
     const stock = Math.max(0, Math.floor(Number(newStock) || 0));
-    if (!picked || !Number.isFinite(price) || price <= 0) { show(AR ? 'أدخل سعراً أكبر من صفر' : 'Enter a price above zero', 'error'); return; }
+    if (!picked || !Number.isFinite(price) || price <= 0) { show(tt('phdash.b0595d27'), 'error'); return; }
     setCatalogBusy(true);
     try {
       await client.post('/provider/capabilities/pharmacy', {
         sku: String(picked.id), name_ar: picked.name_ar || picked.name || picked.name_en, name_en: picked.name_en || undefined,
         price, stock, available: true,
       });
-      show(AR ? 'أُرسل الصنف — يظهر في عروضك بعد اعتماد الإدارة' : 'Item sent — usable in offers after admin approval', 'success');
+      show(tt('phdash.c3298bf3'), 'success');
       setPicked(null); setNewPrice(''); setNewStock(''); setCatalogResults([]); setCatalogQuery('');
       fetchInventory();
     } catch (e: any) {
       const msg = e?.response?.data?.message;
-      show(typeof msg === 'string' ? msg : (AR ? 'تعذر إرسال الصنف' : 'Could not send the item'), 'error');
+      show(typeof msg === 'string' ? msg : (tt('phdash.4f677444')), 'error');
     } finally { setCatalogBusy(false); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إدارة المخزون' : 'Active Inventory'} onBack={onBack}
+      <NHeader title={tt('phdash.b7f4b32e')} onBack={onBack}
         right={onNavigate ? <TouchableOpacity onPress={() => onNavigate('scanner')} style={{ padding: SP.sm }}><I name="scan" size={22} color={theme.primary} /></TouchableOpacity> : undefined} />
       <View style={{ padding: 16 }}>
         {alerts.length > 0 && (
@@ -1221,24 +1221,24 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
                 </Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8, alignItems: 'center', marginTop: 6 }}>
                   <View style={{ width: 90 }}>
-                    <NInput placeholder={AR ? 'الكمية' : 'Qty'} value={restockQty[a.id] || ''} onChange={(v: string) => setRestockQty(prev => ({ ...prev, [a.id]: v }))} kbType="numeric" />
+                    <NInput placeholder={tt('phdash.e223227d')} value={restockQty[a.id] || ''} onChange={(v: string) => setRestockQty(prev => ({ ...prev, [a.id]: v }))} kbType="numeric" />
                   </View>
-                  <NBtn label={AR ? 'إضافة للمخزون' : 'Restock'} size="sm" loading={alertBusy === a.id} onPress={() => restockAlert(a)} />
-                  {a.status === 'open' && <NBtn label={AR ? 'تم الاطلاع' : 'Acknowledge'} size="sm" variant="outline" disabled={alertBusy === a.id} onPress={() => ackAlert(a.id)} />}
+                  <NBtn label={tt('phdash.ed593383')} size="sm" loading={alertBusy === a.id} onPress={() => restockAlert(a)} />
+                  {a.status === 'open' && <NBtn label={tt('phdash.f88a7bb1')} size="sm" variant="outline" disabled={alertBusy === a.id} onPress={() => ackAlert(a.id)} />}
                 </View>
               </View>
             ))}
           </NCard>
         )}
-        <NInput placeholder={AR ? 'ابحث عن منتج...' : 'Search product...'} value={search} onChange={(v: string) => setSearch(v)} />
+        <NInput placeholder={tt('phdash.99dd966a')} value={search} onChange={(v: string) => setSearch(v)} />
         <NCard style={{ marginTop: 12 }}>
           <Text style={{ fontWeight: 'bold', color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8 }}>
-            {AR ? 'إضافة صنف من كتالوج الأدوية' : 'Add a medicine from the catalog'}
+            {tt('phdash.98cc800d')}
           </Text>
           {!picked ? (
             <>
-              <NInput placeholder={AR ? 'اسم الدواء (حرفان على الأقل)' : 'Medicine name (2+ letters)'} value={catalogQuery} onChange={(v: string) => setCatalogQuery(v)} />
-              <NBtn label={AR ? 'بحث' : 'Search'} size="sm" loading={catalogBusy} onPress={searchCatalog} />
+              <NInput placeholder={tt('phdash.de1a367b')} value={catalogQuery} onChange={(v: string) => setCatalogQuery(v)} />
+              <NBtn label={tt('phdash.f61f44ef')} size="sm" loading={catalogBusy} onPress={searchCatalog} />
               {catalogResults.map((m: any) => (
                 <TouchableOpacity key={m.id} onPress={() => setPicked(m)} style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: theme.surface2 }}>
                   <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{AR ? (m.name_ar || m.name_en) : (m.name_en || m.name_ar)}</Text>
@@ -1248,11 +1248,11 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
           ) : (
             <>
               <Text style={{ color: theme.primary, textAlign: AR ? 'right' : 'left', marginBottom: 6 }}>{AR ? (picked.name_ar || picked.name_en) : (picked.name_en || picked.name_ar)}</Text>
-              <NInput placeholder={AR ? 'السعر (ر.س)' : 'Price (SAR)'} value={newPrice} onChange={(v: string) => setNewPrice(v)} kbType="decimal-pad" />
-              <NInput placeholder={AR ? 'الكمية المتوفرة' : 'Stock on hand'} value={newStock} onChange={(v: string) => setNewStock(v)} kbType="numeric" />
+              <NInput placeholder={tt('phdash.74a607af')} value={newPrice} onChange={(v: string) => setNewPrice(v)} kbType="decimal-pad" />
+              <NInput placeholder={tt('phdash.bc2230f2')} value={newStock} onChange={(v: string) => setNewStock(v)} kbType="numeric" />
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 8 }}>
-                <NBtn label={AR ? 'إرسال للاعتماد' : 'Send for approval'} size="sm" loading={catalogBusy} onPress={addFromCatalog} />
-                <NBtn label={AR ? 'إلغاء' : 'Cancel'} size="sm" variant="outline" onPress={() => setPicked(null)} />
+                <NBtn label={tt('phdash.425e701d')} size="sm" loading={catalogBusy} onPress={addFromCatalog} />
+                <NBtn label={tt('phdash.210b779f')} size="sm" variant="outline" onPress={() => setPicked(null)} />
               </View>
             </>
           )}
@@ -1261,10 +1261,10 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
       {loading ? (
         <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} />
       ) : inventoryFailed ? (
-        <NEmpty title={AR ? 'تعذر تحميل المخزون' : 'Could not load the inventory'} actionLabel={AR ? 'إعادة المحاولة' : 'Retry'} onAction={() => { setLoading(true); void fetchInventory(); }} icon="document" />
+        <NEmpty title={tt('phdash.5dbb3558')} actionLabel={tt('phdash.cf333076')} onAction={() => { setLoading(true); void fetchInventory(); }} icon="document" />
       ) : !loading && filtered.length === 0 ? (
         <Text style={{ color: theme.textSub, textAlign: 'center', marginTop: 40 }}>
-          {AR ? 'لا توجد أصناف في المخزون' : 'No inventory items'}
+          {tt('phdash.88572051')}
         </Text>
       ) : null}
       <FlatList
@@ -1278,26 +1278,26 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View style={{ flex: 1 }}>
                   <Text style={{ fontWeight: 'bold', fontSize: 16, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{itemName(item)}</Text>
-                  <Text style={{ color: theme.primary, fontWeight: 'bold', textAlign: AR ? 'right' : 'left' }}>{item.price} {AR ? 'ر.س' : 'SAR'}</Text>
+                  <Text style={{ color: theme.primary, fontWeight: 'bold', textAlign: AR ? 'right' : 'left' }}>{item.price} {tt('phdash.91d5796f')}</Text>
                   {isExpiring && (
                     <Text style={{ color: theme.warn, fontSize: 12, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                      {AR?' تنبيه صلاحية:':' Expiring soon:'}{new Date(item.expiry_date).toISOString().slice(0, 10)}
+                      {tt('phdash.685313bd')}{new Date(item.expiry_date).toISOString().slice(0, 10)}
                     </Text>
                   )}
                 </View>
                 <View style={{ alignItems: 'center', gap: 4 }}>
-                  <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'متوفر أونلاين' : 'Online'}</Text>
+                  <Text style={{ fontSize: 10, color: theme.textSub }}>{tt('phdash.97dbf2a7')}</Text>
                   <Switch value={item.available !== false} onValueChange={() => toggleOnline(item.id)} trackColor={{ true: theme.success }} />
                   <TouchableOpacity onPress={() => toggleCoverage(item.id)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 }}>
                     <View style={{ width: 16, height: 16, borderRadius: 4, borderWidth: 2, borderColor: item.insurance_covered === true ? theme.success : theme.border, backgroundColor: item.insurance_covered === true ? theme.success : 'transparent' }} />
-                    <Text style={{ fontSize: 10, color: theme.textSub }}>{AR ? 'تأمين' : 'Ins.'}</Text>
+                    <Text style={{ fontSize: 10, color: theme.textSub }}>{tt('phdash.69b13e69')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
 
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 16, borderTopWidth: 1, borderTopColor: theme.surface2, paddingTop: 12 }}>
                 <Text style={{ color: item.stock === 0 ? theme.danger : theme.textSub }}>
-                  {AR ? 'المخزون الحالي: ' : 'Current Stock: '}<Text style={{ fontWeight: 'bold', color: item.stock === 0 ? theme.danger : theme.text }}>{item.stock}</Text>
+                  {tt('phdash.3cf58f8e')}<Text style={{ fontWeight: 'bold', color: item.stock === 0 ? theme.danger : theme.text }}>{item.stock}</Text>
                 </Text>
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 12, backgroundColor: theme.surface2, borderRadius: 8, padding: 4 }}>
                   <TouchableOpacity onPress={() => updateStock(item.id, -1)} style={{ width: 32, height: 32, backgroundColor: theme.surface, borderRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
@@ -1339,7 +1339,7 @@ const chatErrorCode = (e: any): string => {
 };
 
 function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; orderId?: string; lines?: ChatLine[] }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [threads, setThreads] = useState<any[]>([]);
   const [thread, setThread] = useState<any | null>(null);
   const [messages, setMessages] = useState<any[]>([]);
@@ -1391,7 +1391,7 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
 
   const search = async () => {
     const q = term.trim();
-    if (q.length < 2) { show(AR ? 'اكتب حرفين على الأقل' : 'Type at least 2 letters', 'error'); return; }
+    if (q.length < 2) { show(tt('phdash.7cb7b6b5'), 'error'); return; }
     setBusy('search');
     try {
       const res = await client.get('/provider/inventory/search', { params: { q } });
@@ -1421,19 +1421,19 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
     }
   };
 
-  const lineName = (id?: string) => items.find((l) => l.order_item_id === id)?.name || (AR ? 'صنف' : 'Item');
-  const outcome = (r?: string) => r === 'accepted' ? (AR ? 'قبل المريض البديل' : 'The patient accepted the substitute')
-    : r === 'rejected' ? (AR ? 'رفض المريض البديل' : 'The patient rejected the substitute')
-    : r === 'removed' ? (AR ? 'حذف المريض الصنف من الطلب' : 'The patient removed the item')
-    : (AR ? 'أُغلقت المحادثة' : 'The chat is closed');
+  const lineName = (id?: string) => items.find((l) => l.order_item_id === id)?.name || (tt('phdash.292f6d3a'));
+  const outcome = (r?: string) => r === 'accepted' ? (tt('phdash.259c41c1'))
+    : r === 'rejected' ? (tt('phdash.2c85249e'))
+    : r === 'removed' ? (tt('phdash.779b7922'))
+    : (tt('phdash.9d8d8ba4'));
 
   if (thread) {
     const open = thread.status === 'open';
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        <NHeader title={(AR ? 'محادثة: ' : 'Chat: ') + lineName(thread.order_item_id)} onBack={() => { setThread(null); setPicked(null); setResults(null); }} />
+        <NHeader title={(tt('phdash.c218269b')) + lineName(thread.order_item_id)} onBack={() => { setThread(null); setPicked(null); setResults(null); }} />
         <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
-          {messages.length === 0 ? <NEmpty icon="chat" title={AR ? 'لا توجد رسائل بعد' : 'No messages yet'} sub={AR ? 'اكتب للمريض أو أرفق بديلاً من مخزونك' : 'Write to the patient or attach a substitute from your inventory'} /> : null}
+          {messages.length === 0 ? <NEmpty icon="chat" title={tt('phdash.4d4ef392')} sub={tt('phdash.bc2fc224')} /> : null}
           {messages.map((m: any) => {
             if (m.sender_role === 'system') {
               const code = m.system_code === 'substitute_accepted' ? 'accepted' : m.system_code === 'substitute_rejected' ? 'rejected' : m.system_code === 'item_removed' ? 'removed' : '';
@@ -1447,7 +1447,7 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
                 {m.text ? <Text style={{ color: fg }}>{m.text}</Text> : null}
                 {offer ? (
                   <Text style={{ color: fg, fontWeight: FW.bold }}>
-                    {(AR ? 'بديل: ' : 'Substitute: ') + ((AR ? offer.name : offer.name_en || offer.name) || offer.sku || '') + (offer.price ? ` · ${offer.price} ${AR ? 'ر.س' : 'SAR'}` : '')}
+                    {(tt('phdash.c82c60fb')) + ((AR ? offer.name : offer.name_en || offer.name) || offer.sku || '') + (offer.price ? ` · ${offer.price} ${tt('phdash.91d5796f')}` : '')}
                   </Text>
                 ) : null}
               </View>
@@ -1458,28 +1458,28 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
           <View style={{ padding: SP.md, gap: SP.sm, borderTopWidth: 1, borderTopColor: theme.border }}>
             {picked ? (
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
-                <Text style={{ flex: 1, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{(AR ? 'البديل المرفق: ' : 'Attached substitute: ') + (picked.name_ar || picked.name_en || picked.sku)}</Text>
-                <NBtn label={AR ? 'إزالة' : 'Remove'} size="sm" variant="outline" full={false} onPress={() => setPicked(null)} />
+                <Text style={{ flex: 1, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{(tt('phdash.4da22bc5')) + (picked.name_ar || picked.name_en || picked.sku)}</Text>
+                <NBtn label={tt('phdash.c91a997c')} size="sm" variant="outline" full={false} onPress={() => setPicked(null)} />
               </View>
             ) : results ? (
               <View style={{ gap: SP.xs }}>
-                {results.length === 0 ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{AR ? 'لا يوجد صنف متاح بهذا الاسم في مخزونك' : 'No item with this name in your inventory'}</Text> : null}
+                {results.length === 0 ? <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tt('phdash.8d1fedf2')}</Text> : null}
                 {results.slice(0, 8).map((r: any) => (
                   <TouchableOpacity key={r.id} accessibilityRole="button" onPress={() => { setPicked(r); setResults(null); }} style={{ padding: SP.sm, borderRadius: R.sm, borderWidth: 1, borderColor: theme.border, backgroundColor: theme.surface }}>
-                    <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{(AR ? r.name_ar || r.name_en : r.name_en || r.name_ar) + (r.price ? ` · ${r.price} ${AR ? 'ر.س' : 'SAR'}` : '')}</Text>
+                    <Text style={{ color: theme.text, textAlign: AR ? 'right' : 'left' }}>{(AR ? r.name_ar || r.name_en : r.name_en || r.name_ar) + (r.price ? ` · ${r.price} ${tt('phdash.91d5796f')}` : '')}</Text>
                   </TouchableOpacity>
                 ))}
-                <NBtn label={AR ? 'إغلاق' : 'Close'} size="sm" variant="outline" onPress={() => setResults(null)} />
+                <NBtn label={tt('phdash.e6d3a19e')} size="sm" variant="outline" onPress={() => setResults(null)} />
               </View>
             ) : (
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-                <View style={{ flex: 1 }}><NInput placeholder={AR ? 'ابحث عن بديل في مخزونك' : 'Find a substitute in your inventory'} value={term} onChange={setTerm} /></View>
-                <NBtn label={AR ? 'بحث' : 'Search'} size="sm" variant="outline" full={false} loading={busy === 'search'} onPress={search} />
+                <View style={{ flex: 1 }}><NInput placeholder={tt('phdash.86871215')} value={term} onChange={setTerm} /></View>
+                <NBtn label={tt('phdash.f61f44ef')} size="sm" variant="outline" full={false} loading={busy === 'search'} onPress={search} />
               </View>
             )}
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-              <View style={{ flex: 1 }}><NInput placeholder={AR ? 'اكتب رسالة…' : 'Type a message…'} value={msg} onChange={setMsg} /></View>
-              <NBtn label={AR ? 'إرسال' : 'Send'} full={false} loading={busy === 'send'} onPress={send} />
+              <View style={{ flex: 1 }}><NInput placeholder={tt('phdash.5a0fe14a')} value={msg} onChange={setMsg} /></View>
+              <NBtn label={tt('phdash.ad89df6b')} full={false} loading={busy === 'send'} onPress={send} />
             </View>
           </View>
         ) : (
@@ -1491,20 +1491,20 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'محادثة الطلب' : 'Order chat'} onBack={onBack} />
+      <NHeader title={tt('phdash.1fcdbb86')} onBack={onBack} />
       {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : (
         <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
           <Text style={{ color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'اختر صنفاً لتكتب للمريض عنه أو لتقترح بديلاً من مخزونك. البديل لصنف بوصفة يجب أن يكون داخل الوصفة.' : 'Pick an item to write to the patient about it or to suggest a substitute from your inventory. A substitute for a prescription item must stay inside the prescription.'}
+            {tt('phdash.b87dd5f0')}
           </Text>
-          {items.length === 0 && threads.length === 0 ? <NEmpty icon="chat" title={AR ? 'لا توجد أصناف في هذا الطلب' : 'No items in this order'} /> : null}
+          {items.length === 0 && threads.length === 0 ? <NEmpty icon="chat" title={tt('phdash.db331798')} /> : null}
           {items.map((line) => {
             const t = threads.find((x: any) => x.order_item_id === line.order_item_id);
             return (
               <NCard key={line.order_item_id} style={{ padding: SP.md, gap: SP.sm }}>
-                <Text style={{ color: theme.text, fontWeight: FW.semi, textAlign: AR ? 'right' : 'left' }}>{line.name || (AR ? 'صنف' : 'Item')}</Text>
+                <Text style={{ color: theme.text, fontWeight: FW.semi, textAlign: AR ? 'right' : 'left' }}>{line.name || (tt('phdash.292f6d3a'))}</Text>
                 {t?.last_message?.text ? <Text numberOfLines={1} style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{t.last_message.text}</Text> : null}
-                <NBtn label={t ? (t.status === 'open' ? (AR ? 'فتح المحادثة' : 'Open chat') : outcome(t.resolution)) : (AR ? 'بدء محادثة عن هذا الصنف' : 'Start a chat about this item')}
+                <NBtn label={t ? (t.status === 'open' ? (tt('phdash.7d536576')) : outcome(t.resolution)) : (tt('phdash.4aac9f04'))}
                   size="sm" variant={t ? 'primary' : 'outline'} loading={busy === `open-${line.order_item_id}`} onPress={() => (t ? readThread(t.id).catch((e) => fail(e, 'تعذر تحميل المحادثة', 'Could not load chat')) : openLine(line))} />
               </NCard>
             );
@@ -1515,7 +1515,7 @@ function PharmacyChatScreen({ onBack, orderId, lines }: { onBack: () => void; or
   );
 }
 function SettingsScreen({ onBack, onNavigate }: any) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [loading, setLoading] = useState(false);
   // the saved values, not invented defaults (10 km, 50, 15 and "accepts insurance" were shown to every pharmacy)
   const [ownDelivery, setOwnDelivery] = useState<OwnDeliveryFormState>({ ...EMPTY_OWN_DELIVERY });
@@ -1556,33 +1556,33 @@ function SettingsScreen({ onBack, onNavigate }: any) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إعدادات الصيدلية' : 'Pharmacy Settings'} onBack={onBack} />
+      <NHeader title={tt('phdash.981ba752')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
-        <NSecHeader title={AR ? 'خيارات التوصيل' : 'Delivery Options'} />
+        <NSecHeader title={tt('phdash.363099b8')} />
         <NCard style={{ gap: SP.md }}>
           <OwnDeliveryFields value={ownDelivery} onChange={(patch) => setOwnDelivery((cur) => ({ ...cur, ...patch }))} cityCode={cityCode} />
         </NCard>
 
 
-        <NSecHeader title={AR ? 'طرق الدفع' : 'Payment Methods'} />
-        <NBtn label={AR ? 'طلبات التأمين الواردة (قرار يدوي)' : 'Inbound Insurance Requests'} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />
+        <NSecHeader title={tt('phdash.6f6dcfc9')} />
+        <NBtn label={tt('phdash.849acb0e')} variant="outline" icon="shield" onPress={() => onNavigate && onNavigate('insurance_decisions')} />
         <NCard style={{ gap: SP.md }}>
-          <NToggle label={AR ? 'تتبع أرصدة المخزون (اختياري)' : 'Track inventory balances (optional)'} value={trackInventory} onChange={async (v: boolean) => {
+          <NToggle label={tt('phdash.08bdebb6')} value={trackInventory} onChange={async (v: boolean) => {
             setTrackInventory(v);
             try {
               await client.put('/provider/pharmacy/inventory-tracking', { inventory_tracking: v });
             } catch {
               setTrackInventory(!v);
-              show(AR ? 'تعذر حفظ الإعداد' : 'Could not save setting', 'error');
+              show(tt('phdash.762b7896'), 'error');
             }
           }} />
           {!trackInventory ? (
-            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{AR ? 'بدون تتبع: تصرف من المتاح لديك وارفض أو اقترح بديلاً عند النفاد' : 'Untracked: dispense from what you have; reject or suggest a substitute when out'}</Text>
+            <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('phdash.98ecce61')}</Text>
           ) : null}
         </NCard>
 
         <GlobalSystemSettings />
-        <NBtn label={AR ? 'حفظ إعدادات الصيدلية' : 'Save Pharmacy Settings'} loading={loading} onPress={handleSave} style={{ marginTop: SP.lg }} />
+        <NBtn label={tt('phdash.f40a406a')} loading={loading} onPress={handleSave} style={{ marginTop: SP.lg }} />
       </ScrollView>
     </View>
   );

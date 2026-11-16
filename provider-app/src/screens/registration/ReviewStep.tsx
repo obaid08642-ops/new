@@ -53,7 +53,7 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
   config: ReviewConfig<T>; data: T; update: (patch: Partial<T>) => void; uploads: Uploader;
   step: number; total: number; onBack: () => void; onDone: () => void;
 }) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const AR = lang === 'ar';
   const { show } = useToast();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -71,12 +71,12 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
       await config.run(data, uploads);
       const sigUrl = await uploads.signature(data.signatureData);
       await finishApplication(data, sigUrl, config.coords(data), sanitizeWizardData(data));
-      show(AR ? 'تم إرسال الطلب وملحقاته بنجاح!' : 'Registration Submitted!', 'success');
+      show(tt('review.8568c8d2'), 'success');
       setSubmitted(true);
     } catch (e) {
       const key = submitErrorKey(errorCode(e));
       if (key === 'contract.mustAccept') { setAcceptedVersion(null); setShowContract(true); }
-      show(key ? t(key) : apiMessage(e, AR ? 'حدث خطأ' : 'Error submitting'), key === 'contract.signaturePending' ? 'warning' : 'error');
+      show(key ? t(key) : apiMessage(e, tt('review.8694f076')), key === 'contract.signaturePending' ? 'warning' : 'error');
     } finally {
       setLoading(false);
     }
@@ -87,14 +87,14 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
     const problem = config.precheck?.(data, AR);
     if (problem) { show(problem, 'error'); return; }
     // the IBAN can be edited on this page after the earlier step checked it: check it again before the application goes out
-    if ((data as { iban?: string }).iban && !Validate.iban((data as { iban?: string }).iban as string)) { show(AR ? 'رقم الآيبان غير صحيح. يبدأ بـ SA ويتكون من 24 خانة.' : 'The IBAN is not valid. It starts with SA and has 24 characters.', 'error'); return; }
-    if (config.agree && !agreed) { show(AR ? 'يرجى الموافقة على الشروط' : 'Please agree to terms', 'warning'); return; }
+    if ((data as { iban?: string }).iban && !Validate.iban((data as { iban?: string }).iban as string)) { show(tt('review.a1b89e9d'), 'error'); return; }
+    if (config.agree && !agreed) { show(tt('review.2ab0fd7d'), 'warning'); return; }
     if (!acceptedVersion) { show(t('contract.mustAccept'), 'warning'); setShowContract(true); return; }
-    if (!data.signatureData) { show(AR ? 'الرجاء توقيع العقد أولاً' : 'Please sign the contract first', 'error'); return; }
+    if (!data.signatureData) { show(tt('review.6e10ecaf'), 'error'); return; }
     // The real e-mail OTP is sent by the backend mailer before the modal opens.
     sendEmailOtp(emailOf(data))
-      .then(() => show(AR ? 'تم إرسال رمز التحقق إلى بريدك الإلكتروني' : 'Verification code sent to your email', 'success'))
-      .catch(() => show(AR ? 'تعذر إرسال الرمز — تحقق من البريد أو أعد المحاولة' : 'Could not send the code — check the email or retry', 'error'));
+      .then(() => show(tt('review.bc12c856'), 'success'))
+      .catch(() => show(tt('review.1dec16f0'), 'error'));
     setShowOtp(true);
   };
 
@@ -141,13 +141,13 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
         {config.notice && <ApprovalNotice text={config.notice} />}
 
         <View style={{ marginVertical: SP.lg }}>
-          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: align, marginBottom: SP.sm }}>{AR ? 'الحساب البنكي' : 'Bank Account'}</Text>
-          <NInput label={AR ? 'اسم صاحب الحساب' : 'Account Holder Name'} value={data.accountHolderName}
-            onChange={(v) => update({ accountHolderName: v } as Partial<T>)} placeholder={AR ? 'اسم مطابق للهوية/السجل التجاري' : 'Name matching ID/CR'} />
-          <NInput label={AR ? 'رقم الآيبان IBAN' : 'Bank IBAN'} value={data.iban}
+          <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: align, marginBottom: SP.sm }}>{tt('review.185780b1')}</Text>
+          <NInput label={tt('review.9706b164')} value={data.accountHolderName}
+            onChange={(v) => update({ accountHolderName: v } as Partial<T>)} placeholder={tt('review.d1423f6b')} />
+          <NInput label={tt('review.730b8353')} value={data.iban}
             onChange={(v) => update({ iban: v.toUpperCase().replace(/\s/g, '') } as Partial<T>)} placeholder="SA0000000000000000000000" maxLen={24} />
           <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: align }}>
-            {AR ? 'ملاحظة: سيتم تحويل مستحقاتك إلى هذا الحساب.' : 'Note: Your earnings will be transferred to this account.'}
+            {tt('review.08b2c7a0')}
           </Text>
         </View>
 
@@ -160,13 +160,13 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
           <Text style={{ fontSize: FS.xs, color: theme.success, textAlign: align, marginBottom: SP.md }}>{t('contract.viewAccepted', { version: acceptedVersion })}</Text>
         )}
 
-        <Text style={{ ...heading, marginTop: SP.md }}>{AR ? 'اسم الموقّع' : 'Signatory Name'}</Text>
-        <NInput value={data.signerName} onChange={(v) => update({ signerName: v } as Partial<T>)} placeholder={AR ? 'الاسم الثلاثي' : 'Full Name'} />
-        <Text style={{ ...heading, marginTop: SP.md }}>{AR ? 'صفة الموقّع / المسمى الوظيفي' : 'Signatory Role'}</Text>
+        <Text style={{ ...heading, marginTop: SP.md }}>{tt('review.493cbd41')}</Text>
+        <NInput value={data.signerName} onChange={(v) => update({ signerName: v } as Partial<T>)} placeholder={tt('review.321914c8')} />
+        <Text style={{ ...heading, marginTop: SP.md }}>{tt('review.f44f498a')}</Text>
         <NInput value={data.signerRole} onChange={(v) => update({ signerRole: v } as Partial<T>)} placeholder={label(config.signatoryRoleHint)} />
         {config.declaration && (
           <>
-            <Text style={{ ...heading, marginTop: SP.xl }}>{AR ? 'إقرار وتوقيع' : 'Declaration & Signature'}</Text>
+            <Text style={{ ...heading, marginTop: SP.xl }}>{tt('review.8e59f44b')}</Text>
             <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: align, lineHeight: 22 }}>{label(config.declaration)}</Text>
           </>
         )}
@@ -177,14 +177,14 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
             <View style={{ alignItems: 'center', marginVertical: SP.md }}>
               <Image source={{ uri: data.signatureData }} style={{ width: 200, height: 100, resizeMode: 'contain', backgroundColor: theme.surface }} />
               <TouchableOpacity onPress={() => setShowSigModal(true)} style={{ marginTop: SP.sm }}>
-                <Text style={{ color: theme.primary }}>{AR ? 'إعادة التوقيع' : 'Re-sign'}</Text>
+                <Text style={{ color: theme.primary }}>{tt('review.d904e855')}</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <TouchableOpacity onPress={() => setShowSigModal(true)} style={{
               padding: SP.lg, borderWidth: 1, borderColor: theme.primary, borderRadius: R.md, alignItems: 'center', borderStyle: 'dashed', marginVertical: SP.md,
             }}>
-              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'اضغط للتوقيع' : 'Tap to Sign'}</Text>
+              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{tt('review.173e3464')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -208,8 +208,8 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
           return false;
         }}
         onResend={() => sendEmailOtp(emailOf(data))
-          .then(() => show(AR ? 'أُعيد إرسال الرمز' : 'Code resent', 'success'))
-          .catch(() => show(AR ? 'تعذر الإرسال — انتظر قليلاً' : 'Could not resend — wait a moment', 'error'))} />
+          .then(() => show(tt('review.2970be6f'), 'success'))
+          .catch(() => show(tt('review.fe4e2288'), 'error'))} />
     </View>
   );
 }

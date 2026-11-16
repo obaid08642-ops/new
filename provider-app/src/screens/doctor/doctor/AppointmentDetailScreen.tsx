@@ -55,7 +55,7 @@ import { PatientFileScreen } from './PatientFileScreen';
 export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  { apt: any; onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [acting, setActing] = useState(false);
@@ -68,31 +68,31 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  const apptId = String(apt?.id || apt?.appointment_id || '');
 
  async function doPatch(action: string, body?: any) {
-   if (!apptId) { show(AR ? 'معرف الموعد مفقود' : 'Appointment identifier is missing', 'error'); return; }
+   if (!apptId) { show(tt('docappt.21a4967a'), 'error'); return; }
    setActing(true);
    try {
      await client.patch(`/care/appointments/${apptId}/${action}`, body || {});
-     show(action === 'confirm' ? (AR ? 'تم تأكيد الموعد' : 'Appointment confirmed') : action === 'cancel' ? (AR ? 'تم إلغاء الموعد' : 'Appointment cancelled') : (AR ? 'تمت إعادة الجدولة' : 'Appointment rescheduled'), 'success');
+     show(action === 'confirm' ? (tt('docappt.fb7658b0')) : action === 'cancel' ? (tt('docappt.bd8eef41')) : (tt('docappt.26d4f74b')), 'success');
      setShowCancel(false); setShowResched(false); setCancelReason(''); setNewDate(null); setNewTime(null); setPicker(null);
    } catch (err: any) {
-     show(err?.response?.data?.message || (AR ? 'تعذر تنفيذ الإجراء — تحقق من الاتصال' : 'Action failed — check connection'), 'error');
+     show(err?.response?.data?.message || (tt('docappt.2a0efda3')), 'error');
    } finally {
      setActing(false);
    }
  }
 
  function submitReschedule() {
-   if (!newDate || !newTime) { show(AR ? 'اختر التاريخ والوقت' : 'Pick a date and a time', 'error'); return; }
+   if (!newDate || !newTime) { show(tt('docappt.f08b2b2f'), 'error'); return; }
    const slot = mergeDateAndTime(newDate, newTime);
    // the server only accepts slots on a 15-minute boundary: the picked time is moved to the next one
    slot.setMinutes(Math.ceil(slot.getMinutes() / 15) * 15, 0, 0);
-   if (!isFutureSlot(slot, new Date())) { show(AR ? 'اختر موعداً في المستقبل' : 'Pick a time in the future', 'error'); return; }
+   if (!isFutureSlot(slot, new Date())) { show(tt('docappt.51369e34'), 'error'); return; }
    doPatch('reschedule', { slot_start: slot.toISOString() });
  }
 
  return (
  <NScroll>
- <NHeader title={AR ? 'تفاصيل الموعد' : 'Appointment Details'} onBack={onBack} />
+ <NHeader title={tt('docappt.c8226341')} onBack={onBack} />
 
  {/* Patient Info */}
  <NCard style={{ marginBottom: SP.xl }}>
@@ -107,14 +107,14 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  </View>
 
  <NCard style={{ marginTop: SP.md, marginBottom: SP.md, backgroundColor: tokens.infoSurface, borderColor: tokens.info }}>
- <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.info, textAlign: AR ? 'right' : 'left' }}>{AR ? 'ملخص الذكاء الاصطناعي' : 'AI Triage Summary'}</Text>
- <Text style={{ fontSize: FS.sm, color: tokens.info, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>{AR ? 'لا توجد نتيجة ذكاء اصطناعي موثقة من الخادم لهذا الموعد.' : 'No server-recorded AI result is available for this appointment.'}</Text>
+ <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: tokens.info, textAlign: AR ? 'right' : 'left' }}>{tt('docappt.ca8fc328')}</Text>
+ <Text style={{ fontSize: FS.sm, color: tokens.info, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>{tt('docappt.149b713d')}</Text>
  </NCard>
 
  {[
  { icon:'clock', ar:'وقت الموعد', en:'Time', val:apt?.time || '—' },
- { icon:'video', ar:'نوع الخدمة', en:'Type', val:apt?.type === 'video' ? (AR?'استشارة فيديو':'Video Consult') : apt?.type === 'clinic' ? (AR?'كشف عيادة':'Clinic') : apt?.type ? (AR?'زيارة منزلية':'Home Visit') : '—' },
- { icon:'dollarSign', ar:'الرسوم', en:'Fee', val:apt?.price != null ? `${apt.price} ${AR?'ريال':'SAR'}` : '—' },
+ { icon:'video', ar:'نوع الخدمة', en:'Type', val:apt?.type === 'video' ? (tt('docappt.4c6baf1c')) : apt?.type === 'clinic' ? (tt('docappt.620d265d')) : apt?.type ? (tt('docappt.c1be7bcf')) : '—' },
+ { icon:'dollarSign', ar:'الرسوم', en:'Fee', val:apt?.price != null ? `${apt.price} ${tt('docappt.0e39e6ca')}` : '—' },
  { icon:'fileText', ar:'الشكوى', en:'Complaint', val:apt?.complaint || '—' },
  ].map((row, i) => (
  <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md,
@@ -126,29 +126,29 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
   ))}
   </NCard>
   {/* the consultation screen verifies the appointment with the server before anything opens */}
-  <NBtn label={AR ? 'فتح الاستشارة' : 'Open consultation'} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
-  {isVisitedStatus(apt?.status) ? <NBtn label={AR ? 'أمر طبي جديد' : 'New medical order'} variant="outline" onPress={() => onNavigate('medical_order_composer', apt)} style={{ marginTop: SP.md }} /> : null}
+  <NBtn label={tt('docappt.66d517b1')} onPress={() => onNavigate('consultation', apt)} style={{ marginTop: SP.xl }} />
+  {isVisitedStatus(apt?.status) ? <NBtn label={tt('docappt.4a27a2b5')} variant="outline" onPress={() => onNavigate('medical_order_composer', apt)} style={{ marginTop: SP.md }} /> : null}
   {apt?.type === 'home' && apptId ? <HomeVisitTrip apptId={apptId} AR={AR} /> : null}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
- {['', 'pending', 'requested'].includes(String(apt?.status || '').toLowerCase()) ? <View style={{ flex: 1 }}><NBtn label={AR ? 'تأكيد الموعد' : 'Confirm'} loading={acting} onPress={() => doPatch('confirm')} /></View> : null}
- <View style={{ flex: 1 }}><NBtn label={AR ? 'إلغاء' : 'Cancel'} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
- <View style={{ flex: 1 }}><NBtn label={AR ? 'جدولة' : 'Reschedule'} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
+ {['', 'pending', 'requested'].includes(String(apt?.status || '').toLowerCase()) ? <View style={{ flex: 1 }}><NBtn label={tt('docappt.7600805e')} loading={acting} onPress={() => doPatch('confirm')} /></View> : null}
+ <View style={{ flex: 1 }}><NBtn label={tt('docappt.210b779f')} variant="danger" onPress={() => setShowCancel((v) => !v)} /></View>
+ <View style={{ flex: 1 }}><NBtn label={tt('docappt.ba85bd7b')} variant="outline" onPress={() => setShowResched((v) => !v)} /></View>
  </View>
  {showCancel && (
  <NCard style={{ marginTop: SP.md }}>
- <NInput placeholder={AR ? 'سبب الإلغاء (مطلوب، يصل المريض)' : 'Cancellation reason (required, the patient receives it)'} value={cancelReason} onChange={setCancelReason} />
- <NBtn label={AR ? 'تأكيد الإلغاء' : 'Confirm cancellation'} variant="danger" loading={acting} disabled={acting || cancelReason.trim().length < 3} onPress={() => doPatch('cancel', { reason: cancelReason.trim() })} style={{ marginTop: SP.md }} />
+ <NInput placeholder={tt('docappt.4f420cb4')} value={cancelReason} onChange={setCancelReason} />
+ <NBtn label={tt('docappt.83b674c7')} variant="danger" loading={acting} disabled={acting || cancelReason.trim().length < 3} onPress={() => doPatch('cancel', { reason: cancelReason.trim() })} style={{ marginTop: SP.md }} />
  </NCard>
  )}
  {showResched && (
  <NCard style={{ marginTop: SP.md }}>
  <TouchableOpacity accessibilityRole="button" onPress={() => setPicker('date')} style={{ borderWidth: 1, borderColor: theme.border, borderRadius: R.md, padding: SP.md, marginBottom: SP.sm }}>
- <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'التاريخ' : 'Date'}</Text>
- <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{newDate ? newDate.toLocaleDateString(AR ? 'ar-SA' : 'en-GB') : (AR ? 'اختر التاريخ' : 'Pick a date')}</Text>
+ <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docappt.2f1d5d61')}</Text>
+ <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{newDate ? newDate.toLocaleDateString(AR ? 'ar-SA' : 'en-GB') : (tt('docappt.14163f0b'))}</Text>
  </TouchableOpacity>
  <TouchableOpacity accessibilityRole="button" onPress={() => setPicker('time')} style={{ borderWidth: 1, borderColor: theme.border, borderRadius: R.md, padding: SP.md }}>
- <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{AR ? 'الوقت' : 'Time'}</Text>
- <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{newTime ? newTime.toLocaleTimeString(AR ? 'ar-SA' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) : (AR ? 'اختر الوقت' : 'Pick a time')}</Text>
+ <Text style={{ color: theme.textSub, fontSize: FS.xs, textAlign: AR ? 'right' : 'left' }}>{tt('docappt.2af96121')}</Text>
+ <Text style={{ color: theme.text, fontSize: FS.md, textAlign: AR ? 'right' : 'left' }}>{newTime ? newTime.toLocaleTimeString(AR ? 'ar-SA' : 'en-GB', { hour: '2-digit', minute: '2-digit' }) : (tt('docappt.325360d0'))}</Text>
  </TouchableOpacity>
  {picker && (
  <DateTimePicker
@@ -164,7 +164,7 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  }}
  />
  )}
- <NBtn label={AR ? 'تأكيد الموعد الجديد' : 'Confirm new slot'} loading={acting} onPress={submitReschedule} style={{ marginTop: SP.md }} />
+ <NBtn label={tt('docappt.da0c3020')} loading={acting} onPress={submitReschedule} style={{ marginTop: SP.md }} />
  </NCard>
  )}
   </NScroll>
@@ -177,6 +177,7 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  * "Arrived" moves it to ARRIVED and stops sending. The server accepts the position only from this doctor while en route.
  */
 function HomeVisitTrip({ apptId, AR }: { apptId: string; AR: boolean }) {
+  const { t: tt } = useLang();
   const { show } = useToast();
   const [state, setState] = useState<'idle' | 'en_route' | 'arrived'>('idle');
   const [busy, setBusy] = useState(false);
@@ -188,7 +189,7 @@ function HomeVisitTrip({ apptId, AR }: { apptId: string; AR: boolean }) {
   const startSending = useCallback(async () => {
     const Location = await import('expo-location');
     const perm = await Location.requestForegroundPermissionsAsync();
-    if (perm.status !== 'granted') { show(AR ? 'اسمح بالوصول إلى الموقع ليرى المريض أنك في الطريق' : 'Allow location so the patient can see you are on the way', 'error'); return; }
+    if (perm.status !== 'granted') { show(tt('docappt.cc1f23b3'), 'error'); return; }
     const send = (lat: number, lng: number) => client.post(`/care/appointments/${encodeURIComponent(apptId)}/position`, { lat, lng }).catch(() => undefined);
     const first = await Location.getCurrentPositionAsync({});
     void send(first.coords.latitude, first.coords.longitude);
@@ -200,10 +201,10 @@ function HomeVisitTrip({ apptId, AR }: { apptId: string; AR: boolean }) {
     setBusy(true);
     try {
       await client.patch(`/care/appointments/${encodeURIComponent(apptId)}/${action}`, {});
-      if (action === 'en-route') { setState('en_route'); show(AR ? 'أُبلغ المريض أنك في الطريق' : 'The patient was told you are on the way', 'success'); await startSending(); }
-      else { stopSending(); setState('arrived'); show(AR ? 'أُبلغ المريض بوصولك' : 'The patient was told you arrived', 'success'); }
+      if (action === 'en-route') { setState('en_route'); show(tt('docappt.e074d5c1'), 'success'); await startSending(); }
+      else { stopSending(); setState('arrived'); show(tt('docappt.2717bffb'), 'success'); }
     } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'تعذر تحديث حالة الزيارة' : 'Could not update the visit'), 'error');
+      show(err?.response?.data?.message || (tt('docappt.77264ce9')), 'error');
     } finally {
       setBusy(false);
     }
@@ -211,8 +212,8 @@ function HomeVisitTrip({ apptId, AR }: { apptId: string; AR: boolean }) {
 
   return (
     <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md }}>
-      <View style={{ flex: 1 }}><NBtn label={AR ? 'في الطريق' : 'On my way'} loading={busy && state === 'idle'} disabled={state !== 'idle' || busy} onPress={() => void move('en-route')} /></View>
-      <View style={{ flex: 1 }}><NBtn label={AR ? 'وصلت' : 'Arrived'} variant="outline" loading={busy && state === 'en_route'} disabled={state !== 'en_route' || busy} onPress={() => void move('arrive')} /></View>
+      <View style={{ flex: 1 }}><NBtn label={tt('docappt.379958ba')} loading={busy && state === 'idle'} disabled={state !== 'idle' || busy} onPress={() => void move('en-route')} /></View>
+      <View style={{ flex: 1 }}><NBtn label={tt('docappt.7eae0f3b')} variant="outline" loading={busy && state === 'en_route'} disabled={state !== 'en_route' || busy} onPress={() => void move('arrive')} /></View>
     </View>
   );
 }

@@ -28,20 +28,20 @@ import { SK, Vault } from '../../../security/Security';
 import { tokens, withAlpha } from '../../../theme/tokens';
 
 export function ProviderHomeStats({ onNavigate, stats }: { onNavigate: (s: string) => void; stats: any }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   
   return (
     <View style={{ marginBottom: SP.xl }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
-        <NStatCard icon="" label={AR ? 'طلبات اليوم' : "Today's Orders"} value={String(stats.todayCount || 0)} color={tokens.info} style={{ width: '47%' }} />
-        <NStatCard icon="" label={AR ? 'طلبات الأسبوع' : "Week's Orders"} value={String(stats.weekCount || 0)} color={tokens.purple} style={{ width: '47%' }} />
-        <NStatCard icon="" label={AR ? 'الإيرادات' : "Revenue"} value={String(stats.revenue || 0)} unit={AR ? 'ر' : 'SAR'} color={tokens.success} style={{ width: '47%' }} />
-        <NStatCard icon="" label={AR ? 'طلبات جديدة' : 'New Requests'} value={String(stats.pendingCount || 0)} color={tokens.warning} style={{ width: '47%' }} />
+        <NStatCard icon="" label={tt('pstats.42d2477b')} value={String(stats.todayCount || 0)} color={tokens.info} style={{ width: '47%' }} />
+        <NStatCard icon="" label={tt('pstats.cf323f90')} value={String(stats.weekCount || 0)} color={tokens.purple} style={{ width: '47%' }} />
+        <NStatCard icon="" label={tt('pstats.625c26e2')} value={String(stats.revenue || 0)} unit={tt('pstats.a629499b')} color={tokens.success} style={{ width: '47%' }} />
+        <NStatCard icon="" label={tt('pstats.02688a0f')} value={String(stats.pendingCount || 0)} color={tokens.warning} style={{ width: '47%' }} />
       </View>
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md, flexWrap: 'wrap' }}>
-        <NBtn label={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} icon="wallet" size="sm" style={{ flexBasis: '47%', backgroundColor: theme.surface2, borderColor: theme.border }} labelStyle={{ color: theme.text }} onPress={() => onNavigate('wallet')} />
-        <NBtn label={AR ? 'المحادثات' : 'Chats'} icon="chat" size="sm" style={{ flexBasis: '47%', backgroundColor: theme.surface2, borderColor: theme.border }} labelStyle={{ color: theme.text }} onPress={() => onNavigate('chat')} />
+        <NBtn label={tt('pstats.4bb94d0d')} icon="wallet" size="sm" style={{ flexBasis: '47%', backgroundColor: theme.surface2, borderColor: theme.border }} labelStyle={{ color: theme.text }} onPress={() => onNavigate('wallet')} />
+        <NBtn label={tt('pstats.aab7b0fc')} icon="chat" size="sm" style={{ flexBasis: '47%', backgroundColor: theme.surface2, borderColor: theme.border }} labelStyle={{ color: theme.text }} onPress={() => onNavigate('chat')} />
       </View>
     </View>
   );

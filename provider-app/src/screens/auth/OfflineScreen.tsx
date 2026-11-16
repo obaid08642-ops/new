@@ -10,7 +10,7 @@ import { SP } from '../../constants';
  */
 export function OfflineScreen({ onRetry, onLogout, autoRetryMs = 15000 }: { onRetry: () => void; onLogout: () => void; autoRetryMs?: number }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   useEffect(() => {
     if (!autoRetryMs) return undefined;
@@ -20,13 +20,13 @@ export function OfflineScreen({ onRetry, onLogout, autoRetryMs = 15000 }: { onRe
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }} testID="offline-screen">
       <NEmpty
-        title={AR ? 'لا يوجد اتصال بالخادم' : 'Cannot reach the server'}
-        sub={AR ? 'حسابك بخير. تحقق من اتصال الإنترنت وسنعيد المحاولة تلقائياً.' : 'Your account is fine. Check your internet connection; we retry automatically.'}
-        actionLabel={AR ? 'إعادة المحاولة' : 'Try again'}
+        title={tt('offline.82750cf4')}
+        sub={tt('offline.bea3eb3a')}
+        actionLabel={tt('offline.96cbdad3')}
         onAction={onRetry}
       />
       <View style={{ padding: SP.xl }}>
-        <NBtn label={AR ? 'تسجيل الخروج' : 'Log out'} variant="outline" onPress={onLogout} />
+        <NBtn label={tt('offline.7f6db502')} variant="outline" onPress={onLogout} />
       </View>
     </View>
   );

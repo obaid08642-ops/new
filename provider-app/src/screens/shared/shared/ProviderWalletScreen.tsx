@@ -30,7 +30,7 @@ import { tokens, withAlpha } from '../../../theme/tokens';
 // One wallet for every provider role. Used as a stack route (with a back button) and as the doctor's Wallet tab
 // (`embedded`, no back button). `revenueRoute` adds a link to the role's revenue report when the navigator has one.
 export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRoute }: { onBack?: () => void; onNavigate?: (s: string) => void; embedded?: boolean; revenueRoute?: string }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { user } = useAuth(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { user } = useAuth(); const AR = lang === 'ar';
   const [balance, setBalance] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [pendingEscrow, setPendingEscrow] = useState(0);
@@ -78,12 +78,12 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
   if (loadErr) {
     return (
       <View style={{ flex: 1, backgroundColor: theme.bg }}>
-        <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={embedded ? undefined : onBack} />
+        <NHeader title={tt('wallet.4bb94d0d')} onBack={embedded ? undefined : onBack} />
         <NEmpty
           icon="alert"
-          title={AR ? 'تعذر تحميل المحفظة' : 'Could not load the wallet'}
-          sub={AR ? 'لم نتمكن من قراءة رصيدك من الخادم. تحقق من الاتصال ثم أعد المحاولة.' : 'We could not read your balance from the server. Check your connection and retry.'}
-          actionLabel={AR ? 'إعادة المحاولة' : 'Retry'}
+          title={tt('wallet.d412c6f1')}
+          sub={tt('wallet.6c9b51f0')}
+          actionLabel={tt('wallet.cf333076')}
           onAction={() => { void fetchWallet(); }}
         />
       </View>
@@ -92,15 +92,15 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'المحفظة والإيرادات' : 'Wallet & Revenue'} onBack={embedded ? undefined : onBack} />
+      <NHeader title={tt('wallet.4bb94d0d')} onBack={embedded ? undefined : onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
         <NCard style={{ backgroundColor: theme.primary, alignItems: 'center', padding: SP.xxl, marginBottom: SP.lg }}>
-          <Text style={{ color: '#fff', opacity: 0.8, fontSize: FS.sm }}>{AR ? 'الرصيد المتاح للسحب' : 'Available Balance'}</Text>
+          <Text style={{ color: '#fff', opacity: 0.8, fontSize: FS.sm }}>{tt('wallet.a0b8ab41')}</Text>
           <Text style={{ color: '#fff', fontSize: 36, fontWeight: FW.bold, marginVertical: SP.sm }}>
-            {balance} <Text style={{ fontSize: FS.md }}>{AR ? 'ريال' : 'SAR'}</Text>
+            {balance} <Text style={{ fontSize: FS.md }}>{tt('wallet.0e39e6ca')}</Text>
           </Text>
           <NBtn 
-            label={AR ? 'طلب سحب' : 'Request Withdrawal'} 
+            label={tt('wallet.209888a8')} 
             onPress={() => onNavigate && onNavigate('withdrawal_workflow')} 
             style={{ backgroundColor: '#fff', marginTop: SP.md }} 
             labelStyle={{ color: theme.primary }} 
@@ -108,12 +108,12 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
         </NCard>
 
         {revenueRoute && onNavigate ? (
-          <NBtn label={AR ? 'التقارير والإحصائيات' : 'Revenue Insights & Reports'} variant="outline" onPress={() => onNavigate(revenueRoute)} style={{ marginBottom: SP.lg }} />
+          <NBtn label={tt('wallet.c58f931e')} variant="outline" onPress={() => onNavigate(revenueRoute)} style={{ marginBottom: SP.lg }} />
         ) : null}
 
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.md }}>
-          <NStatCard icon="trendingUp" label={AR ? 'إجمالي الإيرادات' : 'Total Revenue'} value={String(totalRevenue)} unit={AR ? 'ر' : 'SAR'} color={theme.success} style={{ flex: 1 }} />
-          <NStatCard icon="clock" label={AR ? 'أرصدة معلقة (Escrow)' : 'Pending (Escrow)'} value={String(pendingEscrow)} unit={AR ? 'ر' : 'SAR'} color={theme.warn} style={{ flex: 1 }} />
+          <NStatCard icon="trendingUp" label={tt('wallet.b4d65b0a')} value={String(totalRevenue)} unit={tt('wallet.a629499b')} color={theme.success} style={{ flex: 1 }} />
+          <NStatCard icon="clock" label={tt('wallet.9f2e5ce9')} value={String(pendingEscrow)} unit={tt('wallet.a629499b')} color={theme.warn} style={{ flex: 1 }} />
         </View>
 
         {lockedAmount > 0 && (
@@ -129,9 +129,9 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
             <I name="receipt" size={22} color={theme.info} />
           </View>
           <View style={{ flex: 1, alignItems: AR ? 'flex-end' : 'flex-start' }}>
-            <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'نسبة عمولة المنصة المحددة لك' : 'Your platform commission rate'}</Text>
+            <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('wallet.9e335702')}</Text>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
-              {commissionCash !== null ? (AR ? `كاش ${commissionCash}% • تأمين ${commissionIns !== null ? commissionIns : commissionCash}%` : `Cash ${commissionCash}% • Insurance ${commissionIns !== null ? commissionIns : commissionCash}%`) : (AR ? 'يحددها الأدمن عند الاعتماد' : 'Set by admin at approval')}
+              {commissionCash !== null ? (AR ? `كاش ${commissionCash}% • تأمين ${commissionIns !== null ? commissionIns : commissionCash}%` : `Cash ${commissionCash}% • Insurance ${commissionIns !== null ? commissionIns : commissionCash}%`) : (tt('wallet.5775987a'))}
             </Text>
             {(totalRevenue > 0 && commissionCash !== null) && (
               <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
@@ -141,9 +141,9 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
           </View>
         </NCard>
 
-        <NSecHeader title={AR ? 'سجل العمليات' : 'Transaction History'} />
+        <NSecHeader title={tt('wallet.41306385')} />
         {!loading && transactions.length === 0 && (
-          <NEmpty title={AR ? 'لا توجد معاملات بعد' : 'No transactions yet'} subtitle={AR ? 'ستظهر المدفوعات والعمولات هنا' : 'Payments and commissions will appear here'} />
+          <NEmpty title={tt('wallet.225d7df7')} subtitle={tt('wallet.16bfa75b')} />
         )}
         {transactions.map((tx: any, idx) => (
           <NCard key={tx.id || idx} style={{ marginBottom: SP.md, flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
@@ -155,7 +155,7 @@ export function ProviderWalletScreen({ onBack, onNavigate, embedded, revenueRout
               <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>{tx.date}</Text>
             </View>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: (tx.type === 'CREDIT' || tx.type === 'EARNING') ? theme.success : theme.warn }}>
-              {(tx.type === 'CREDIT' || tx.type === 'EARNING') ? '+' : '-'}{Math.abs(tx.amount || 0)} {AR ? 'ر' : 'SAR'}
+              {(tx.type === 'CREDIT' || tx.type === 'EARNING') ? '+' : '-'}{Math.abs(tx.amount || 0)} {tt('wallet.a629499b')}
             </Text>
           </NCard>
         ))}
