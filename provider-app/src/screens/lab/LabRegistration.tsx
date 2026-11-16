@@ -587,9 +587,9 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
         {tt('labreg.79461c83')}
       </Text>
       <View style={st.docGrid}>
-        <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} done={!!data.crUri} onPress={() => pick('crUri')} required />
-        <DocCard label={AR ? 'ترخيص\nMOH' : 'MOH\nLicense'} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
-        <DocCard label={AR ? 'شعار\nالمركز' : 'Center\nLogo'} done={!!data.logoUri} onPress={() => pick('logoUri')} />
+        <DocCard label={tt('qqbo.e6133586')} done={!!data.crUri} onPress={() => pick('crUri')} required />
+        <DocCard label={tt('qqbo.bade04d5')} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
+        <DocCard label={tt('qqbo.a704384a')} done={!!data.logoUri} onPress={() => pick('logoUri')} />
       </View>
     </View>
   );
@@ -711,7 +711,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                     color: data.homeRadius === r ? theme.textInv : theme.text,
                     fontWeight: FW.semi, fontSize: FS.sm,
                   }}>
-                    {r} {AR ? 'كم' : 'km'}
+                    {r} {tt('qqbo.43b7eb43')}
                   </Text>
                 </TouchableOpacity>
               ))}

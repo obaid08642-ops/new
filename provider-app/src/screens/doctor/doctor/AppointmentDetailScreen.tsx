@@ -101,7 +101,7 @@ export function AppointmentDetailScreen({ apt, onBack, onNavigate }:
  <View style={{ flex: 1 }}>
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text,
  textAlign: AR ? 'right' : 'left' }}>{apt?.patient ?? '—'}</Text>
- <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{apt?.age ?? '—'} {AR?'سنة':'yrs'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{apt?.age ?? '—'} {tt('qqs.6a6187b3')}</Text>
  <NBadge label={apt?.insurance || '—'} variant="primary" size="xs" style={{ marginTop: SP.xs }} />
  </View>
  </View>

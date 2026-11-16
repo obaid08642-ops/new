@@ -1,5 +1,5 @@
 {
- "commit": "ad8ae9265",
+ "commit": "48eadaeb3",
  "screens": {
   "PendingDashboard": [
    {
@@ -433,7 +433,7 @@
    },
    {
     "kind": "button",
-    "label": "[briefcase] Employer (Looking for staff)",
+    "label": "[briefcase] {tt('qqdm.8831a411')}",
     "src": "local state setPostType",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsPostTab.tsx",
@@ -443,7 +443,7 @@
    },
    {
     "kind": "button",
-    "label": "[user] Job Seeker (Looking for job)",
+    "label": "[user] {tt('qqdm.ee1cf705')}",
     "src": "local state setPostType",
     "status": "ok",
     "file": "provider-app/src/screens/shared/shared/MedicalJobsPostTab.tsx",
@@ -4425,7 +4425,7 @@
    },
    {
     "kind": "button",
-    "label": "{r} km",
+    "label": "{r} {tt('qqcd.43b7eb43')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -5406,7 +5406,7 @@
    },
    {
     "kind": "button",
-    "label": "CR Doc",
+    "label": "{tt('qqbo.e6133586')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5416,7 +5416,7 @@
    },
    {
     "kind": "button",
-    "label": "MOH License",
+    "label": "{tt('qqbo.bade04d5')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5426,7 +5426,7 @@
    },
    {
     "kind": "button",
-    "label": "Center Logo",
+    "label": "{tt('qqbo.a704384a')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5506,7 +5506,7 @@
    },
    {
     "kind": "button",
-    "label": "{r} km",
+    "label": "{r} {tt('qqbo.43b7eb43')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6569,7 +6569,7 @@
    },
    {
     "kind": "button",
-    "label": "CR Doc",
+    "label": "{tt('qqbo.e6133586')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6579,7 +6579,7 @@
    },
    {
     "kind": "button",
-    "label": "MOH License",
+    "label": "{tt('qqbo.bade04d5')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6589,7 +6589,7 @@
    },
    {
     "kind": "button",
-    "label": "Center Logo",
+    "label": "{tt('qqbo.a704384a')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6669,7 +6669,7 @@
    },
    {
     "kind": "button",
-    "label": "{r} km",
+    "label": "{r} {tt('qqbo.43b7eb43')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -7713,7 +7713,7 @@
    },
    {
     "kind": "button",
-    "label": "SCFHS License",
+    "label": "{tt('qqbr.d1f5270a')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7723,7 +7723,7 @@
    },
    {
     "kind": "button",
-    "label": "Profile Photo",
+    "label": "{tt('qqbr.c721299d')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7733,7 +7733,7 @@
    },
    {
     "kind": "button",
-    "label": "CR Doc",
+    "label": "{tt('qqbr.e6133586')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7743,7 +7743,7 @@
    },
    {
     "kind": "button",
-    "label": "MOH License",
+    "label": "{tt('qqbr.bade04d5')}",
     "src": "parent callback pick",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -7895,7 +7895,7 @@
    },
    {
     "kind": "button",
-    "label": "{r} km",
+    "label": "{r} {tt('qqbr.43b7eb43')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",

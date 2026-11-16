@@ -66,7 +66,7 @@ export function MedicalJobsDetail({ ctx }: any) {
                 { icon: 'award', l: tt('rrzd.f94827be'), v: selectedJob.scfhs },
                 { icon: 'clock', l: tt('rrzd.a47b0680'), v: AR ? selectedJob.type_ar : selectedJob.type_en },
                 { icon: 'shield', l: tt('rrzd.1f27efff'), v: selectedJob.status },
-                { icon: 'star', l: tt('rrzd.985dd715'), v: `${selectedJob.exp} ${AR ? 'سنوات' : 'years'}` },
+                { icon: 'star', l: tt('rrzd.985dd715'), v: `${selectedJob.exp} ${tt('qqdk.5f5e1f1e')}` },
                 { icon: 'globe', l: tt('rrzd.61abb17f'), v: selectedJob.nat || (tt('rrzd.d088f703')) },
                 { icon: 'dollarSign', l: tt('rrzd.4fd3c1e1'), v: selectedJob.salary || (tt('rrzd.5adf44fb')) }
               ].map((f, i) => (

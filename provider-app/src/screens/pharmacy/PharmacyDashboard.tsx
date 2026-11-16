@@ -627,7 +627,7 @@ function B2BSupplyRequestScreen({ onBack }: any) {
                 <Text style={{ fontWeight: 'bold', fontSize: 15, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 6 }}>{tt('phdash.eef132c8')}</Text>
                 {myRequests.slice(0, 5).map((r: any) => (
                   <View key={r._id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', backgroundColor: theme.surface2, borderRadius: 8, padding: 10, marginBottom: 6 }}>
-                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{(r.items || []).length} {AR ? 'صنف' : 'items'}</Text>
+                    <Text style={{ color: theme.textSub, fontSize: 12 }}>{(r.items || []).length} {tt('qqby.4d37a72f')}</Text>
                     <Text style={{ color: r.status === 'QUOTATION_ISSUED' ? theme.primary : theme.text, fontSize: 12, fontWeight: 'bold' }}>
                       {r.status === 'PENDING_ADMIN_REVIEW' ? (tt('phdash.ac4a96c5'))
                         : r.status === 'QUOTATION_ISSUED' ? (tt('phdash.560fa9c3'))

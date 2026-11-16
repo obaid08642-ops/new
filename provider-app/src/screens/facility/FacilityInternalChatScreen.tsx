@@ -53,7 +53,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
     if (!inputText.trim() || !activeChat) return;
     try {
       await client.post(`/chat/threads/${activeChat}/messages`, { body: inputText, type: 'text' });
-      setMessages([...messages, { id: 'm-' + Date.now(), sender: tt('rras.1d7e0449'), text: inputText, time: AR ? 'الآن' : 'now', isMe: true }]);
+      setMessages([...messages, { id: 'm-' + Date.now(), sender: tt('rras.1d7e0449'), text: inputText, time: tt('qqaq.c6e7f43b'), isMe: true }]);
       setInputText('');
     } catch (e) {
       show(tt('rras.09f35c0e'), 'error');

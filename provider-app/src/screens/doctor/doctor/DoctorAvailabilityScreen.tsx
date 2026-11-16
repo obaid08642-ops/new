@@ -303,7 +303,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'morningStart')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
    <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.morningStart || '--:--'}</Text>
  </TouchableOpacity>
- <Text style={{ color: theme.textSub }}>{AR ? 'إلى' : 'to'}</Text>
+ <Text style={{ color: theme.textSub }}>{tt('qqv.69012625')}</Text>
  <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'morningEnd')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
    <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.morningEnd || '--:--'}</Text>
  </TouchableOpacity>
@@ -318,7 +318,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'eveningStart')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
    <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.eveningStart || '--:--'}</Text>
  </TouchableOpacity>
- <Text style={{ color: theme.textSub }}>{AR ? 'إلى' : 'to'}</Text>
+ <Text style={{ color: theme.textSub }}>{tt('qqv.69012625')}</Text>
  <TouchableOpacity disabled={vacationMode} onPress={() => openTimePicker(d.day, 'eveningEnd')} style={{ flex: 1, height: 40, backgroundColor: theme.surface2, borderRadius: R.sm, alignItems: 'center', justifyContent: 'center' }}>
    <Text style={{ color: theme.text, fontSize: FS.sm }}>{d.eveningEnd || '--:--'}</Text>
  </TouchableOpacity>

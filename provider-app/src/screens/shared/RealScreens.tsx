@@ -298,7 +298,7 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
   const timeAgo = (d: any) => {
     if (!d) return '';
     const mins = Math.max(0, Math.floor((Date.now() - new Date(d).getTime()) / 60000));
-    if (mins < 1) return AR ? 'الآن' : 'now';
+    if (mins < 1) return tt('qqcl.c6e7f43b');
     if (mins < 60) return tt('tpai.c4cf7a7d', { p1: String(mins) });
     const hrs = Math.floor(mins / 60);
     if (hrs < 24) return tt('tpai.3bbb8ec4', { p1: String(hrs) });

@@ -40,7 +40,7 @@ export function DoctorQueueList({ appointments, onSelect }: DoctorQueueListProps
         <Text style={[styles.sectionTitle, { color: theme.text }]}>
           {tt('rrr.a8aefa7b')}
         </Text>
-        <NBadge label={`${appointments.length} ${AR ? 'مريض' : 'patients'}`} />
+        <NBadge label={`${appointments.length} ${tt('qqp.bb636ae9')}`} />
       </View>
 
       <FlatList

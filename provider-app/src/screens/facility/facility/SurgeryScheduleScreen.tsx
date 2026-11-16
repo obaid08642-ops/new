@@ -159,7 +159,7 @@ export function SurgeryScheduleScreen({ onBack, surgeries, onRefresh }: { onBack
  {tt('tpr.9fa24406', { p1: String(surg.primary_surgeon_id) })}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.primary, marginTop:2 }}>
-  {new Date(surg.scheduled_at).toLocaleString()} · {surg.duration_mins} {AR?'دقيقة':'min'}
+  {new Date(surg.scheduled_at).toLocaleString()} · {surg.duration_mins} {tt('qqbk.c95d0c8a')}
  </Text>
  </NCard>
  ))

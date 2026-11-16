@@ -444,13 +444,13 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
         {isIndiv ? (
           <>
-            <DocCard label={AR ? 'ترخيص\nSCFHS' : 'SCFHS\nLicense'} done={!!data.scfhsUri} onPress={() => pick('scfhsUri')} />
-            <DocCard label={AR ? 'صورة\nشخصية' : 'Profile\nPhoto'} done={!!data.photoUri} onPress={() => pick('photoUri')} />
+            <DocCard label={tt('qqbr.d1f5270a')} done={!!data.scfhsUri} onPress={() => pick('scfhsUri')} />
+            <DocCard label={tt('qqbr.c721299d')} done={!!data.photoUri} onPress={() => pick('photoUri')} />
           </>
         ) : (
           <>
-            <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} done={!!data.crUri} onPress={() => pick('crUri')} />
-            <DocCard label={AR ? 'ترخيص\nMOH' : 'MOH\nLicense'} done={!!data.mohUri} onPress={() => pick('mohUri')} />
+            <DocCard label={tt('qqbr.e6133586')} done={!!data.crUri} onPress={() => pick('crUri')} />
+            <DocCard label={tt('qqbr.bade04d5')} done={!!data.mohUri} onPress={() => pick('mohUri')} />
           </>
         )}
       </View>
@@ -637,7 +637,7 @@ function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
           {[5, 10, 15, 20, 30, 50].map(r => (
             <TouchableOpacity key={r} onPress={() => update({ coverageRadius: r })} style={[st.chip, { backgroundColor: data.coverageRadius === r ? tokens.pink : theme.surface2, borderColor: data.coverageRadius === r ? tokens.pink : theme.border }]}>
-              <Text style={{ color: data.coverageRadius === r ? theme.textInv : theme.text, fontWeight: FW.semi }}>{r} {AR ? 'كم' : 'km'}</Text>
+              <Text style={{ color: data.coverageRadius === r ? theme.textInv : theme.text, fontWeight: FW.semi }}>{r} {tt('qqbr.43b7eb43')}</Text>
             </TouchableOpacity>
           ))}
         </View>

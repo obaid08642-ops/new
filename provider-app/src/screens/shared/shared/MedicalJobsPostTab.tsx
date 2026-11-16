@@ -37,11 +37,11 @@ export function MedicalJobsPostTab({ ctx }: any) {
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.sm }}>
             <TouchableOpacity onPress={() => setPostType('offer')} style={{ flex: 1, padding: SP.xl, borderRadius: R.lg, borderWidth: 2, borderColor: postType === 'offer' ? theme.primary : theme.border, backgroundColor: postType === 'offer' ? theme.primaryLight : theme.surface, alignItems: 'center' }}>
               <I name="briefcase" size={32} color={postType === 'offer' ? theme.primary : theme.textSub} />
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, textAlign: 'center' }}>{AR ? 'أنا صاحب عمل\n(أبحث عن موظفين)' : 'Employer\n(Looking for staff)'}</Text>
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, textAlign: 'center' }}>{tt('qqdm.8831a411')}</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setPostType('request')} style={{ flex: 1, padding: SP.xl, borderRadius: R.lg, borderWidth: 2, borderColor: postType === 'request' ? theme.success : theme.border, backgroundColor: postType === 'request' ? theme.successBg : theme.surface, alignItems: 'center' }}>
               <I name="user" size={32} color={postType === 'request' ? theme.success : theme.textSub} />
-              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, textAlign: 'center' }}>{AR ? 'أنا باحث عن عمل\n(أريد وظيفة)' : 'Job Seeker\n(Looking for job)'}</Text>
+              <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, textAlign: 'center' }}>{tt('qqdm.ee1cf705')}</Text>
             </TouchableOpacity>
           </View>
 

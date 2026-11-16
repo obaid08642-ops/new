@@ -958,7 +958,7 @@ function BundleMgmt({ onBack }:{ onBack:()=>void }) {
  <Text style={{fontSize:FS.sm,color:theme.textSub,textDecorationLine:'line-through'}}>{b.orig}</Text>
  <Text style={{fontSize:FS.sm,color:theme.textSub}}>{tt('labdash.0e39e6ca')}</Text>
  </View>
- <NBadge label={`${Math.round((1-b.price/b.orig)*100)}% ${AR?'خصم':'off'}`} variant="success" size="sm" />
+ <NBadge label={`${Math.round((1-b.price/b.orig)*100)}% ${tt('qqbm.8171cb18')}`} variant="success" size="sm" />
  </View>
  </NCard>
  ))}
@@ -1111,11 +1111,11 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
             <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
               <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('labdash.067d4d06')}</Text>
-              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{eta == null ? '—' : `${eta} ${AR ? 'دقيقة' : 'min'}`}</Text>
+              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{eta == null ? '—' : `${eta} ${tt('qqbm.c95d0c8a')}`}</Text>
             </View>
             <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
               <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('labdash.54dbe9bc')}</Text>
-              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{distance == null ? '—' : `${distance} ${AR ? 'كم' : 'km'}`}</Text>
+              <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.primary }}>{distance == null ? '—' : `${distance} ${tt('qqbm.43b7eb43')}`}</Text>
             </View>
           </View>
           {!hasDestination ? (
@@ -1281,7 +1281,7 @@ function TATTracker({ onBack }:{ onBack:()=>void }) {
    return (
    <NCard key={String(s.id || s.barcode)} style={{ marginBottom: SP.sm }}>
    <Text style={{ fontSize: FS.sm, color: theme.text }}>{s.barcode || s.id} — {s.stage}</Text>
-   {age !== null ? <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('labdash.dc2fbbc1')} {age.toFixed(1)} {AR ? 'ساعة' : 'h'}</Text> : null}
+   {age !== null ? <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{tt('labdash.dc2fbbc1')} {age.toFixed(1)} {tt('qqbm.e6787e11')}</Text> : null}
    </NCard>
    );
  })}
@@ -1428,7 +1428,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text}}>{cl.patient_name}</Text>
  <NBadge label={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?(tt('labdash.a7151286')):cl.insurance_status==='rejected'?(tt('labdash.6022b490')):(tt('labdash.94139241'))} variant={cl.insurance_status==='approved'||cl.insurance_status==='partial_approval'?'success':cl.insurance_status==='rejected'?'danger':'warning'} size="xs" />
  </View>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{cl.insurance_provider} | {cl.items?.length} {AR?'فحص':'tests'} | {cl.total} {tt('labdash.a629499b')}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{cl.insurance_provider} | {cl.items?.length} {tt('qqbm.55edd5a8')} | {cl.total} {tt('labdash.a629499b')}</Text>
  </NCard>
  </TouchableOpacity>
  ))}
@@ -1544,7 +1544,7 @@ function ResultsList({ onNav }:{ onNav:(s:string,p?:any)=>void }) {
  <NAvatar name={item.patient} size={42} />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.md,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{item.patient}</Text>
- <Text style={{fontSize:FS.xs,color:theme.textSub}}>{item.barcode} | {item.tests.length} {AR?'فحص':'tests'}</Text>
+ <Text style={{fontSize:FS.xs,color:theme.textSub}}>{item.barcode} | {item.tests.length} {tt('qqbm.55edd5a8')}</Text>
  </View>
  <NBadge label={sc?(AR?sc.ar:sc.en):''} variant={item.stage==='sent'?'primary':item.stage==='result_ready'?'success':'warning'} size="xs" />
  </View>

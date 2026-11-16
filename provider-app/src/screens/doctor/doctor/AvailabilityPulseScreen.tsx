@@ -113,7 +113,7 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
  borderColor: minutes === m ? theme.primary : theme.border,
  }]}>
  <Text style={{ color: minutes === m ? '#FFF' : theme.text, fontWeight: FW.semi }}>
- {m} {AR ? 'دق' : 'min'}
+ {m} {tt('qqu.8e09b590')}
  </Text>
  </TouchableOpacity>
  ))}
