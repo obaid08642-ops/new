@@ -1,10 +1,8 @@
-# 2026-11-17 run 135 = (1) READ-ONLY measure of the night 03:00-05:00 UTC after deploy 134 (96r kill window, 96j cache, 96h restarts) + launch facts (96u: SCFHS config names, licence dates, migration indexes, domain_outbox counts) + R11 halala counts (96i), THEN (2) deploy main@6d521a46: Riyadh slot times (server #2725 + clients #2731 together), admin hide-actions, ordering cancel_reason/refund_amount, keep provider files on reject, bounded nightly jobs, provider/patient literals. Outside 03:00-05:00 UTC.
-release:6d521a468f799834602bd7b81428bf903af4c39e
-96r-mongod-kill-window
-96j-mongo-cache-check
-96h-mongo-restarts
-96u-launch-facts
-96i-halala-counts
+# 2026-11-17 run 136 = deploy main@d5cd9077: #2738 (category listing: tie-breaker id so the v2 indexes serve every order, exact brand/form filters from the covered facet lists, maxTimeMS) = the night kills of run 135 (docsExamined 20,990 on /public/categories/:locale/items), client reconciliation fixes (#2737), R11 P3 writer code (no write runs). Then read-only 96r 96j 96h. Outside 03:00-05:00 UTC.
+release:d5cd90774601aa66de7fa24cdc231f8fb9d2fd84
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+96r-mongod-kill-window
+96j-mongo-cache-check
+96h-mongo-restarts
