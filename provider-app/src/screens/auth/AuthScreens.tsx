@@ -542,7 +542,7 @@ export function LoginScreen({
        <TextInput
          value={customIp}
          onChangeText={setCustomIp}
-         placeholder="e.g. 192.168.1.10"
+         placeholder={tt('phx.871c8962')}
          style={{ borderWidth: 1, borderColor: theme.border, borderRadius: R.md, padding: SP.md, marginBottom: SP.lg, color: theme.text, textAlign: 'left' }}
          keyboardType="numbers-and-punctuation"
        />

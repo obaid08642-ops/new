@@ -351,7 +351,7 @@ function NursingHome({ onNav, jobs, refreshing, onRefresh, onTriggerAlarm }:{ on
  </View>
  <View style={{alignItems:'flex-end',gap:SP.xs}}>
  <NBadge label={tt('nurdash.03886b8f')} variant="primary" size="xs" />
- <NBadge label={AR?(order.pricing==='per_day'?'يومي':'زيارة'):(order.pricing==='per_day'?'Daily':'Visit')} variant="default" size="xs" />
+ <NBadge label={(order.pricing==='per_day' ? tt('nnd.b769d9f0') : tt('nnd.73538330'))} variant="default" size="xs" />
  </View>
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm}}>

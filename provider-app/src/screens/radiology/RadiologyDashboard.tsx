@@ -377,7 +377,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
 
       {/* Insurance approval sheet */}
       <NSheet visible={showApproval} onClose={() => setShowApproval(false)} title={tt('raddash.afba36f9')}>
-        <NInput label={tt('raddash.ad1a5d6b')} value={decisionRef} onChange={setDecisionRef} placeholder="REF-XXXXX" />
+        <NInput label={tt('raddash.ad1a5d6b')} value={decisionRef} onChange={setDecisionRef} placeholder={tt('phx.7054830f')} />
         <NPriceInput label={tt('raddash.f096e662')} value={copay} onChange={setCopay} />
         <Text style={{ fontSize: FS.xs, color: tokens.warning, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.1b52df9b')}</Text>
         <NBtn label={tt('raddash.bbf529ee')} loading={loading} onPress={handleInsuranceApproval} />
@@ -566,7 +566,7 @@ function CatalogManagerTab() {
           <View style={{ flexDirection: 'row', gap: SP.sm }}>{MODALITIES.map(m => <TouchableOpacity key={m} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.md, backgroundColor: modality === m ? tokens.mintDeep : theme.surface2, borderWidth: 1, borderColor: modality === m ? tokens.mintDeep : theme.border }} onPress={() => setModality(m)}><Text style={{ color: modality === m ? '#fff' : theme.text, fontSize: FS.sm }}>{m}</Text></TouchableOpacity>)}</View>
         </ScrollView>
         <NInput label={tt('raddash.d91c01b5')} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
-        <NInput label={tt('raddash.1f9eb88f')} value={nameEn} onChange={setNameEn} placeholder="MRI Brain with Contrast" />
+        <NInput label={tt('raddash.1f9eb88f')} value={nameEn} onChange={setNameEn} placeholder={tt('phx.aa1b2d3b')} />
         <NPriceInput label={tt('raddash.39a4471e')} value={price} onChange={setPrice} />
         <NInput label={tt('raddash.d2889ad9')} value={duration} onChange={setDuration} placeholder="30" />
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{tt('raddash.93a0edf5')}</Text>

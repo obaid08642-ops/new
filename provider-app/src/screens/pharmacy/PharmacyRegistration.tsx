@@ -293,7 +293,7 @@ function PStep1Basic({ data, update, submitRef }: StepProps<PharmacyRegData>) {
       </View>
 
       <NInput innerRef={nameArRef} label={tt('phreg.8c0089ab')} placeholder={tt('phreg.91bfb7cc')} value={data.nameAr} onChange={v=>update({nameAr:v})} required error={errs.nameAr} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={tt('phreg.18677482')} placeholder="Nabdah Health Pharmacy" value={data.nameEn} onChange={v=>update({nameEn:v})} caps="words" returnKey="next" onSubmit={() => pharmaRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={tt('phreg.18677482')} placeholder={tt('phx.78be9f17')} value={data.nameEn} onChange={v=>update({nameEn:v})} caps="words" returnKey="next" onSubmit={() => pharmaRef.current?.focus()} />
 
       <NDivider label={tt('phreg.ce98e822')} style={{ marginVertical:SP.lg }} />
       <NInput innerRef={pharmaRef} label={tt('phreg.e251ab31')} placeholder={tt('phreg.5238c2fa')} value={data.pharmacistName} onChange={v=>update({pharmacistName:v})} required error={errs.pharma} caps="words" hint={tt('phreg.b4a73289')} returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
@@ -367,11 +367,11 @@ function PStep2Legal({ data, update, submitRef, uploads }: StepProps<PharmacyReg
   return (
     <View>
       <NInput label={tt('phreg.09540875')} placeholder="1234567890" value={data.crNumber} onChange={v=>update({crNumber:v.replace(/\D/g,'')})} required error={errs.cr} kbType="numeric" maxLen={10} />
-      <NInput label={tt('phreg.a80db342')} placeholder="MOH-PHR-XXXXX" value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={tt('phreg.8657e8d2')} />
-      <NInput label={tt('phreg.b13a67b8')} placeholder="SFDA-XXXXX" value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={tt('phreg.e1f1d5f7')} />
+      <NInput label={tt('phreg.a80db342')} placeholder={tt('phx.5b9a7569')} value={data.mohLicense} onChange={v=>update({mohLicense:v})} required error={errs.moh} hint={tt('phreg.8657e8d2')} />
+      <NInput label={tt('phreg.b13a67b8')} placeholder={tt('phx.99185f24')} value={data.sfdaNumber} onChange={v=>update({sfdaNumber:v})} required error={errs.sfda} hint={tt('phreg.e1f1d5f7')} />
       <LicenseExpiryField value={data.licenseExpiry} onChange={v=>update({licenseExpiry:v})} error={errs.expiry} />
-      <NInput label={tt('phreg.730b8353')} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={tt('phreg.f8a55b7b')} />
-      <NInput label={tt('phreg.3c637c3b')} placeholder="300XXXXXXXXX003" value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
+      <NInput label={tt('phreg.730b8353')} placeholder={tt('phx.8b707323')} value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required error={errs.iban} maxLen={24} hint={tt('phreg.f8a55b7b')} />
+      <NInput label={tt('phreg.3c637c3b')} placeholder={tt('phx.5dad8b41')} value={data.taxNumber} onChange={v=>update({taxNumber:v})} maxLen={15} />
 
       <Text style={[s.sectionTitle, { color:theme.text, textAlign:AR?'right':'left', marginTop: SP.md }]}>{tt('phreg.79461c83')}</Text>
       <View style={s.docGrid}>
@@ -536,7 +536,7 @@ function PStep4Hours({ data, update, submitRef }: StepProps<PharmacyRegData>) {
                   onPress={() => update({ shiftType: type as any })}
                   style={{ flex: 1, padding: SP.sm, borderRadius: R.md, borderWidth: 1.5, borderColor: data.shiftType === type ? theme.primary : theme.border, backgroundColor: data.shiftType === type ? theme.primary + '11' : theme.surface2, alignItems: 'center' }}>
                   <Text style={{ color: data.shiftType === type ? theme.primary : theme.textSub, fontWeight: FW.bold, fontSize: FS.sm }}>
-                    {AR ? (type === 'morning' ? 'صباحية' : type === 'evening' ? 'مسائية' : 'كليهما') : (type === 'morning' ? 'Morning' : type === 'evening' ? 'Evening' : 'Both')}
+                    {(type === 'morning' ? tt('nng.b31948df') : type === 'evening' ? tt('nng.b3fff297') : tt('nng.6411a195'))}
                   </Text>
                 </TouchableOpacity>
               ))}

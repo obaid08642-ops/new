@@ -312,8 +312,8 @@ function NS1({ data, update, submitRef }: StepProps<NurseRegData>) {
         {errs.mode && <Text style={{ fontSize: FS.xs, color: theme.danger, marginTop: SP.xs }}>{errs.mode}</Text>}
       </View>
 
-      <NInput innerRef={nameArRef} label={tt('nurreg.7529830f')} placeholder={AR ? (data.mode === 'company' ? 'شركة نبضة للتمريض' : 'ممرض/ة محمد أحمد') : (data.mode === 'company' ? 'Nabdah Nursing Co.' : 'Nurse Mohamed')} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
-      <NInput innerRef={nameEnRef} label={tt('nurreg.13027225')} placeholder="Nabdah Nursing" value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
+      <NInput innerRef={nameArRef} label={tt('nurreg.7529830f')} placeholder={(data.mode === 'company' ? tt('nne.e3323634') : tt('nne.d1dcb32c'))} value={data.nameAr} onChange={v => update({ nameAr: v })} required error={errs.name} caps="words" returnKey="next" onSubmit={() => nameEnRef.current?.focus()} />
+      <NInput innerRef={nameEnRef} label={tt('nurreg.13027225')} placeholder={tt('phx.b854c30f')} value={data.nameEn} onChange={v => update({ nameEn: v })} caps="words" returnKey="next" onSubmit={() => mgrNameRef.current?.focus()} />
       
       {data.mode === 'individual' && (
         <View style={{ marginBottom: SP.lg }}>
@@ -427,18 +427,18 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
       {isIndiv ? (
         <>
           <NInput label={tt('nurreg.b2be4a99')} placeholder="123456" value={data.scfhsNumber} onChange={v => update({ scfhsNumber: v.replace(/\D/g, '') })} required error={errs.scfhs} kbType="numeric" maxLen={8} />
-          <NInput label={tt('nurreg.165b2b1d')} placeholder="1XXXXXXXXX" value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
+          <NInput label={tt('nurreg.165b2b1d')} placeholder={tt('phx.cbc7b8cf')} value={data.nationalId} onChange={v => update({ nationalId: v.replace(/\D/g, '') })} kbType="numeric" maxLen={10} />
         </>
       ) : (
         <>
           <NInput label={tt('nurreg.09540875')} placeholder="1234567890" value={data.crNumber} onChange={v => update({ crNumber: v.replace(/\D/g, '') })} required error={errs.cr} kbType="numeric" maxLen={10} />
-          <NInput label={tt('nurreg.d4a0f043')} placeholder="MOH-NRS-XXXXX" value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
+          <NInput label={tt('nurreg.d4a0f043')} placeholder={tt('phx.c0ed7415')} value={data.mohLicense} onChange={v => update({ mohLicense: v })} required />
         </>
       )}
 
       <LicenseExpiryField value={data.scfhsExpiry} onChange={v => update({ scfhsExpiry: v })} error={errs.expiry} />
 
-      <NInput label={tt('nurreg.730b8353')} placeholder="SA0000000000000000000000" value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
+      <NInput label={tt('nurreg.730b8353')} placeholder={tt('phx.8b707323')} value={data.iban} onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })} required error={errs.iban} maxLen={24} />
 
       <Text style={[st.secTitle, { color: theme.text, textAlign: AR ? 'right' : 'left', marginTop: SP.md }]}>{tt('nurreg.523c377d')}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
@@ -731,7 +731,7 @@ return (
                   onPress={() => update({ shiftType: type as any })}
                   style={{ flex: 1, padding: SP.sm, borderRadius: R.md, borderWidth: 1.5, borderColor: data.shiftType === type ? tokens.pink : theme.border, backgroundColor: data.shiftType === type ? withAlpha(tokens.pink, 0.11) : theme.surface2, alignItems: 'center' }}>
                   <Text style={{ color: data.shiftType === type ? tokens.pink : theme.textSub, fontWeight: FW.bold, fontSize: FS.sm }}>
-                    {AR ? (type === 'morning' ? 'صباحية' : type === 'evening' ? 'مسائية' : 'كليهما') : (type === 'morning' ? 'Morning' : type === 'evening' ? 'Evening' : 'Both')}
+                    {(type === 'morning' ? tt('nne.b31948df') : type === 'evening' ? tt('nne.b3fff297') : tt('nne.6411a195'))}
                   </Text>
                 </TouchableOpacity>
               ))}

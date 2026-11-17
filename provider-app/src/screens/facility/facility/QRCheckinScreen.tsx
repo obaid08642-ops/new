@@ -156,7 +156,7 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  <View>
  <NInput
  label={tt('rrbj.a975a4f2')}
- placeholder={AR ? 'APT-2025-XXXXX' : 'APT-2025-XXXXX'}
+ placeholder={tt('phx.64e5856c')}
  value={manualId} onChange={setManualId} icon=""
  />
  <NBtn label={tt('rrbj.bdd8b823')} disabled={!manualId.trim()} loading={checkingIn}
