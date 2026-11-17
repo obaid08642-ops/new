@@ -1,5 +1,13 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 09:30 UTC — client reconciliation (PR #2737); #2732 merged; #2719 and #2730 re-synced again
+- Output: docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md (PR #2737). Launch list ticked with PR links in lead/LAUNCH_LIST.md (parity #2723, return photo #2606, patient literals, merge map rows 1-3); bundle margin left as a standing rule with today's measure (79 KB).
+- Specific checks: social login DONE (server verifies, app never trusts the token), parity none, admin hide-actions #2732, https-only #2711, Riyadh #2731.
+- 107 open [client] needs-review lines: 6 DONE, 6 NOT A PROBLEM, 5 FIXED HERE, 40 DEFERRED, 13 OPEN design, 37 OPEN client (not done in this pass: the list with the exact need is section 7). Stale line found: assistant screens already use the emergency page (GET /mental-health/urgent-help).
+- Fixed in the PR: reset-link message (6 languages), guest name (6 languages), offer id encoding, pharmacy payment key on method change, family join relation_code, admin returns dialog instead of window.prompt (18 more window.prompt in 10 admin files remain).
+- Provider ur/hi/bn/fil: closed by the owner (Arabic + English only).
+- Open PRs: #2719, #2730, #2737 (cap). The next slices (37 OPEN client + 18 admin prompts + last 105 provider literals) wait for a free slot; tell me the order if you want it different.
+
 ## 2026-11-17 07:30 UTC — #2731 merged; #2719 and #2730 re-synced; admin PR #2732 opened
 - #2731 (Riyadh slot pickers) merged: deploy it together with #2725.
 - #2719 and #2730 were dirty again (generated docs only): merged main, took main's generated files, regenerated with the tools, pushed. Gates unchanged (tokens: no-raw-color 402, token-sync 335, jest 433/433; literals 105, parity ok).
