@@ -64,14 +64,14 @@ describe('publicCategoryProducts popularity ordering', () => {
     const { service, pipelines, finds } = svc([doc('a')]);
     await service.publicCategoryProducts('ar', 'all', undefined, 1, 24, undefined, 'most_ordered');
     expect(pipelines).toEqual([]);
-    expect(finds[0]).toEqual({ orders_count: -1, _id: 1 });
+    expect(finds[0]).toEqual({ orders_count: -1, id: 1 });
   });
 
   it('an explicit price order keeps the plain sort', async () => {
     const { service, pipelines, finds } = svc([doc('a')]);
     await service.publicCategoryProducts('ar', 'all', undefined, 1, 24, undefined, 'price_asc');
     expect(pipelines).toEqual([]);
-    expect(finds[0]).toEqual({ price: 1, _id: 1 });
+    expect(finds[0]).toEqual({ price: 1, id: 1 });
   });
 
   it('a prescription-only item keeps its natural place (its score does not count)', () => {
