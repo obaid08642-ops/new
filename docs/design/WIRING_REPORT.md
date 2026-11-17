@@ -81,7 +81,7 @@ A wrapper forwards its own parameter to `fetch` (`fetch(patientApiUrl(path))`), 
 | `useSection` | `patient-app/src/components/consult/AppointmentSections.tsx:72` | 3 | 3 | 0 | 0 |
 | `(anonymous)` | `patient-app/src/hooks/useSearchSuggest.ts:12` | 0 | 0 | 0 | 0 |
 | `apiFetch` | `patient-app/src/utils/api.ts:191` | 414 | 403 | 9 | `patient-app/src/components/orders/OrderList.tsx:88`, `patient-app/src/utils/useCatalogNames.ts:32` |
-| `asapCall` | `patient-app/src/utils/orderingBooking.ts:187` | 3 | 3 | 0 | 0 |
+| `asapCall` | `patient-app/src/utils/orderingBooking.ts:184` | 3 | 3 | 0 | 0 |
 | `prefetchApi` | `patient-app/src/utils/prefetch.ts:19` | 5 | 5 | 0 | 0 |
 | `fetchPublicList` | `patient-app/src/utils/publicCache.ts:50` | 12 | 10 | 2 | 0 |
 | `probeStoredFile` | `patient-app/src/utils/scanProbe.ts:17` | 1 | 0 | 0 | `patient-app/src/components/health/ProfileView.tsx:58` |
@@ -123,7 +123,7 @@ None needed.
 - `patient-app/src/components/orders/OrderList.tsx:88` `apiFetch(path)`
 - `patient-app/src/components/health/ProfileView.tsx:58` `probeStoredFile(waitingPath)`
 - `patient-app/src/utils/useCatalogNames.ts:32` `apiFetch<unknown>(catalogPath(group, id))`
-- `patient-web/components-next/home-care-booking-form.tsx:51` `fetch(...a)`
+- `patient-web/components-next/home-care-booking-form.tsx:50` `fetch(...a)`
 - `patient-web/lib/uploads/probe-file.ts:9` `fetch(...a)`
 - `patient-web/components-next/receipt/receipt-share.tsx:19` `fetch(pdfHref, { cache: "no-store" })`
 
@@ -133,7 +133,7 @@ None needed.
 |---|---|---|---|---|---|---|
 | 1 | web | PROXY_BLOCKED? | `POST /api/patient/unified-bookings/:param/:param/:param` | `patient-web/components-next/consult/hide-visit-button.tsx:26` | `/appointments`, `/orders` | blocked for every sample param value (UUID, slug, literals of the file) |
 | 3 | web | PROXY_BLOCKED? | `POST /api/patient/:param/bookings/:param/cancel` | `patient-web/components-next/diagnostics/booking-cancel.tsx:25` | `/diagnostics/bookings/[domain]/[bookingId]` | blocked for every sample param value (UUID, slug, literals of the file) |
-| 4 | web | PROXY_BLOCKED? | `GET /api/patient/home-care/providers/:param/slots` | `patient-web/components-next/home-care-booking-form.tsx:124` | `/nursing/nurses/[nurseId]` | blocked for every sample param value (UUID, slug, literals of the file) |
+| 4 | web | PROXY_BLOCKED? | `GET /api/patient/home-care/providers/:param/slots` | `patient-web/components-next/home-care-booking-form.tsx:123` | `/nursing/nurses/[nurseId]` | blocked for every sample param value (UUID, slug, literals of the file) |
 
 ## 5. Screens with no API call found
 
@@ -160,7 +160,7 @@ Stale entries in static-screens.json (the screen now calls an API or is gone): `
 
 ## 6. Mock / placeholder found (heuristic)
 
-**Heuristic scan, not a proof.** `tools/design/mock-scan.mjs` reads the TypeScript AST of 1466 source files (the files each route reaches, the route trees and their layouts, and the Batch 0 component folders; 66 of them are Batch 0) and lists code that looks like fake data or a dead control. A hit is a lead to check, a miss is not a guarantee. Each pattern was sampled on real hits and tightened until false positives were rare; when a pattern finds nothing it says so.
+**Heuristic scan, not a proof.** `tools/design/mock-scan.mjs` reads the TypeScript AST of 1468 source files (the files each route reaches, the route trees and their layouts, and the Batch 0 component folders; 66 of them are Batch 0) and lists code that looks like fake data or a dead control. A hit is a lead to check, a miss is not a guarantee. Each pattern was sampled on real hits and tightened until false positives were rare; when a pattern finds nothing it says so.
 
 Ignored: tests and fixtures, `node_modules`, the generated mirror `patient-web/components-next/ui-generated`, i18n dictionaries, `placeholder=` attributes and props (input hints), `console.*` arguments and error messages. **B0** = Batch 0: its route files, the files beside a web Batch 0 route, `patient-web/components-next/{auth,home,core}` and `patient-app/src/components/{auth,home,navigation,screen}`.
 

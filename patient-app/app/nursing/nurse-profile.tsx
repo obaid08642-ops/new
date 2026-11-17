@@ -19,6 +19,7 @@ import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { paymentIntentHeaders } from '../../src/utils/payment-idempotency';
 import { formatAddressLine, resolveEffectiveAddress } from '../../src/utils/selectedAddress';
+import { riyadhWall } from '../../src/utils/riyadh';
 import {
   choiceFields,
   choiceQuery,
@@ -50,7 +51,7 @@ interface OptionField { id: 'recurrence' | 'times' | 'hours' | 'shift' | 'period
 export default function NursingMegaProfile() {
   const { theme, t, c, k, num, money, flow: textFlow } = useScreenUi();
   const { nurseId, flow, serviceId } = useLocalSearchParams<{ nurseId?: string; flow?: string; serviceId?: string }>();
-  const days = useDays(30);
+  const days = useDays(30, true);
 
   const [nurse, setNurse] = useState<Rec | null>(null);
   const [insuranceData, setInsuranceData] = useState<Rec | null>(null);
@@ -157,7 +158,7 @@ export default function NursingMegaProfile() {
     };
   }, [nurseId, selectedDate]);
 
-  const slots = slotList.map((x) => ({ id: x.start, label: clock(x.start), available: x.available !== false }));
+  const slots = slotList.map((x) => ({ id: x.start, label: clock(riyadhWall(x.start), 'UTC'), available: x.available !== false }));
 
   // The price is the server's: GET /bookings/quote states the price of one visit and the total of the days chosen, from the same
   // pricing function the booking charges by. Nothing is multiplied here; with no quote the screen says the price is set at booking.
