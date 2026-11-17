@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 02:10 UTC — provider literals slice 10 (PR #2730, stacked on #2729)
+- 190 -> 105. Nested ternaries and isRTL pairs converted; 31 placeholders became keys WITH Arabic hints (parity forbids Latin in ar). Visible change: Arabic users see "رقم ترخيص المختبر" instead of "MOH-LAB-XXXXX". CSV header catalog_id,mode,price left literal on purpose.
+- Gates: parity ok, emoji 37, token-sync 396 on this branch, tsc clean, jest 433/433.
+- Merge order please: #2719 (tokens), #2729, #2730. All three touch the locale files' tail; each later one rebases clean once the earlier is merged.
+- 105 left: 32 status codes in JSX comparisons (code), CSV header, ~70 bespoke strings. Next: finish those by hand; then QUEUE EMPTY except the overlay-token question.
+
 ## 2026-11-17 01:10 UTC — provider literals slice 9 (PR #2729); #2724 merged; #2719 (tokens) still open
 - 234 -> 190 (43 pairs the codemod used to skip). parity ok, emoji 37, tsc clean, jest 433/433.
 - 190 left: 41 Latin placeholders (format examples), 32 upper-case status codes in JSX comparisons (code, not text), ~117 Arabic/other strings (isRTL ternaries, {ar,en} objects, one-offs). Plan: texts and placeholders become locale keys; status codes move to shared constants. I do not touch the gate.
