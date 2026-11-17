@@ -113,10 +113,10 @@ export function useConsultFormat() {
     if (value === null || value === undefined || Number.isNaN(d.getTime())) return '';
     return d.toLocaleString(locale, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang) });
   };
-  /** A time of day from an ISO instant or a timestamp. */
-  const clock = (value: unknown): string => {
+  /** A time of day from an ISO instant or a timestamp (`timeZone` "UTC" with a `riyadhWall` instant reads Riyadh clock time). */
+  const clock = (value: unknown, timeZone?: string): string => {
     const d = new Date(value as string | number);
-    return value === null || value === undefined || Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang) });
+    return value === null || value === undefined || Number.isNaN(d.getTime()) ? '' : d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', numberingSystem: numberingFor(lang), ...(timeZone ? { timeZone } : {}) });
   };
   return { date, dayMonth, time, dateTime, clock, num, money };
 }

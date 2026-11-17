@@ -15,6 +15,7 @@ import { pickName } from "@/lib/ordering/format";
 import { orderingErrorKey, type OrderMode, type Payer, type ServiceKind } from "@/lib/ordering/quote";
 import { asapOpen, clock, dayKey, dayText, groupByDay, hasChoices, nextDays, parseSchedule, rangeText, SCHEDULE_KEY, slotText, whenSummary, type Asap, type Schedule } from "@/lib/ordering/schedule";
 import type { WindowsAnswer } from "@/lib/ordering/windows";
+import { riyadhNoon } from "@/lib/time/riyadh";
 import { QuoteError, QuoteLoading } from "./quote-parts";
 import styles from "./ordering.module.css";
 
@@ -305,7 +306,7 @@ function CentrePicker({ locale, providerId, schedule, update }: { locale: string
       <h2 className={styles.title}>{t("whenCentreTitle")}</h2>
       <div className={styles.chips} role="group" aria-label={t("whenDayAria")}>
         {days.map((d, i) => (
-          <button key={d} type="button" className={styles.chip} aria-pressed={day === d} onClick={() => setDay(d)}>{i === 0 ? t("whenToday") : dayText(locale, `${d}T12:00:00`)}</button>
+          <button key={d} type="button" className={styles.chip} aria-pressed={day === d} onClick={() => setDay(d)}>{i === 0 ? t("whenToday") : dayText(locale, riyadhNoon(d).toISOString())}</button>
         ))}
       </div>
       {a.slots.length === 0 ? (
