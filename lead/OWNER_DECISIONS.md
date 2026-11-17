@@ -69,3 +69,8 @@ Row 2 (two payout pages): APPROVED. Keep payouts.tsx as the one place (approve/p
 Row 3 (two hospital staff controllers): APPROVED. Move the handlers into one module; URLs, DTOs, guards unchanged; both modules tests must pass.
 Row 4 (three ways to create staff): NOT YET. Do only the verification: list every caller of invite / accept-invite / operators / hospital staff create (this repo + tools/live + apps), and how permissions differ. Report in outbox; no change until the lead decides. Existing staff must keep working in any case.
 Rule: one PR per row, existing journeys (j_*) and unit tests must stay green, no skipped tests.
+
+## 2026-11-17 (owner)
+- RAM: approved, raise the server to 8 GB, but only at the end of the work, right before launch (no customers yet, no reason to pay for it now). Build everything assuming 8 GB; keep the memory fixes (they are still right).
+- Provider app: Arabic + English only (no ur/hi/bn/fil). Patient app and patient website: six languages. Nothing to translate for the provider app.
+- Launch rule: the site and the apps are NOT opened to anyone until the owner is sure everything is finished.
