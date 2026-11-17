@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 07:30 UTC — #2731 merged; #2719 and #2730 re-synced; admin PR #2732 opened
+- #2731 (Riyadh slot pickers) merged: deploy it together with #2725.
+- #2719 and #2730 were dirty again (generated docs only): merged main, took main's generated files, regenerated with the tools, pushed. Gates unchanged (tokens: no-raw-color 402, token-sync 335, jest 433/433; literals 105, parity ok).
+- #2732: admin permission actions (10 of the 12 rows changed, row 2 already done, row 12 fixed differently, see the PR). Open now: #2719, #2730, #2732.
+- Still blocked: last 105 provider literals (new PR after #2730 merges), overlay-token question, provider ur/hi/bn/fil.
+
 ## 2026-11-17 06:45 UTC — QUEUE EMPTY (everything left is blocked; no new lead order since 01:25)
 Open PRs (3 = cap, all waiting for the lead): #2719 tokens (state blocked), #2730 literals slice 10, #2731 Riyadh slot pickers (deploy together with #2725).
 BLOCKED items:
