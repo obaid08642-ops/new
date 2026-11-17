@@ -82,3 +82,9 @@ Rule: one PR per row, existing journeys (j_*) and unit tests must stay green, no
 - Launch only after everything is finished; then the next big piece is MULTI-COUNTRY (foundation for many countries, start with Saudi Arabia + maybe one more).
 - Lead decisions (delegated, licence-expiry options in docs/platform/LICENCE-EXPIRY-OPTIONS.md): A2 (valid through the end of the expiry day, Riyadh time; then blocked for ALL five types at once, not only doctors), B2 ("restricted": hidden, not bookable, login works to finish existing work and upload the renewed licence), C2 (provider-typed date + admin checks the document at approval and at renewal; admin list of expiries), D2 (on suspension: future confirmed visits/orders are cancelled with a 100% refund and the patient is told and offered a rebook; anything starting within the next 24 h is kept only if the licence lapsed less than 24 h ago).
 - Lead decision: a rejected / restricted provider may see WHICH documents must be replaced (type + reason) and upload new ones; no download of the old rejected files is needed.
+
+## 2026-11-17 (owner) multi-country
+- Operating model: LOCAL PARTNERS under the Nabd brand (operator per market; the platform must support any number of operators/markets).
+- First two markets: Saudi Arabia AND Egypt, built side by side to prove the foundation; the foundation must make any other country (Gulf, Middle East, Africa, Europe, Asia) a configuration + data job, not a code project.
+- Everything that can differ per market is in scope, including provider onboarding fields per market and provider type, catalogues (labs, radiology, home nursing, doctors' specialties, medicines), address model (Saudi national address vs Egypt governorate/district), and branding per market where technically possible (name/logo on web and in-app screens; store listing per country).
+- Work by a dedicated new session (lane M) on a cheaper model; lead only reviews/merges.
