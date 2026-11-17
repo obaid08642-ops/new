@@ -1,0 +1,22 @@
+# Admin: page permission differs from the endpoint permission (client list for the design session)
+
+Decision of the lead, 2026-11-16 22:30 (item 2): **hide the action in the client; do NOT widen any endpoint.** An admin role that holds the page permission but not the endpoint permission must not see a control that ends in a 403. This file is the list (route, page permission, the call, the permission the endpoint checks, the client file:line); it is generated from the `G-PERM-MISMATCH` and `G-PAGE-NOPERM` lines of `docs/design/audit/admin-*.json` (the guard audit), nothing was changed in the backend or the admin app.
+
+How to apply: show the control (button, form submit, tab, widget) only when the signed-in role has the **endpoint permission**; for a read call that a layout makes on every page (the alerts bell), do not call it without the permission. The page-level permission (`ROUTE_PERMISSIONS`) stays as it is.
+
+| # | Client file:line | Page route(s) | Page permission(s) | Call | Endpoint needs | Client action |
+|---|---|---|---|---|---|---|
+| 1 | `admin/src/pages/admin/catalog-manager.tsx:430` | `/admin/catalog-manager`, `/admin/insurance-companies` | `catalog.read`, `order.read` | `PATCH /insurance/companies/:param` | `insurance.manage` | show the control only with `insurance.manage` |
+| 2 | `admin/src/components/AlertsBell.tsx:19` | `/admin/appointments-oversight`, `/admin/commissions`, `/admin/crm`, `/admin/disputes` (+16 more) | `appointment.read`, `catalog.read`, `crm.read`, `disputes.resolve` … | `GET /admin/urgent-alerts/unread-count` | `command.center.view` | render the bell and its poll only when the role has `command.center.view` |
+| 3 | `admin/src/pages/admin/content-growth.tsx:51` | `/admin/content-growth` | `cms.edit` | `POST /admin/notification-center/campaigns` | `notifications.send` | show the control only with `notifications.send` |
+| 4 | `admin/src/pages/admin/support-tickets.tsx:31` | `/admin/support-tickets` | `crm.read` | `GET /support/admin/requests` | `support.manage` | show the control only with `support.manage` |
+| 5 | `admin/src/pages/admin/nursing-portal.tsx:54` | `/admin/nursing-portal` | `appointment.read` | `POST /admin/nursing/requests/:param/:param` | `order.reassign` | show the control only with `order.reassign` |
+| 6 | `admin/src/pages/admin/pharmacy-procurement.tsx:78` | `/admin/pharmacy-procurement` | `pharmacy.inventory.read` | `PATCH /admin/extended-operations/issue-quote/:param` | `pharmacy.inventory.edit` | show the control only with `pharmacy.inventory.edit` |
+| 7 | `admin/src/pages/admin/config-portal.tsx:77` | `/admin/config-portal` | `settings.edit` | `PUT /admin/mental-health/urgent-help` | `cms.edit` | show the control only with `cms.edit` |
+| 8 | `admin/src/pages/admin/pharmacy-price-review.tsx:56` | `/admin/pharmacy-price-review` | `catalog.read` | `PATCH /medicines/admin/catalog/:param` | `catalog.update` | show the control only with `catalog.update` |
+| 9 | `admin/src/pages/admin/risk-dashboard.tsx:77` | `/admin/risk-dashboard` | `analytics.read` | `POST /admin/risk/users/:param/rescore` | `security.manage` | show the control only with `security.manage` |
+| 10 | `admin/src/pages/admin/service-proposals.tsx:88` | `/admin/service-proposals` | `catalog.read` | `POST /approval-workflow/requests/:param/decide` | `catalog.approve` | show the control only with `catalog.approve` |
+| 11 | `admin/src/pages/admin/locations.tsx:43` | `/admin/locations` | none (page has no `ROUTE_PERMISSIONS` entry) | (POST /api/admin/admin/locations; DELETE /api/admin/admin/locations/:param); any admin sees the page and gets 403s inside it. | see the endpoints | add a `ROUTE_PERMISSIONS` entry for the route with the permission its calls need, and hide the actions without it |
+| 12 | `admin/src/pages/admin/approvals.tsx:26` | `/admin/approvals` | none (page has no `ROUTE_PERMISSIONS` entry) | (GET /api/admin/admin/finance/payouts; GET /api/admin/admin/urgent-alerts/unread-count); any admin sees the page and gets 403s inside it. | see the endpoints | add a `ROUTE_PERMISSIONS` entry for the route with the permission its calls need, and hide the actions without it |
+
+Not in this list (separate findings): `G-OPEN` routes (any signed-in user passes: `POST /storage/upload`, `GET /storage/:id/signed-url`, `POST /auth/heartbeat`) are used by every role on purpose; the admin 'pending approvals' aggregate endpoint is a feature, see `docs/review/BACKEND_GAPS_TRIAGE_2026-11-16.md`.
