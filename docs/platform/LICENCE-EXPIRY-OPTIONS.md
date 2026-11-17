@@ -1,5 +1,7 @@
 # Provider licence expiry, the five types: what exists, what is open, options for the owner (2026-11-16, lane B)
 
+**Decided 2026-11-17 (owner, delegated to the lead): A2 + B2 + C2 + D2; NO SCFHS integration (C3 is off the table).** Implementation: PRs of the "Licence expiry" series. See `PROVIDER-LICENCE-VERIFICATION.md` for how a licence is verified.
+
 Docs only. No code changes until the owner decides. Everything under "What exists" was read in the code (file:line), not assumed.
 
 ## 1. What exists today
