@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { DataTable } from '@/components/DataTable';
 import { apiFetch } from '../../utils/api';
+import { useCan } from '@/components/AdminGuard';
 
 type Loc = { code: string; name_ar: string; name_en: string; type: string; parent_code?: string | null; is_active?: boolean };
 
@@ -17,6 +18,8 @@ const ERROR_AR: Record<string, string> = {
 const errorText = (e: unknown, fallback: string) => { const m = e instanceof Error ? e.message : ''; return ERROR_AR[m] || fallback; };
 
 export default function LocationsAdminPage() {
+  // POST / DELETE /admin/locations need settings.edit (the route needs it too, AdminGuard ROUTE_PERMISSIONS)
+  const canEdit = useCan('settings.edit');
   const [rows, setRows] = useState<Loc[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -59,6 +62,7 @@ export default function LocationsAdminPage() {
   <div className="p-8 space-y-6">
     <h1 className="text-2xl font-black">إدارة المدن والأحياء</h1>
     {error ? <p role="alert" className="rounded-lg bg-rose-50 p-3 text-rose-700">{error}</p> : null}
+    {canEdit ? (
     <div className="bg-white rounded-xl border p-5 space-y-3">
       <h2 className="font-black">إضافة موقع جديد</h2>
       <div className="grid gap-2 md:grid-cols-5">
@@ -70,6 +74,7 @@ export default function LocationsAdminPage() {
       </div>
       <button onClick={create} disabled={busy === 'create'} className="bg-teal-600 text-white px-6 py-2 rounded-xl font-bold disabled:opacity-50">إضافة</button>
     </div>
+    ) : null}
     <div className="flex gap-2">
       <select value={type} onChange={(e) => setType(e.target.value)} className="border rounded px-3 py-2"><option value="region">مناطق</option><option value="city">مدن</option><option value="district">أحياء</option></select>
       <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="بحث" className="border rounded px-3 py-2"/>
@@ -85,7 +90,7 @@ export default function LocationsAdminPage() {
         { key: 'en', header: 'إنجليزي', render: (r) => r.name_en },
         { key: 'parent', header: 'الأب', className: 'font-mono text-xs', render: (r) => <span dir="ltr">{r.parent_code || '—'}</span> },
         { key: 'status', header: 'الحالة', render: (r) => (r.is_active === false ? 'معطّل' : 'نشط') },
-        { key: 'action', header: 'إجراء', actions: true, render: (r) => (r.is_active !== false ? <button disabled={busy === r.code} onClick={() => void deactivate(r.code)} className="rounded border px-2 py-1 text-xs text-rose-700">تعطيل</button> : <span className="text-xs text-slate-400">—</span>) },
+        { key: 'action', header: 'إجراء', actions: true, render: (r) => (canEdit && r.is_active !== false ? <button disabled={busy === r.code} onClick={() => void deactivate(r.code)} className="rounded border px-2 py-1 text-xs text-rose-700">تعطيل</button> : <span className="text-xs text-slate-400">—</span>) },
       ]}
     />)}
   </div></>);
