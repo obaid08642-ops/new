@@ -199,6 +199,8 @@ const ROUTE_PERMISSIONS: Record<string, string> = {
   '/admin/module-switches': 'modules.manage',
   '/admin/kill-switches': 'modules.manage',
   '/admin/config-portal': 'settings.edit',
+  // POST / PUT / DELETE /admin/locations all need settings.edit (backend admin-location.controller.ts)
+  '/admin/locations': 'settings.edit',
   '/admin/ai-control': 'settings.edit',
   '/admin/audit-logs': 'data.export',
   '/admin/logs': 'system.logs.view',

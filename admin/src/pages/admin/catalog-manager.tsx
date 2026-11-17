@@ -409,6 +409,8 @@ const btnOk: React.CSSProperties = { padding: '6px 12px', borderRadius: 10, bord
 
 /* ── R6-6: insurance tab (companies + networks, same page) ─────────────── */
 function InsurancePanel() {
+  // PATCH /insurance/companies/:id (edit, enable/disable) needs insurance.manage; the page itself only needs catalog.read / order.read
+  const canManageInsurance = useCan('insurance.manage');
   const [companies, setCompanies] = useState<any[]>([]);
   const [msg, setMsg] = useState('');
   const [form, setForm] = useState<any | null>(null);
@@ -486,8 +488,8 @@ function InsurancePanel() {
               الشبكات/الفئات: {(c.tiers || c.networks || []).map((t: any) => t.code || t.name_ar).join('، ') || '—'}
             </div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-              <button onClick={() => setForm({ ...c })} style={btn}>تعديل</button>
-              <button onClick={() => void toggleActive(c)} style={btn}>{c.is_active === false ? 'تفعيل' : 'تعطيل'}</button>
+              {canManageInsurance ? <button onClick={() => setForm({ ...c })} style={btn}>تعديل</button> : null}
+              {canManageInsurance ? <button onClick={() => void toggleActive(c)} style={btn}>{c.is_active === false ? 'تفعيل' : 'تعطيل'}</button> : null}
               <button onClick={() => setNetForm({ companyId: c.id || c._id, code: '', name_ar: '', name_en: '', level: '1' })} style={btn}>+ شبكة</button>
             </div>
             {(c.tiers || c.networks || []).length > 0 && (

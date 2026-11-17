@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import EmptyIcon from '../../components/EmptyIcon';
 import { dateLocale } from '../../utils/dates';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * M5: support tickets admin — list (GET /support/admin/requests),
@@ -17,6 +18,8 @@ const STATUS_AR: Record<string, { ar: string; cls: string }> = {
 };
 
 export default function SupportTicketsPage() {
+  // GET /support/admin/requests and the status change need support.manage; the page itself only needs crm.read, so without it nothing is called
+  const canManage = useCan('support.manage');
   const [tickets, setTickets] = useState<any[]>([]);
   const [filter, setFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -25,6 +28,7 @@ export default function SupportTicketsPage() {
   const [replyText, setReplyText] = useState('');
 
   const load = useCallback(async () => {
+    if (!canManage) { setLoading(false); return; }
     setLoading(true);
     setError(null);
     try {
@@ -35,7 +39,7 @@ export default function SupportTicketsPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, canManage]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -54,6 +58,15 @@ export default function SupportTicketsPage() {
       load();
     } catch (e: any) { alert(e?.message || 'فشل إرسال الرد'); }
   };
+
+  if (!canManage) {
+    return (
+      <>
+        <Head><title>تذاكر الدعم | نبض</title></Head>
+        <div className="p-8" role="status"><p className="text-sm text-slate-600">إدارة تذاكر الدعم تتطلب صلاحية «إدارة الدعم». لا تملكها حسابك الحالي.</p></div>
+      </>
+    );
+  }
 
   return (
     <>
