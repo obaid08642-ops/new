@@ -4086,5 +4086,7 @@
   "tour.next": "Susunod",
   "errors.adminRequired": "Walang access. Para lang sa mga administrator ang bahaging ito.",
   "map.preview": "Preview ng mapa",
-  "map.marker": "Marker ng mapa"
+  "map.marker": "Marker ng mapa",
+  "errors.resetLinkInvalid": "Hindi wasto o nag-expire na ang link na ito sa pag-reset. Humiling ng bago.",
+  "auth.guestName": "Bisita"
 }

@@ -8617,27 +8617,55 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/returns.tsx",
-    "line": 81
+    "line": 92
    },
    {
     "kind": "button",
     "label": "اعتماد الاسترداد",
-    "src": "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
+    "src": "local state",
     "status": "ok",
-    "mutation": true,
-    "confirm": true,
+    "mutation": false,
+    "confirm": false,
     "file": "admin/src/pages/admin/returns.tsx",
-    "line": 115
+    "line": 126
    },
    {
     "kind": "button",
     "label": "رفض الطلب",
-    "src": "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns; prompt()",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/returns.tsx",
+    "line": 128
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onConfirm",
+    "src": "POST /api/admin/admin/returns/:param/decide; GET /api/admin/admin/returns",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/returns.tsx",
-    "line": 117
+    "line": 134
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onCancel",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/returns.tsx",
+    "line": 134
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state note used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/returns.tsx",
+    "line": 142
    },
    {
     "kind": "link",
@@ -8703,6 +8731,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    },
    {
     "kind": "link",

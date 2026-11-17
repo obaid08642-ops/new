@@ -1,6 +1,7 @@
 jest.mock('../../../utils/api', () => ({ apiFetch: jest.fn(), storeAuthSession: jest.fn() }));
 jest.mock('../../utils/deviceId', () => ({ getDeviceId: jest.fn().mockResolvedValue('dev-1') }));
 jest.mock('../../utils/security', () => ({ secureGet: jest.fn() }));
+jest.mock('react-native-localize', () => ({ getLocales: () => [{ languageCode: 'en', languageTag: 'en-US', countryCode: 'US', isRTL: false }] }));
 
 import { apiFetch, storeAuthSession } from '../../../utils/api';
 import { secureGet } from '../../utils/security';
@@ -18,6 +19,13 @@ describe('silent guest session (owner decision B2)', () => {
     expect(apiFetch).toHaveBeenCalledWith('/auth/guest', expect.objectContaining({ method: 'POST', headers: { 'x-device-id': 'dev-1' }, skipAuth: true }));
     expect(storeAuthSession).toHaveBeenCalled();
     expect(s.user.id).toBe('g1');
+  });
+
+  it('names a guest the backend sent no user for in the device language, not in Arabic', async () => {
+    (apiFetch as jest.Mock).mockResolvedValue({ token: { accessToken: jwt({ sub: 'g2' }), refreshToken: 'r' } });
+    (storeAuthSession as jest.Mock).mockResolvedValue('tok');
+    const s = await createGuestSession();
+    expect(s.user).toMatchObject({ id: 'g2', role: 'guest', name: 'Guest' });
   });
 
   it('does nothing when a session (patient or guest) is already stored', async () => {

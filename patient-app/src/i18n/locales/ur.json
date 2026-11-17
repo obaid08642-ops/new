@@ -4086,5 +4086,7 @@
   "tour.next": "اگلا",
   "errors.adminRequired": "رسائی مسترد۔ یہ حصہ صرف منتظمین کے لیے ہے۔",
   "map.preview": "نقشے کا پیش منظر",
-  "map.marker": "نقشے کا نشان"
+  "map.marker": "نقشے کا نشان",
+  "errors.resetLinkInvalid": "یہ ری سیٹ لنک غلط ہے یا اس کی میعاد ختم ہو گئی ہے۔ نیا لنک منگوائیں۔",
+  "auth.guestName": "مہمان"
 }
