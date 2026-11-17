@@ -88,7 +88,7 @@ export function AffiliatePortal({ onBack }: { onBack: () => void }) {
  <View key={inv.id} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
  <Text style={{ fontSize: FS.sm, color: theme.text }}>{inv.name}</Text>
  <Text style={{ fontSize: FS.sm, color: inv.status === 'rewarded' ? theme.success : theme.textSub, fontWeight: FW.bold }}>
- {inv.status === 'rewarded' ? `+${inv.reward_points} ${AR ? 'نقطة' : 'pts'}` : (tt('sxt.25cd2b1f'))}
+ {inv.status === 'rewarded' ? `+${inv.reward_points} ${tt('qqco.909cd2f3')}` : (tt('sxt.25cd2b1f'))}
  </Text>
  </View>
  ))}

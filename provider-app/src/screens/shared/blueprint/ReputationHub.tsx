@@ -43,7 +43,7 @@ export function ReputationHub({ onBack }) {
  ) : (<>
  <NCard style={{ alignItems: 'center', paddingVertical: SP.xxl }}>
  <Text style={{ fontSize: FS['2xl'], fontWeight: FW.bold, color: theme.primary }}>{avg.toFixed(1)}</Text>
- <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>{reviews.length} {AR ? 'تقييم' : 'reviews'}</Text>
+ <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: SP.xs }}>{reviews.length} {tt('qqcv.48b5277c')}</Text>
  </NCard>
  <NCard>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.xs }}>

@@ -159,7 +159,7 @@ export function PatientFileScreen({ patient, onBack }:
  {isFavorite && <Text style={{ fontSize: FS.xl }}></Text>}
  </View>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
- {[patient?.age ? `${patient.age} ${AR ? 'سنة' : 'yrs'}` : '', patient?.gender || '', patient?.blood_type ? `${tt('sxb.fd03e959')}${patient.blood_type}` : ''].filter(Boolean).join(' | ') || '—'}
+ {[patient?.age ? `${patient.age} ${tt('qqah.6a6187b3')}` : '', patient?.gender || '', patient?.blood_type ? `${tt('sxb.fd03e959')}${patient.blood_type}` : ''].filter(Boolean).join(' | ') || '—'}
  </Text>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm, marginTop: SP.xs }}>
  {patient?.insurance ? <NBadge label={patient.insurance} variant="primary" size="xs" /> : null}

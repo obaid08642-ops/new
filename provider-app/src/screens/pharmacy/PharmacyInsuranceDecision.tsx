@@ -92,7 +92,7 @@ export function PharmacyInsuranceQueueScreen({ onBack }: { onBack: () => void })
                   <NBadge label={d.status} />
                 </View>
                 <Text style={{ color: theme.textSub, marginTop: SP.xs }}>
-                  {(d.order?.patient_contact?.name || '') + (d.items?.length ? ` · ${d.items.length} ${AR ? 'أصناف' : 'items'}` : '')}
+                  {(d.order?.patient_contact?.name || '') + (d.items?.length ? ` · ${d.items.length} ${tt('qqbz.fa68e1d7')}` : '')}
                 </Text>
               </NCard>
             </TouchableOpacity>

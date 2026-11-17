@@ -196,7 +196,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
                   {(t.items || []).map((i: any) => `${i.name || i.med || ''}${i.dose ? ` (${i.dose})` : ''}`).join(' + ')}
                 </Text>
-                {t.usage_count > 0 && <NBadge label={`${AR ? 'استُخدم' : 'used'} ×${t.usage_count}`} variant="info" size="xs" />}
+                {t.usage_count > 0 && <NBadge label={`${tt('qqm.55081f9a')} ×${t.usage_count}`} variant="info" size="xs" />}
               </View>
               <TouchableOpacity onPress={() => remove(t.id)}>
                 <I name="trash" size={20} color={theme.danger} />

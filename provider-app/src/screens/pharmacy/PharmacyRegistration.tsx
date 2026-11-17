@@ -453,7 +453,7 @@ function PStep3Location({ data, update, submitRef }: StepProps<PharmacyRegData>)
             <View style={{ flexDirection:'row', flexWrap:'wrap', gap:SP.sm, marginBottom:SP.md }}>
               {[2, 4, 6, 8, 10, 15, 20, 50].map(r => (
                 <TouchableOpacity key={r} onPress={() => update({ deliveryRadius:r })} style={[s.radiusChip, { backgroundColor: data.deliveryRadius===r ? theme.primary : theme.surface2, borderColor: data.deliveryRadius===r ? theme.primary : theme.border }]}>
-                  <Text style={{ color:data.deliveryRadius===r?theme.textInv:theme.text, fontWeight:FW.semi }}>{r} {AR?'كم':'km'}</Text>
+                  <Text style={{ color:data.deliveryRadius===r?theme.textInv:theme.text, fontWeight:FW.semi }}>{r} {tt('qqcd.43b7eb43')}</Text>
                 </TouchableOpacity>
               ))}
             </View>

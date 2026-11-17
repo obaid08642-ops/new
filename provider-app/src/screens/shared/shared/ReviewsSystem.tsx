@@ -70,7 +70,7 @@ export function ReviewsSystem({ onBack }: { onBack: () => void }) {
  <NCard style={{ marginBottom: SP.xl, alignItems: 'center', padding: SP.xxl }}>
  <Text style={{ fontSize: 48, fontWeight: FW.xbold, color: theme.primary }}>{avg}</Text>
  <RatingStars rating={parseFloat(avg)} size={22} />
- <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: SP.sm }}>{reviews.length} {AR ? 'تقييم' : 'reviews'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: SP.sm }}>{reviews.length} {tt('qqds.48b5277c')}</Text>
  </NCard>
 
  {/* Reviews */}

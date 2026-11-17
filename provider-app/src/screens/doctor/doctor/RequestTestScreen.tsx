@@ -94,7 +94,7 @@ export function RequestTestScreen({ apt, onBack }:
  <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.med,
  textAlign: AR ? 'right' : 'left' }}>{AR ? item.ar : item.en}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2 }}>
- ⏱ {item.hours} {AR ? 'ساعة' : 'hr'}{item.fasting ? ` · ${tt('rram.e0006d0d')}` : ''}
+ ⏱ {item.hours} {tt('qqak.ecc567e1')}{item.fasting ? ` · ${tt('rram.e0006d0d')}` : ''}
  </Text>
  </View>
  </View>
