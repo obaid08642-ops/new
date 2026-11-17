@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 11:00 UTC — #2737 merged; #2719 and #2730 re-synced; admin prompt PR 1 of 10 (#2739)
+- Item 1: #2730 and #2719 merged with main again (generated docs only), regenerated, gates unchanged (literals 105, no-raw-color 402, token-sync 335, jest 433/433), pushed.
+- Item 2, page 1: admin impersonation.tsx revoke reason in ConfirmDialog (PR #2739, test 2, admin vitest 117). PROGRESS.md updated. 17 prompt calls in 9 files left: provider-moderation 5, system-ops 3, config-portal 2, content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments. Open PRs: #2719, #2730, #2739 (cap): the next page waits for a merge.
+- Items 3 and 4 (37 client lines, 13 design lines) follow after the prompt pages.
+
 ## 2026-11-17 09:30 UTC — client reconciliation (PR #2737); #2732 merged; #2719 and #2730 re-synced again
 - Output: docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md (PR #2737). Launch list ticked with PR links in lead/LAUNCH_LIST.md (parity #2723, return photo #2606, patient literals, merge map rows 1-3); bundle margin left as a standing rule with today's measure (79 KB).
 - Specific checks: social login DONE (server verifies, app never trusts the token), parity none, admin hide-actions #2732, https-only #2711, Riyadh #2731.
