@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 04:00 UTC — #2730 and #2719 fixed, Riyadh slot pickers (PR #2731)
+- #2730: merged main (locale files merged by key, inventories regenerated), pushed. #2719: failing check was no-raw-color (a clean file still in its baseline): merged main, reapplied C.white, no-raw-color 414 -> 402, client-token-sync 335, pushed; both should be mergeable now.
+- #2731: web + app slot pickers read and ask for Riyadh time (home-care nurse slots, ordering windows). Riyadh is fixed UTC+3 so the helper shifts the instant by 3 h and formats as UTC (works in Hermes without a tz database). Tests under 3 time zones (web 11, app 4); one app test rewritten on purpose (it built instants from the phone's local time). Doctors' slots untouched. Deploy together with #2725.
+- Next: the admin permission list (docs/design/ADMIN_PERMISSION_ACTIONS.md, 12 rows; your message said 13), one PR, after one of the three open PRs merges (cap 3 open).
+
 ## 2026-11-17 02:10 UTC — provider literals slice 10 (PR #2730, stacked on #2729)
 - 190 -> 105. Nested ternaries and isRTL pairs converted; 31 placeholders became keys WITH Arabic hints (parity forbids Latin in ar). Visible change: Arabic users see "رقم ترخيص المختبر" instead of "MOH-LAB-XXXXX". CSV header catalog_id,mode,price left literal on purpose.
 - Gates: parity ok, emoji 37, token-sync 396 on this branch, tsc clean, jest 433/433.
