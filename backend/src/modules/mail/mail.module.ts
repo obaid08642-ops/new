@@ -454,7 +454,7 @@ export class MailService {
   // ── Weekly keep-alive ─────────────────────────────────────────
 
   /** Hourly where background work runs (common/process-role.ts); each provider is claimed once per Riyadh week. */
-  @Cron(process.env.MAIL_KEEPALIVE_CRON || '23 * * * *')
+  @Cron(process.env.MAIL_KEEPALIVE_CRON || '23 * * * *', { timeZone: 'UTC' })
   async scheduledKeepAlive() {
     if (this.keepAliveRunning) return;
     this.keepAliveRunning = true;

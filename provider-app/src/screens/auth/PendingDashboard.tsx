@@ -4,7 +4,7 @@ import { useTheme, useLang } from '../../context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NCard, NBtn, NInput } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW } from '../../constants';
+import { SP, FS, FW, C } from '../../constants';
 import client from '../../api/client';
 import { useAuth, useToast } from '../../context';
 import { reasonFromProgress, type BlockedAccountState } from '../../utils/accountStatus';
@@ -169,7 +169,7 @@ export function PendingDashboard({ onExplore, onLogout, providerType, status = '
             alignItems: 'center', justifyContent: 'center',
             marginBottom: SP.lg,
           }}>
-            <I name={copy.icon} size={36} color="#FFF" />
+            <I name={copy.icon} size={36} color={C.white} />
           </View>
           <Text style={{ fontSize: FS['3xl'], fontWeight: FW.bold, color: theme.text, textAlign: 'center', marginBottom: SP.sm }}>
             {copy.title}

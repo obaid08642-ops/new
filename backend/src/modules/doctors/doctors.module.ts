@@ -11,6 +11,7 @@ import { escapeRegex } from '../../common/slug.util';
 import { PublicCache } from '../../common/public-cache.decorator';
 import { PurgeBus } from '../../common/purge-bus';
 import { TrDto, PostMsgDto, AvailDto, ConsultationNoteDto } from './doctors.dto';
+import { marketTime, marketClock, marketDayStart, marketWeekdayKey } from '../../common/market-time';
 
 export const SEED_DOCTORS = [
   { name_ar: 'د. أحمد السالم', name_en: 'Dr. Ahmed Al-Salem', specialty: 'general_medicine', specialty_ar: 'طب عام', gender: 'male', languages: ['ar', 'en'], consultation_fee: 80, home_visit_fee: 180, video_consultation_fee: 60, home_visit_enabled: true, video_enabled: true, voice_enabled: true, rating: 4.7, reviews_count: 128, insurance_supported: ['بوبا', 'التعاونية'], biography: 'استشاري طب أسرة بخبرة 15 سنة في الأمراض الشائعة والمزمنة.', tags: ['family', 'general'], clinic_location: { city: 'الرياض', name: 'مجمع نبض الطبي', lat: 24.7136, lng: 46.6753 } },
@@ -29,9 +30,6 @@ const DEFAULT_SCHEDULE = {
   thu: [{ start: '09:00', end: '14:00' }],
 };
 
-function dayKey(d: Date) { return ['sun','mon','tue','wed','thu','fri','sat'][d.getDay()]; }
-function toHM(d: Date) { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
-function fromHM(date: Date, hm: string) { const [h, m] = hm.split(':').map(Number); const r = new Date(date); r.setHours(h, m, 0, 0); return r; }
 
 @Injectable()
 export class DoctorsService implements OnModuleInit {
@@ -110,25 +108,24 @@ export class DoctorsService implements OnModuleInit {
   async availableSlots(doctorId: string, date: string) {
     const doctor: any = await this.doctors.findOne({ id: { $eq: doctorId } }).lean();
     if (!doctor) throw new NotFoundException();
-    const day = new Date(date);
     if (doctor.blocked_dates?.includes(date)) return [];
-    const schedule = (doctor.weekly_schedule || DEFAULT_SCHEDULE)[dayKey(day)] || [];
+    const schedule = (doctor.weekly_schedule || DEFAULT_SCHEDULE)[marketWeekdayKey(date)] || [];
     const dur = doctor.default_slot_minutes || 30;
     const slots: { time: string; available: boolean }[] = [];
     for (const block of schedule) {
-      let cursor = fromHM(day, block.start);
-      const end = fromHM(day, block.end);
+      let cursor = marketTime(date, block.start);
+      const end = marketTime(date, block.end);
       while (cursor < end) {
         const next = new Date(cursor.getTime() + dur * 60_000);
         if (next > end) break;
-        const hm = toHM(cursor);
+        const hm = marketClock(cursor);
         const inBreak = (block.breaks || []).some((br: any) => hm >= br.start && hm < br.end);
         if (!inBreak && cursor.getTime() > Date.now()) slots.push({ time: cursor.toISOString(), available: true });
         cursor = next;
       }
     }
     // Mark booked
-    const existing = await this.appts.find({ doctor_id: doctorId, scheduled_at: { $gte: new Date(day.setHours(0,0,0,0)), $lt: new Date(day.setHours(23,59,59,999)) }, state: { $nin: ['cancelled', 'no_show'] } }).lean();
+    const existing = await this.appts.find({ doctor_id: doctorId, scheduled_at: { $gte: marketDayStart(date), $lt: new Date(marketDayStart(date).getTime() + 86_400_000) }, state: { $nin: ['cancelled', 'no_show'] } }).lean();
     const bookedMap: Record<string, number> = {};
     for (const a of existing) bookedMap[a.scheduled_at.toISOString()] = (bookedMap[a.scheduled_at.toISOString()] || 0) + 1;
     return slots.map(s => ({ ...s, available: (bookedMap[s.time] || 0) < (doctor.max_bookings_per_slot || 1) }));

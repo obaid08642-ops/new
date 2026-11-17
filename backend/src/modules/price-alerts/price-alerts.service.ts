@@ -48,7 +48,7 @@ export class PriceAlertsService implements OnModuleInit {
     }
   }
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_HOUR, { timeZone: 'UTC' })
   @ScheduledOnce()
   async scheduledSweep() {
     if (this.running) {

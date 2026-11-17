@@ -7,6 +7,7 @@ import { fetchMyContract } from '../../components/MyContract';
 import client from '../../api/client';
 import { sendEmailOtp, verifyEmailOtp } from '../../api/otp';
 import { useTheme, useLang, useToast } from '../../context';
+import { C } from '../../constants';
 
 export function RegistrationSuccess({ onDone, email, providerType = 'provider' }: { onDone: () => void; email?: string; providerType?: string }) {
   const { theme } = useTheme();
@@ -98,10 +99,10 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                 onPress={handleSendOtp}
                 disabled={loading}
                 style={{ backgroundColor: theme.primary, padding: 14, borderRadius: 12, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
-                {loading ? <ActivityIndicator color="#fff" /> : (
+                {loading ? <ActivityIndicator color={C.white} /> : (
                   <>
-                    <Ionicons name="send" size={20} color="#fff" style={{ marginEnd: 8 }} />
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
+                    <Ionicons name="send" size={20} color={C.white} style={{ marginEnd: 8 }} />
+                    <Text style={{ color: C.white, fontSize: 16, fontWeight: '600' }}>
                       {tt('regdone.c4a24798')}
                     </Text>
                   </>
@@ -124,8 +125,8 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
                   onPress={handleVerify}
                   disabled={loading}
                   style={{ backgroundColor: theme.primary, padding: 14, borderRadius: 12, alignItems: 'center' }}>
-                  {loading ? <ActivityIndicator color="#fff" /> : (
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
+                  {loading ? <ActivityIndicator color={C.white} /> : (
+                    <Text style={{ color: C.white, fontSize: 16, fontWeight: '600' }}>
                       {tt('regdone.c470c8c7')}
                     </Text>
                   )}
@@ -146,10 +147,10 @@ export function RegistrationSuccess({ onDone, email, providerType = 'provider' }
           onPress={downloadContract}
           disabled={contractLoading}
           style={{ width: '100%', backgroundColor: theme.primary, padding: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12, flexDirection: 'row', justifyContent: 'center' }}>
-          {contractLoading ? <ActivityIndicator color="#fff" /> : (
+          {contractLoading ? <ActivityIndicator color={C.white} /> : (
             <>
-              <Ionicons name="document-text" size={20} color="#fff" style={{ marginEnd: 8 }} />
-              <Text style={{ color: '#fff', fontSize: 16, fontWeight: '600' }}>
+              <Ionicons name="document-text" size={20} color={C.white} style={{ marginEnd: 8 }} />
+              <Text style={{ color: C.white, fontSize: 16, fontWeight: '600' }}>
                 {tt('regdone.8297b508')}
               </Text>
             </>

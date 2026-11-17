@@ -194,7 +194,7 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  onBarcodeScanned={({ data }: any) => { if (data) { setShowCam(false); doCheckin(extractApptId(String(data))); } }}
  />
  <TouchableOpacity onPress={()=>setShowCam(false)} style={{ position: 'absolute', bottom: 60, alignSelf: 'center', backgroundColor: '#00000099', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 28 }}>
- <Text style={{ color: '#fff', fontWeight: FW.bold, fontSize: FS.md }}>{tt('rrbj.210b779f')}</Text>
+ <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{tt('rrbj.210b779f')}</Text>
  </TouchableOpacity>
  </View>
  </Modal>

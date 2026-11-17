@@ -580,7 +580,7 @@ export class AuditController {
 export class AuditRetentionJob {
   private readonly logger = new Logger(AuditRetentionJob.name);
   constructor(private readonly retention: AuditRetentionService, private readonly audit: AuditService) {}
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'UTC' })
   @ScheduledOnce({ serial: 'nightly-heavy' })
   async run() {
     if (process.env.AUDIT_RETENTION_ENABLED !== 'true') return; // off until the owner/lawyer confirm the periods

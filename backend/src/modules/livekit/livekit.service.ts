@@ -348,7 +348,7 @@ export class LiveKitService {
    * A call nobody answered within the ringing time becomes MISSED and the callee gets the missed-call push/notice (`call.missed`:
    * push.module `onCallMissed`, notifications.service). Sessions written before caller/callee were stored are left as they are.
    */
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE, { timeZone: 'UTC' })
   @ScheduledOnce()
   async sweepUnanswered(now: Date = new Date()): Promise<number> {
     const cutoff = new Date(now.getTime() - RINGING_MS);

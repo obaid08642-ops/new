@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 export default function ConfigPortal() {
   const [activeTab, setActiveTab] = useState<'sla' | 'pricing' | 'apps' | 'urgent' | 'rxconsult' | 'broadcast'>('sla');
@@ -132,21 +133,33 @@ export default function ConfigPortal() {
     } catch { /* pricing optional */ }
   };
 
-  const savePricing = async () => {
+  // One reason dialog for the pricing and SLA saves (the shared ConfirmDialog, not the browser prompt: no focus trap, no keyboard, unstyled).
+  // The server keeps who changed it and why (audit log); the minimum length differs per setting.
+  const [reasonAsk, setReasonAsk] = useState<{ title: string; hint: string; min: number; run: (reason: string) => Promise<void> } | null>(null);
+  const [reasonText, setReasonText] = useState('');
+  const [reasonError, setReasonError] = useState('');
+  const askReason = (title: string, hint: string, min: number, run: (reason: string) => Promise<void>) => { setReasonText(''); setReasonError(''); setReasonAsk({ title, hint, min, run }); };
+  const confirmReason = () => {
+    if (!reasonAsk) return;
+    if (reasonText.trim().length < reasonAsk.min) { setReasonError(`يرجى إدخال سبب لا يقل عن ${reasonAsk.min} أحرف`); return; }
+    const { run } = reasonAsk;
+    setReasonAsk(null);
+    void run(reasonText.trim());
+  };
+
+  const savePricing = () => {
     setPricingMsg('');
-    // The server keeps who changed the pricing and why (audit log): the reason is required, 10 characters or more.
-    const pricingReason = window.prompt('سبب تعديل التسعير (يُحفظ في سجل التدقيق — 10 أحرف على الأقل):', '');
-    if (pricingReason === null) return;
-    if (pricingReason.trim().length < 10) { setPricingMsg('يرجى إدخال سبب لا يقل عن 10 أحرف'); return; }
-    try {
-      const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
-        method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult, reason: pricingReason.trim() }),
-      });
-      const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
-        method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee, reason: pricingReason.trim() }),
-      });
-      setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
-    } catch { setPricingMsg('فشل الحفظ'); }
+    askReason('سبب تعديل التسعير', 'يُحفظ في سجل التدقيق — 10 أحرف على الأقل', 10, async (pricingReason) => {
+      try {
+        const s = await fetchWithAdminGuard('/api/admin/business-rules/config/surge', {
+          method: 'POST', body: JSON.stringify({ startHour: surgeStart, endHour: surgeEnd, multiplier: surgeMult, reason: pricingReason }),
+        });
+        const f = await fetchWithAdminGuard('/api/admin/business-rules/config/fees', {
+          method: 'POST', body: JSON.stringify({ delivery_fee: deliveryFee, service_fee: serviceFee, reason: pricingReason }),
+        });
+        setPricingMsg(s.ok && f.ok ? 'تم حفظ التسعير' : 'فشل الحفظ — تحقق من القيم');
+      } catch { setPricingMsg('فشل الحفظ'); }
+    });
   };
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Platform cash-on-delivery policy: pharmacies may prepare COD orders only while it is active.
@@ -202,40 +215,36 @@ export default function ConfigPortal() {
     setOrdersCfgMsg(res?.ok ? 'تم الحفظ' : 'تعذر الحفظ: تحقق من القيم (الدقائق 1-1440)');
   };
 
-  const handleUpdateSLA = async () => {
-    setIsSubmitting(true);
-    try {
-      // Validations based on directive limits
-      if (consultationDuration < 5 || consultationDuration > 120) {
-        alert('Consultation duration must be between 5m and 120m');
-        setIsSubmitting(false);
-        return;
-      }
-      if (callRingingDuration < 15 || callRingingDuration > 120) {
-        alert('Call ringing duration must be between 15s and 120s');
-        setIsSubmitting(false);
-        return;
-      }
-
-            const slaReason = window.prompt('سبب تعديل SLA (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
-            if (slaReason === null) { setIsSubmitting(false); return; }
-            if (slaReason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); setIsSubmitting(false); return; }
-            const slaRes = await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
-        method: 'PUT',
-        body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason.trim() })
-      });
-      // fetchWithAdminGuard does not throw on a 4xx: a refused save (400, or 403 for a role without settings.edit) must not say it worked
-      if (!slaRes.ok) {
-        const body = await slaRes.json().catch(() => ({}));
-        throw new Error(String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? slaRes.status));
-      }
-      alert('تم حفظ متغيرات SLA.');
-    } catch (error) {
-      console.error(error);
-      alert(`تعذر حفظ SLA: ${error instanceof Error ? error.message : ''}`);
-    } finally {
-      setIsSubmitting(false);
+  const handleUpdateSLA = () => {
+    // Validations based on directive limits
+    if (consultationDuration < 5 || consultationDuration > 120) {
+      alert('Consultation duration must be between 5m and 120m');
+      return;
     }
+    if (callRingingDuration < 15 || callRingingDuration > 120) {
+      alert('Call ringing duration must be between 15s and 120s');
+      return;
+    }
+    askReason('سبب تعديل SLA', 'يُحفظ في سجل التدقيق — 5 أحرف على الأقل', 5, async (slaReason) => {
+      setIsSubmitting(true);
+      try {
+        const slaRes = await fetchWithAdminGuard(`/api/admin/admin/config/sla`, {
+          method: 'PUT',
+          body: JSON.stringify({ consultationDuration, callRingingDuration, jwtExpiry, reason: slaReason })
+        });
+        // fetchWithAdminGuard does not throw on a 4xx: a refused save (400, or 403 for a role without settings.edit) must not say it worked
+        if (!slaRes.ok) {
+          const body = await slaRes.json().catch(() => ({}));
+          throw new Error(String(Array.isArray(body?.message) ? body.message[0] : body?.message ?? slaRes.status));
+        }
+        alert('تم حفظ متغيرات SLA.');
+      } catch (error) {
+        console.error(error);
+        alert(`تعذر حفظ SLA: ${error instanceof Error ? error.message : ''}`);
+      } finally {
+        setIsSubmitting(false);
+      }
+    });
   };
 
   return (
@@ -493,6 +502,11 @@ export default function ConfigPortal() {
           </div>
         )}
       </div>
+      <ConfirmDialog open={reasonAsk !== null} title={reasonAsk?.title ?? ''} confirmLabel="تأكيد" onConfirm={confirmReason} onCancel={() => { setReasonAsk(null); setReasonError(''); }}>
+        <p className="text-slate-600">{reasonAsk?.hint}</p>
+        <textarea value={reasonText} onChange={(e) => setReasonText(e.target.value)} rows={3} aria-label={reasonAsk?.title} className="w-full rounded-lg border p-2" />
+        {reasonError ? <p role="alert" className="text-sm text-rose-700">{reasonError}</p> : null}
+      </ConfirmDialog>
     </div>
   );
 }

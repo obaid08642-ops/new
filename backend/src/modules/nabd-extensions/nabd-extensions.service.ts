@@ -416,7 +416,7 @@ export class NabdExtensionsService {
   }
 
   // SLA Cron running every 1 minute
-  @Cron('*/1 * * * *')
+  @Cron('*/1 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async runSlaAudit() {
     this.logger.log('Running SLA Audit Cron job...');
@@ -576,7 +576,7 @@ export class NabdExtensionsService {
   }
 
   // Expiry notifications cron checking inventory for items expiring in less than 90 days
-  @Cron('0 0 * * *') // Daily at midnight
+  @Cron('0 0 * * *', { timeZone: 'UTC' }) // Daily at midnight
   @ScheduledOnce()
   async checkInventoryExpiry() {
     this.logger.log('Checking inventory expiry schedules...');
