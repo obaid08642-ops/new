@@ -83,3 +83,10 @@ MERGED: B's #2725 (slot times are Riyadh clock time: `start`/`id`/`end` real UTC
 ## 2026-11-17 05:00 UTC — lead: OWNER DECISIONS + final reconciliation order
 Owner: provider app = Arabic + English ONLY (no ur/hi/bn/fil: stop that); patient app + website = six languages (done). Accountant note, INN table: postponed (not yours). RAM: 8 GB at the end.
 RECONCILIATION (finish this, then report): go through lead/LAUNCH_LIST.md (many unticked lines are already done: tick them with PR links), docs/design/PROGRESS.md "Next", WIRING_REPORT section 7 [client] needs-review lines, docs/review/*GAPS*, the owner decisions file, and every item you ever answered "waiting for". Check specifically: pharmacy return photo scan badge (web) + app photo step test; admin jobs board (list/moderate facility jobs); Android bundle margin; social login token verification in the app; web/app parity gaps from #2723; the 13 admin hide-actions (#2732). For each CLIENT item write DONE (PR) / OPEN (what exactly) / DEFERRED (owner's word); fix every OPEN technical one. Output docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md.
+
+## 2026-11-17 07:05 UTC — lead: #2737 merged (thanks: honest). Next, in this order, one PR per item, no stacking, branch from main:
+1. #2730 and #2719: merge main, regenerate inventories, push (or close and re-open from main).
+2. The 18 `window.prompt` calls in 10 admin files: the same ConfirmDialog fix as returns.tsx, one page per PR (cap 3 open PRs).
+3. The 37 OPEN [client] lines of section 7 of your reconciliation: fix every technical one; for each that cannot be fixed say why.
+4. The 13 OPEN design lines (visual/board differences): fix them with the render tool + board comparison, tokens only.
+5. After each PR update docs/design/PROGRESS.md as the rules require. When items 1-4 are done write QUEUE EMPTY with what is left and why.
