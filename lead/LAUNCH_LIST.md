@@ -2,14 +2,14 @@
 Tick [x] when merged. Counts are the owner progress number.
 
 ## X
-- [ ] Web/app parity audit round 2: list what shipped since 11-09 on one side only and build the missing side (one PR each)
+- [x] Web/app parity audit round 2: list what shipped since 11-09 on one side only and build the missing side (one PR each) (merged #2723: no gap found, docs/design/PARITY_2.md)
 - [x] PT-54 hide / show hidden on the orders centre rows (pharmacy, lab, radiology, nursing), web + app, six languages (merged #2603)
 - [x] PT-03 family: book a consultation for a dependant with `family_member_id` on web + app (lab/radiology/nursing family booking waits for Z's DTO field) (merged #2604)
 - [x] PT-30 location denied: app and web tests (message + manual entry) so the row can say COVERED (merged #2605)
-- [ ] Pharmacy return photo: scan state badge on the web return form, and a screen test for the app photo step
+- [x] Pharmacy return photo: scan state badge on the web return form, and a screen test for the app photo step (merged #2606)
 - [x] Refund policy hash echo: send back the shown hash so the server can refuse a changed table (merged #2620 backend, #2621 + #2677 clients)
-- [ ] Bundle margin: keep the Android bundle under budget on every app PR; one trim pass of dead strings when the margin falls under 30 KB
-- [ ] Patient literal UI strings: app search/tab bar/offline banner done in a PR; then the design-system a11y labels, guided tour, AdminGuard, legacy doctor card (about 50, needs a translation hook)
+- [ ] Bundle margin: keep the Android bundle under budget on every app PR; one trim pass of dead strings when the margin falls under 30 KB (standing rule; measured 2026-11-17: 15,311,956 of 15,393,070 bytes = 79 KB margin, no trim due)
+- [x] Patient literal UI strings: app search/tab bar/offline banner done in a PR; then the design-system a11y labels, guided tour, AdminGuard, legacy doctor card (about 50, needs a translation hook) (merged: the literal baseline holds no patient-app or patient-web file; provider app 5277 -> 105 in #2684 .. #2724)
 
 ## Z
 - [x] Invoices review: numbering, credit notes, VAT lines, ZATCA fields (merged #2691, corrections #2703; the accountant questions are POSTPONED by the owner 2026-11-17)
@@ -22,7 +22,7 @@ Tick [x] when merged. Counts are the owner progress number.
 - [x] Credit note with invoice (decision 5): every refund goes through RefundExecutor, the payments card refund and one durable event, so one choke point writes it; asserted by j_refund_matrix and j_family_book_for_member (no code change needed)
 
 ## V
-- [ ] Provider/admin merge map rows 1, 2, 3 approved 2026-11-10 (one PR per row) + row 4 verification only
+- [x] Provider/admin merge map rows 1, 2, 3 approved 2026-11-10 (one PR per row) + row 4 verification only (row 1 585f91b4b, row 2 #2622, row 3 #2615; row 4 in docs/design/MERGE_MAP.md)
 - [ ] Verify the mongod OOM fix on the server after run 114 deploys: 96p (indexes), 96n (kills stopped), 96j (cache); fix any further slow query found
 - [x] Admin jobs board: list and moderate (close/hide) jobs posted by facilities (source filter + close on any published post, on main; spec guest-job-review.spec.ts)
 - [x] Radiology slot capacity: same seat rule as labs (asked, no answer; default same rule) (merged #2664)
