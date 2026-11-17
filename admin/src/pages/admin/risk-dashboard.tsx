@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { dateLocale } from '../../utils/dates';
 import { DataTable } from '@/components/DataTable';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * 22.11 — the risk dashboard: who needs a look, why, and the rules behind the score. Read-only except "re-score",
@@ -36,6 +37,8 @@ const LEVEL_STYLE: Record<string, string> = {
 const LEVEL_LABEL: Record<string, string> = { high: 'مرتفع', medium: 'متوسط', low: 'منخفض' };
 
 export default function RiskDashboard() {
+  // POST /admin/risk/users/:id/rescore needs security.manage; the page itself only needs analytics.read
+  const canRescore = useCan('security.manage');
   const [summary, setSummary] = useState<Summary | null>(null);
   const [rows, setRows] = useState<RiskRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -143,7 +146,7 @@ export default function RiskDashboard() {
               </ul>
             ) },
             { key: 'at', header: 'آخر حساب', className: 'text-xs text-gray-500', render: (r) => new Date(r.computed_at).toLocaleString(dateLocale()) },
-            { key: 'act', header: '', actions: true, render: (r) => <button type="button" disabled={busy === r.user_id} onClick={() => void rescore(r.user_id)} className="text-sm underline disabled:opacity-50">إعادة الحساب</button> },
+            { key: 'act', header: '', actions: true, render: (r) => (canRescore ? <button type="button" disabled={busy === r.user_id} onClick={() => void rescore(r.user_id)} className="text-sm underline disabled:opacity-50">إعادة الحساب</button> : null) },
           ]}
         />
       </div>

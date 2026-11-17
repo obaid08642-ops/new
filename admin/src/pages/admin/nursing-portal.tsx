@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../../utils/api';
+import { useCan } from '@/components/AdminGuard';
 
 type NursingRequest = {
   id: string; patient_id: string; state: string; service: string;
@@ -10,6 +11,8 @@ type Provider = { provider_id: string; name: string; city?: string | null };
 
 /** R6-1: wired to the real API — eligible nurses, provider_id, state/service/scheduled time, reassign + cancel. */
 export default function NursingPortalPage() {
+  // POST /admin/nursing/requests/:id/(assign|reassign|cancel) needs order.reassign; the page itself only needs appointment.read
+  const canReassign = useCan('order.reassign');
   const [requests, setRequests] = useState<NursingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -85,7 +88,7 @@ export default function NursingPortalPage() {
                   {req.state}
                 </span>
               </div>
-              {req.state !== 'CANCELLED' && req.state !== 'COMPLETED' && (
+              {canReassign && req.state !== 'CANCELLED' && req.state !== 'COMPLETED' && (
                 <div className="flex flex-wrap items-end gap-3 border-t pt-4">
                   <label className="text-sm">ممرض مؤهل:
                     <select
