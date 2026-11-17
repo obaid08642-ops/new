@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 13:30 UTC — #2730 merged; #2719 and #2739 re-synced; admin prompt page 2 (#2740)
+- #2719 and #2739 conflicted again (generated docs only): merged main, regenerated, gates unchanged, pushed.
+- Admin prompt page 2: provider-moderation.tsx, 5 calls through one ConfirmDialog (PR #2740, test 3; delta decisions untested, same helper). 12 calls in 8 files left: system-ops 3, config-portal 2, content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments.
+- PROGRESS.md: row is in #2739; counts get updated after it merges (avoids a conflict between the two PRs).
+- Open PRs: #2719, #2739, #2740 (cap). Next page waits for a merge.
+
 ## 2026-11-17 11:00 UTC — #2737 merged; #2719 and #2730 re-synced; admin prompt PR 1 of 10 (#2739)
 - Item 1: #2730 and #2719 merged with main again (generated docs only), regenerated, gates unchanged (literals 105, no-raw-color 402, token-sync 335, jest 433/433), pushed.
 - Item 2, page 1: admin impersonation.tsx revoke reason in ConfirmDialog (PR #2739, test 2, admin vitest 117). PROGRESS.md updated. 17 prompt calls in 9 files left: provider-moderation 5, system-ops 3, config-portal 2, content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments. Open PRs: #2719, #2730, #2739 (cap): the next page waits for a merge.
