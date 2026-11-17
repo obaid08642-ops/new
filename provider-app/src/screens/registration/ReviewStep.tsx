@@ -146,7 +146,7 @@ export function ReviewStep<T extends ReviewData>({ config, data, update, uploads
           <NInput label={tt('review.9706b164')} value={data.accountHolderName}
             onChange={(v) => update({ accountHolderName: v } as Partial<T>)} placeholder={tt('review.d1423f6b')} />
           <NInput label={tt('review.730b8353')} value={data.iban}
-            onChange={(v) => update({ iban: v.toUpperCase().replace(/\s/g, '') } as Partial<T>)} placeholder="SA0000000000000000000000" maxLen={24} />
+            onChange={(v) => update({ iban: v.toUpperCase().replace(/\s/g, '') } as Partial<T>)} placeholder={tt('phx.8b707323')} maxLen={24} />
           <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: align }}>
             {tt('review.08b2c7a0')}
           </Text>

@@ -1,5 +1,5 @@
 {
- "commit": "48eadaeb3",
+ "commit": "af0479e9b",
  "screens": {
   "PendingDashboard": [
    {
@@ -1178,7 +1178,7 @@
    },
    {
     "kind": "input",
-    "label": "e.g. 192.168.1.10",
+    "label": "{tt('phx.871c8962')}",
     "src": "user input → customIp → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
@@ -4466,7 +4466,7 @@
    },
    {
     "kind": "button",
-    "label": "Morning",
+    "label": "{tt('nng.b31948df')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -5516,7 +5516,7 @@
    },
    {
     "kind": "input",
-    "label": "Home Scan Fee (SAR)",
+    "label": "{tt('nnc.4cc33a33')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5536,7 +5536,7 @@
    },
    {
     "kind": "input",
-    "label": "Available Techs/Machines",
+    "label": "{tt('nnc.b161a0c5')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6679,7 +6679,7 @@
    },
    {
     "kind": "input",
-    "label": "Home Scan Fee (SAR)",
+    "label": "{tt('nnc.4cc33a33')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6699,7 +6699,7 @@
    },
    {
     "kind": "input",
-    "label": "Available Techs/Machines",
+    "label": "{tt('nnc.b161a0c5')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -7946,7 +7946,7 @@
    },
    {
     "kind": "button",
-    "label": "Morning",
+    "label": "{tt('nne.b31948df')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -12060,7 +12060,7 @@
    },
    {
     "kind": "input",
-    "label": "APR-XXXXX",
+    "label": "{tt('phx.8870afeb')}",
     "src": "user input → approvalRef (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",

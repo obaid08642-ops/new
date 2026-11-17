@@ -237,7 +237,7 @@ export function InsuranceRequestsScreen({ onBack }: { onBack: () => void }) {
                   value={approvalRef}
                   onChangeText={setApprovalRef}
                   autoCapitalize="characters"
-                  placeholder="APR-XXXXX"
+                  placeholder={tt('phx.8870afeb')}
                   placeholderTextColor={theme.textHint}
                   style={{
                     backgroundColor: theme.inputBg, borderWidth: 1, borderColor: theme.border,

@@ -63,8 +63,8 @@ export function CreateCampaignScreen({ onBack }: { onBack: () => void }) {
  <NInput label={tt('rrct.93e87b33')} placeholder={tt('rrct.d0efc7dd')} value={title} onChange={setTitle} required />
  <NPriceInput label={tt('rrct.59ada1a4')} value={origPrice} onChange={setOrigPrice} />
  <NPriceInput label={tt('rrct.ba8b259b')} value={discPrice} onChange={setDiscPrice} />
- <NInput label={tt('rrct.86bb1b4d')} placeholder="YYYY-MM-DD" value={startDate} onChange={setStartDate} />
- <NInput label={tt('rrct.916c6ba4')} placeholder="YYYY-MM-DD" value={endDate} onChange={setEndDate} />
+ <NInput label={tt('rrct.86bb1b4d')} placeholder={tt('phx.afaca35b')} value={startDate} onChange={setStartDate} />
+ <NInput label={tt('rrct.916c6ba4')} placeholder={tt('phx.afaca35b')} value={endDate} onChange={setEndDate} />
  <NBtn label={tt('rrct.39d6d232')} onPress={handleCreate} loading={loading} style={{ marginTop: SP.lg }} />
  </View>
  </NScroll>

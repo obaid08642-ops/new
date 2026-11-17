@@ -222,7 +222,7 @@ export function NPhoneInput({ value, onChange, error, label, required, innerRef 
             <View style={[s.phonePrefix, { borderRightWidth:isRTL?0:1, borderLeftWidth:isRTL?1:0, borderColor:theme.border }]}>
               <Text style={{ fontSize:FS.md, color:theme.text, fontWeight:FW.semi }}> +966</Text>
             </View>
-            <TextInput ref={inputRef} value={value} onChangeText={onChange} placeholder="5X XXX XXXX"
+            <TextInput ref={inputRef} value={value} onChangeText={onChange} placeholder={tt('phx.b556866c')}
               placeholderTextColor={theme.textHint} keyboardType="phone-pad" maxLength={10}
               onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
               style={[s.textInput, { color:theme.text, paddingHorizontal:SP.lg, flex:1 }]} />
@@ -690,7 +690,7 @@ export function NOnlineToggle({ value, onToggle }:{ value:boolean; onToggle:()=>
  <Animated.View style={[s.onlineDot, { backgroundColor:value?theme.success:theme.textSub, transform:[{scale:value?pulse:1}] }]} />
  </View>
  <Text style={{ fontSize:FS.sm, color:value?theme.success:theme.textSub, fontWeight:FW.semi }}>
- {value ? (isRTL?'متاح الآن':'Online') : (isRTL?'غير متاح':'Offline')}
+ {value ? (tt('mma.31b0b426')) : (tt('mma.b2a7fe2e'))}
  </Text>
  </TouchableOpacity>
  );
@@ -751,7 +751,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
               placeholder="0" placeholderTextColor={theme.textHint} keyboardType="numeric"
               style={[s.textInput, { flex:1, color:theme.text, paddingHorizontal:SP.lg }]} />
             <View style={[s.priceSuffix, { borderColor:theme.border, borderLeftWidth:isRTL?0:1, borderRightWidth:isRTL?1:0 }]}>
-              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>{isRTL ? 'ريال' : 'SAR'}</Text>
+              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>{tt('mma.0e39e6ca')}</Text>
             </View>
           </View>
           {error && <Text style={[s.hint, { color:theme.danger }]}>{error}</Text>}
@@ -1299,7 +1299,7 @@ export function NDatePickerSheet({
  {/* Header */}
  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
- {title || (isRTL ? 'اختر التاريخ' : 'Select Date')}
+ {title || (tt('mma.78a33538'))}
  </Text>
  <TouchableOpacity onPress={onClose}>
  <I name="close" size={24} color={theme.textSub} />

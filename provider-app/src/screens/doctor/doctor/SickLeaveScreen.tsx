@@ -19,7 +19,7 @@ interface Issued { id: string; serial: string; from: string; to: string; days: n
 
 export function SickLeaveScreen({ apt, onBack }: { apt: any; onBack: () => void }) {
   const { theme } = useTheme();
-  const { isRTL, t } = useLang();
+  const { isRTL, t, t: tt } = useLang();
   const { show } = useToast();
   const align = isRTL ? 'right' : 'left';
   const [from, setFrom] = useState(today());
@@ -100,8 +100,8 @@ export function SickLeaveScreen({ apt, onBack }: { apt: any; onBack: () => void 
         </View>
       </NCard>
 
-      <NInput label={t('medicalReport.from')} placeholder="YYYY-MM-DD" value={from} onChange={setFrom} kbType="numbers-and-punctuation" />
-      <NInput label={t('medicalReport.to')} placeholder="YYYY-MM-DD" value={to} onChange={setTo} kbType="numbers-and-punctuation"
+      <NInput label={t('medicalReport.from')} placeholder={tt('phx.afaca35b')} value={from} onChange={setFrom} kbType="numbers-and-punctuation" />
+      <NInput label={t('medicalReport.to')} placeholder={tt('phx.afaca35b')} value={to} onChange={setTo} kbType="numbers-and-punctuation"
         hint={days !== null && days >= 1 ? t('medicalReport.daysCount', { days }) : undefined} />
       <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: SP.sm, flexWrap: 'wrap', marginBottom: SP.lg }}>
         {DAY_CHOICES.map((d) => {

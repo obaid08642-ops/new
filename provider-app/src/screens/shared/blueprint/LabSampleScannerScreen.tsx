@@ -67,7 +67,7 @@ export function LabSampleScannerScreen({ onBack, onNavigate }: { onBack: () => v
       <ScrollView contentContainerStyle={{ padding: SP.xl, paddingBottom: 60 }}>
         <NInput
           label={tt('rrcw.88d4a262')}
-          placeholder="SMP-…"
+          placeholder={tt('phx.65269c6e')}
           value={barcode}
           onChange={setBarcode}
           icon="scan"

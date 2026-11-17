@@ -659,7 +659,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
           <Text style={{ fontSize: FS.sm, color: theme.textSub, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
             {tt('labdash.96e20d00')}
           </Text>
-          <NInput label={tt('labdash.849441eb')} placeholder="YYYY-MM-DD HH:MM" value={rescheduleDate} onChange={setRescheduleDate} icon="event" />
+          <NInput label={tt('labdash.849441eb')} placeholder={tt('phx.41f82821')} value={rescheduleDate} onChange={setRescheduleDate} icon="event" />
           <NBtn label={tt('labdash.f21bee1b')} loading={loading} onPress={handleReschedule} style={{ marginTop: SP.md }} />
         </View>
       </NSheet>
@@ -675,7 +675,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {/* Insurance approval sheet */}
       <NSheet visible={showApproval} onClose={()=>setShowApproval(false)} title={tt('labdash.881a5e09')} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={tt('labdash.ad1a5d6b')} placeholder="REF-12345" value={decisionRef} onChange={setDecisionRef} icon="verified" />
+          <NInput label={tt('labdash.ad1a5d6b')} placeholder={tt('phx.c76f54e6')} value={decisionRef} onChange={setDecisionRef} icon="verified" />
           <NInput label={tt('labdash.cab8286b')} placeholder="0" value={copay} onChange={setCopay} icon="payments" kbType="numeric" />
           <NBtn label={tt('labdash.9a0c9e6c')} onPress={handleApproval} style={{ marginTop: SP.md }} />
         </View>
@@ -699,7 +699,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
       {/* Register Sample Sheet */}
       <NSheet visible={showRegister} onClose={()=>setShowRegister(false)} title={tt('labdash.a9aee7df')} height={400}>
         <View style={{ padding: SP.md }}>
-          <NInput label={tt('labdash.757b0f25')} placeholder="SMP-XXXXXXXX" value={barcode} onChange={setBarcode} icon="qr-code-scanner" />
+          <NInput label={tt('labdash.757b0f25')} placeholder={tt('phx.b297654c')} value={barcode} onChange={setBarcode} icon="qr-code-scanner" />
           <NBtn label={tt('labdash.657d61ad')} variant="outline" onPress={openScanner} style={{ marginBottom: SP.sm }} />
           <NInput label={tt('labdash.46819ff8')} placeholder={tt('labdash.92b83bf2')} value={notes} onChange={setNotes} icon="edit" />
           <NBtn label={tt('labdash.f4e7235f')} loading={loading} onPress={handleRegisterSample} style={{ marginTop: SP.md }} />
@@ -985,7 +985,7 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
  </Text>
  </NCard>
  <NInput label={tt('labdash.2633e985')} placeholder={tt('labdash.b024876e')} value={nameAr} onChange={setNameAr} required />
- <NInput label={tt('labdash.00ef02de')} placeholder="Advanced Ferritin" value={nameEn} onChange={setNameEn} required />
+ <NInput label={tt('labdash.00ef02de')} placeholder={tt('phx.90d265e0')} value={nameEn} onChange={setNameEn} required />
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md}}>
  <View style={{flex:1}}><NPriceInput label={tt('labdash.137174f0')} value={price} onChange={setPrice} required /></View>
  <View style={{flex:1}}><NInput label={tt('labdash.1d94025e')} placeholder="2" value={hours} onChange={v=>setHours(v.replace(/\D/g,''))} kbType="numeric" maxLen={3} /></View>
@@ -993,7 +993,7 @@ function AddCustomTest({ onBack }:{ onBack:()=>void }) {
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.md}}>
  <View style={{flex:1}}><NInput label={tt('labdash.a79d3e95')} placeholder="0" value={refLow} onChange={setRefLow} kbType="decimal-pad" /></View>
  <View style={{flex:1}}><NInput label={tt('labdash.a2e8628f')} placeholder="100" value={refHigh} onChange={setRefHigh} kbType="decimal-pad" /></View>
- <View style={{flex:1}}><NInput label={tt('labdash.1d92094b')} placeholder="mg/dL" value={unit} onChange={setUnit} /></View>
+ <View style={{flex:1}}><NInput label={tt('labdash.1d92094b')} placeholder={tt('phx.f4c49028')} value={unit} onChange={setUnit} /></View>
  </View>
  <NCard style={{marginBottom:SP.xl}}><NToggle label={tt('labdash.e9a83ccf')} value={fasting} onChange={setFasting} /></NCard>
  <NBtn label={tt('labdash.16e3e9ee')} disabled={!nameAr.trim()||!price} loading={loading}
@@ -1401,7 +1401,7 @@ function LabInsurance({ onBack }:{ onBack:()=>void }) {
  ))}
 
  <NCard style={{marginTop: SP.lg}}>
- <NInput label={tt('labdash.82ee435d')} placeholder="APR-XXXXX" value={approvalRef} onChange={setApprovalRef} />
+ <NInput label={tt('labdash.82ee435d')} placeholder={tt('phx.8870afeb')} value={approvalRef} onChange={setApprovalRef} />
  <NInput label={t('pa3.labDash.4')} value={rejectNote} onChange={setRejectNote} />
  </NCard>
  <View style={{flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl, marginBottom: SP.xxl}}>
