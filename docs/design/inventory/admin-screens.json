@@ -6099,7 +6099,8 @@
    "line": 1,
    "area": "customers-growth",
    "unit": [
-    "admin/src/pages/admin/impersonation.tsx"
+    "admin/src/pages/admin/impersonation.tsx",
+    "admin/src/components/ConfirmDialog.tsx"
    ],
    "clientPermission": "user.impersonate",
    "navPermission": "user.impersonate",
@@ -6115,7 +6116,7 @@
      "backend": "backend/src/modules/admin/admin.controller.ts:253",
      "backendPath": "/admin/users",
      "file": "admin/src/pages/admin/impersonation.tsx",
-     "line": 12,
+     "line": 15,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -6138,7 +6139,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-impersonation.controller.ts:56",
      "backendPath": "/admin/impersonation",
      "file": "admin/src/pages/admin/impersonation.tsx",
-     "line": 13,
+     "line": 16,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -6163,7 +6164,7 @@
      "backend": "admin/src/pages/api/admin/impersonation/start.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/pages/admin/impersonation.tsx",
-     "line": 16,
+     "line": 19,
      "fn": "adminMutation",
      "via": null,
      "raw": false
@@ -6176,7 +6177,7 @@
      "backend": "admin/src/pages/api/admin/impersonation/context.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/pages/admin/impersonation.tsx",
-     "line": 16,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "raw": false
@@ -6189,7 +6190,7 @@
      "backend": "admin/src/pages/api/admin/impersonation/revoke.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/pages/admin/impersonation.tsx",
-     "line": 17,
+     "line": 21,
      "fn": "adminMutation",
      "via": null,
      "raw": false

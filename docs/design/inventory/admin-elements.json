@@ -4266,7 +4266,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "input",
@@ -4274,7 +4274,7 @@
     "src": "state query used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "button",
@@ -4284,7 +4284,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "input",
@@ -4292,7 +4292,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "button",
@@ -4302,17 +4302,87 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "button",
     "label": "إبطال",
-    "src": "POST /api/admin/impersonation/revoke; GET /api/admin/admin/impersonation; prompt()",
+    "src": "local state",
     "status": "ok",
-    "mutation": true,
-    "confirm": true,
+    "mutation": false,
+    "confirm": false,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
+   },
+   {
+    "kind": "action",
+    "label": "سبب إبطال جلسة الدعم",
+    "src": "POST /api/admin/impersonation/revoke; GET /api/admin/admin/impersonation",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/impersonation/revoke) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 22
+   },
+   {
+    "kind": "action",
+    "label": "سبب إبطال جلسة الدعم",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 22
+   },
+   {
+    "kind": "input",
+    "label": "سبب إبطال جلسة الدعم",
+    "src": "state revokeReason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 22
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    }
   ],
   "/admin/insurance-companies": [
