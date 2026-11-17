@@ -32,11 +32,19 @@ describe('windows', () => {
     expect(parseWindows({})).toBeNull();
     expect(parseWindows(null)).toBeNull();
   });
-  it('groups windows by local day and lists days', () => {
-    const d1 = new Date(2026, 9, 23, 8).toISOString(); const d1e = new Date(2026, 9, 23, 10).toISOString(); const d2 = new Date(2026, 9, 24, 8).toISOString();
+  it('groups windows by Riyadh day and lists Riyadh days (the backend cuts windows and slots by Riyadh time)', () => {
+    // 08:00 and 10:00 on 23 Oct in Riyadh are 05:00Z and 07:00Z; 08:00 on 24 Oct is 05:00Z of that day
+    const d1 = '2026-10-23T05:00:00.000Z'; const d1e = '2026-10-23T07:00:00.000Z'; const d2 = '2026-10-24T05:00:00.000Z';
     const g = windowsByDay([{ start: d1, end: d1e }, { start: d2, end: d2 }]);
     expect(g.map((x) => x.day)).toEqual(['2026-10-23', '2026-10-24']);
-    expect(nextDays(new Date(2026, 9, 22), 3).map((x) => x.iso)).toEqual(['2026-10-22', '2026-10-23', '2026-10-24']);
+    expect(nextDays(new Date('2026-10-22T09:00:00Z'), 3).map((x) => x.iso)).toEqual(['2026-10-22', '2026-10-23', '2026-10-24']);
+  });
+
+  it('a window after 21:00 UTC is already the next day in Riyadh, in any phone time zone', () => {
+    const g = windowsByDay([{ start: '2026-10-23T18:00:00.000Z', end: '2026-10-23T20:00:00.000Z' }, { start: '2026-10-23T21:00:00.000Z', end: '2026-10-23T23:00:00.000Z' }]);
+    expect(g.map((x) => x.day)).toEqual(['2026-10-23', '2026-10-24']);
+    // at 22:30Z the Riyadh today is already the 24th
+    expect(nextDays(new Date('2026-10-23T22:30:00Z'), 2).map((x) => x.iso)).toEqual(['2026-10-24', '2026-10-25']);
   });
 });
 

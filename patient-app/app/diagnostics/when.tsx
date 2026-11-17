@@ -16,6 +16,7 @@ import {
   ASAP_MAX_POLLS, ASAP_POLL_MS, asapAllowed, bookingErrorKey, cancelAsap, getAsap, getDraft, groupsMissingTime, nextDays, requestWindows, setTime, startAsap,
   windowsByDay, type Asap, type OrderingDraft, type TimePick, type WindowsAnswer,
 } from '../../src/utils/orderingBooking';
+import { riyadhWall } from '../../src/utils/riyadh';
 
 const WIN_OPTS: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit' };
 const DAY_OPTS: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric', month: 'short' };
@@ -27,7 +28,10 @@ const DAY_OPTS: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric',
  */
 export default function DiagnosticsWhen() {
   const { theme, t, c, k, num, flow, lang } = useScreenUi();
-  const { fmtDate, fmtTime } = useOrderDates();
+  const { fmtDate: fmtDateAny, fmtTime: fmtTimeAny } = useOrderDates();
+  // windows and slots are Riyadh clock time (backend common/riyadh-slots.ts): read every instant in Riyadh, whatever the phone's time zone is
+  const fmtDate = (v: Date | string | number, o?: Intl.DateTimeFormatOptions) => fmtDateAny(riyadhWall(v), { ...o, timeZone: 'UTC' });
+  const fmtTime = (v: Date | string | number, o?: Intl.DateTimeFormatOptions) => fmtTimeAny(riyadhWall(v), { ...o, timeZone: 'UTC' });
   const range = (s: string, e: string) => `${fmtTime(s, WIN_OPTS)} – ${fmtTime(e, WIN_OPTS)}`;
   const [draft, setDraft] = useState<OrderingDraft | null>(() => getDraft());
   const [mode, setMode] = useState<OrderingMode>(() => getDraft()?.quote.groups[0]?.mode ?? 'home');

@@ -17,21 +17,20 @@ import { bookingErrorKey, choiceFields, defaultChoice, normalizeChoice, parseNur
 import type { InsuranceOnFile } from "@/lib/nursing/nurse";
 import { chosenSlot, nurseSlotsView, parseNurseSlots, type NurseSlotsResult } from "@/lib/nursing/nurse-slots";
 import nursing from "@/components-next/nursing/nursing.module.css";
+import { riyadhDays, riyadhNoon, riyadhWall } from "@/lib/time/riyadh";
 
 export type BookableNurse = { id: string; name: string; detail?: string };
 export type BookableAddress = { id: string; label: string };
 type Method = "card" | "insurance";
 
+/** The next days of the picker as Riyadh calendar days: the nurse's slots are Riyadh clock time and `date=` is the Riyadh day (backend common/riyadh-slots.ts). */
 function nextDays(count: number, locale: string) {
-  const today = new Date();
-  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short" });
-  const monthFmt = new Intl.DateTimeFormat(locale, { month: "short" });
+  const weekday = new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" });
+  const monthFmt = new Intl.DateTimeFormat(locale, { month: "short", timeZone: "UTC" });
   const dayFmt = new Intl.NumberFormat(locale, { useGrouping: false });
-  return Array.from({ length: count }, (_, i) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + i);
-    // the calendar date the patient sees, not the UTC date of local midnight
-    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-    return { iso, weekday: weekday.format(d), dateNum: dayFmt.format(d.getDate()), month: monthFmt.format(d) };
+  return riyadhDays(new Date(), count).map((iso) => {
+    const d = riyadhWall(riyadhNoon(iso));
+    return { iso, weekday: weekday.format(d), dateNum: dayFmt.format(d.getUTCDate()), month: monthFmt.format(d) };
   });
 }
 
@@ -90,7 +89,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
   const t = useTranslations("NursingWeb");
   const router = useRouter();
   const days = useMemo(() => nextDays(7, locale), [locale]);
-  const clock = useMemo(() => new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }), [locale]);
+  const clock = useMemo(() => new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit", timeZone: "UTC" }), [locale]);
   const methods: Method[] = insurance ? ["card", "insurance"] : ["card"];
   const [nurseId, setNurseId] = useState(nurses[0]?.id ?? "");
   const [day, setDay] = useState(days[0]?.iso ?? "");
@@ -229,7 +228,7 @@ export function HomeCareBookingForm({ locale, serviceId, nurses, addresses, insu
             <div className={styles.slots} role="group" aria-label={t("formTime")}>
               {slots.map((s) => (
                 <button key={s.start} type="button" className={styles.choice} aria-pressed={s.start === slot} onClick={() => setPicked(s.start)}>
-                  {clock.format(new Date(s.start))}
+                  {clock.format(riyadhWall(s.start))}
                 </button>
               ))}
             </div>

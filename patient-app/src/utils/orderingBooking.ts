@@ -14,6 +14,7 @@ const policyAware = async <T>(service: string, run: () => Promise<T>): Promise<T
 import { apiFetch } from './api';
 import type { OrderingKind, OrderingMode, OrderingPayer, ProviderRow, Quote, QuoteGroup } from './ordering';
 import type { MedicalOrder } from './medicalOrders';
+import { riyadhDayKey, riyadhDays, riyadhNoon } from './riyadh';
 
 type Raw = Record<string, unknown>;
 const obj = (v: unknown): Raw | null => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Raw) : null);
@@ -124,10 +125,9 @@ export async function requestWindows(providerId: string, mode: OrderingMode, dat
   return answer;
 }
 
-/** Local calendar day of an instant, "YYYY-MM-DD" (the picker's day chips). */
+/** Riyadh calendar day of an instant, "YYYY-MM-DD" (the picker's day chips; the backend cuts windows and slots by Riyadh time, common/riyadh-slots.ts). */
 export function dayKey(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return riyadhDayKey(iso);
 }
 
 /** The windows grouped by day, in the order the server sent them. */
@@ -142,12 +142,9 @@ export function windowsByDay(windows: TimeWindow[]): Array<{ day: string; start:
   return out;
 }
 
-/** The next `n` local days from `from` as "YYYY-MM-DD" (the date parameter of the centre slots). */
+/** The next `n` Riyadh days from `from` as "YYYY-MM-DD" (the date parameter of the centre slots is the Riyadh day); `at` is 12:00 of that day in Riyadh. */
 export function nextDays(from: Date, n: number): Array<{ iso: string; at: Date }> {
-  return Array.from({ length: n }, (_, i) => {
-    const at = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i, 12);
-    return { iso: dayKey(at.toISOString()), at };
-  });
+  return riyadhDays(from, n).map((iso) => ({ iso, at: riyadhNoon(iso) }));
 }
 
 // ---------- ASAP ----------
