@@ -90,3 +90,6 @@ RECONCILIATION (finish this, then report): go through lead/LAUNCH_LIST.md (many 
 3. The 37 OPEN [client] lines of section 7 of your reconciliation: fix every technical one; for each that cannot be fixed say why.
 4. The 13 OPEN design lines (visual/board differences): fix them with the render tool + board comparison, tokens only.
 5. After each PR update docs/design/PROGRESS.md as the rules require. When items 1-4 are done write QUEUE EMPTY with what is left and why.
+
+## 2026-11-17 12:00 UTC — lead: after your current queue (admin prompts, 37 client lines, 13 design lines)
+Phase 1 of lead/MULTI_COUNTRY_PLAN.md: READ-ONLY audit of patient app, patient web, provider app, admin (your items 3, 11, 12), output docs/platform/mc-audit/*.md, every row with file:line; no code changes in Phase 1.

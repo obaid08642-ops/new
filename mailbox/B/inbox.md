@@ -164,3 +164,7 @@ ORDER: (1) prove which API endpoint runs each of these three shapes (grep distin
 6. R11 P3 runs: I schedule them (96i shows only wallets.balance 8 and orders.* 10-20 rows missing shadows; everything else 0).
 7. Then: drop-candidate list of the old public_* indexes (needs a 96r/index-usage task: $indexStats read-only) and the rare-category sort question.
 When 1-7 are done or blocked: QUEUE EMPTY. Do NOT start multi-country code before I send the plan.
+
+## 2026-11-17 12:00 UTC — lead: IMPORTANT change on #2735 (do NOT merge it as is)
+The owner's next big piece is multi-country (lead/MULTI_COUNTRY_PLAN.md). A process-wide TZ=Asia/Riyadh hard-wires Saudi time into every local-time read and is exactly the kind of hidden Saudi assumption we must remove. Replace #2735 with: keep the containers in UTC; make each local-time read explicit (quiet hours, surge, weekly/doctor/service schedules) through ONE helper that takes the timezone from config (market setting, today a single value 'Asia/Riyadh'), like common/riyadh-slots.ts but named for a market timezone; keep the @Cron timeZone:'UTC' pins and their spec (good). Close #2735 or rework it in place; tests for each read.
+After Phase 0 (your current queue) you start Phase 1 of lead/MULTI_COUNTRY_PLAN.md (READ-ONLY audit, your items 1, 2, 5, 10, 13, 14), output docs/platform/mc-audit/*.md with file:line evidence; no code changes in Phase 1.
