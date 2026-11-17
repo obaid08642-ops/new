@@ -6,6 +6,7 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { Glyph } from '../pharmacy/PharmacyKit';
 import { dateLocaleFor, numberingFor } from '../../utils/dates';
 import { MODE_LOOK, type VisitMode } from './ConsultKit';
+import { riyadhDays, riyadhNoon, riyadhWall } from '../../utils/riyadh';
 
 /**
  * The pieces of the booking and doctor pages (boards DoctorFull and BookingConfirm): the day strip, the time grid, the
@@ -20,12 +21,29 @@ export interface DayItem {
   month: string;
 }
 
-/** The next `count` real days from today (today and tomorrow named, the rest by weekday), in the language's format. */
-export function useDays(count: number): DayItem[] {
+/**
+ * The next `count` real days from today (today and tomorrow named, the rest by weekday), in the language's format.
+ * `riyadh`: the days are Riyadh calendar days (labs, radiology and home care cut their slots by Riyadh clock time and take `date=` as the Riyadh day,
+ * backend common/riyadh-slots.ts); without it they are the phone's days, as the doctors' slots still use them.
+ */
+export function useDays(count: number, riyadh = false): DayItem[] {
   const { lang, k, num } = useScreenUi();
   return React.useMemo(() => {
     const locale = dateLocaleFor(lang);
     const out: DayItem[] = [];
+    if (riyadh) {
+      const wall = (iso: string) => riyadhWall(riyadhNoon(iso));
+      riyadhDays(new Date(), count).forEach((iso, i) => {
+        const d = wall(iso);
+        out.push({
+          iso,
+          name: i === 0 ? k('consult.today') : i === 1 ? k('consult.tomorrow') : new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' }).format(d),
+          day: num(d.getUTCDate(), { useGrouping: false }),
+          month: new Intl.DateTimeFormat(locale, { month: 'short', numberingSystem: numberingFor(lang), timeZone: 'UTC' }).format(d),
+        });
+      });
+      return out;
+    }
     for (let i = 0; i < count; i++) {
       const d = new Date();
       d.setDate(d.getDate() + i);
@@ -38,7 +56,7 @@ export function useDays(count: number): DayItem[] {
     }
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lang, count]);
+  }, [lang, count, riyadh]);
 }
 
 /** The board's day buttons (DoctorFull): 64 tall, ink when selected; scrolls sideways when there are many. */

@@ -6,6 +6,7 @@
 import type { BookingRequest } from "./client";
 import type { OrderMode, StaffGender } from "./quote";
 import type { WindowsAnswer } from "./windows";
+import { riyadhDayKey, riyadhDays, riyadhWall } from "../time/riyadh";
 
 export const SCHEDULE_KEY = "nabd_ordering_schedule_v1";
 
@@ -34,13 +35,12 @@ export function parseSchedule(raw: string | null): Schedule | null {
   }
 }
 
-/** The local calendar day (YYYY-MM-DD) of an instant. */
+/** The Riyadh calendar day (YYYY-MM-DD) of an instant: the day the backend slots and windows are cut by (common/riyadh-slots.ts). */
 export function dayKey(iso: string): string {
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return riyadhDayKey(iso);
 }
 
-/** The offered windows grouped by local day, in the order the server sent them. */
+/** The offered windows grouped by Riyadh day, in the order the server sent them. */
 export function groupByDay(windows: Array<{ start: string; end: string }>): Array<{ day: string; windows: Array<{ start: string; end: string }> }> {
   const out: Array<{ day: string; windows: Array<{ start: string; end: string }> }> = [];
   for (const w of windows) {
@@ -52,23 +52,23 @@ export function groupByDay(windows: Array<{ start: string; end: string }>): Arra
   return out;
 }
 
-/** The next `n` local days (today first) as YYYY-MM-DD, for the centre slot day picker (GET /ordering/windows?date=). */
+/** The next `n` Riyadh days (today first) as YYYY-MM-DD, for the centre slot day picker (GET /ordering/windows?date= is the Riyadh calendar day). */
 export function nextDays(now: Date, n: number): string[] {
-  return Array.from({ length: n }, (_, i) => dayKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + i, 12).toISOString()));
+  return riyadhDays(now, n);
 }
 
 export function rangeText(locale: string, startIso: string, endIso: string): string {
-  const f = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
-  return `${f.format(new Date(startIso))} – ${f.format(new Date(endIso))}`;
+  const f = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+  return `${f.format(riyadhWall(startIso))} – ${f.format(riyadhWall(endIso))}`;
 }
 
 export function dayText(locale: string, iso: string, withWeekday = true): string {
-  return new Intl.DateTimeFormat(locale, { ...(withWeekday ? { weekday: "short" as const } : {}), day: "numeric", month: "short" }).format(new Date(iso));
+  return new Intl.DateTimeFormat(locale, { ...(withWeekday ? { weekday: "short" as const } : {}), day: "numeric", month: "short", timeZone: "UTC" }).format(riyadhWall(iso));
 }
 
 export function whenSummary(locale: string, time: HomeTime | FacilityTime | undefined): string | null {
   if (!time || time.type === "walk_in") return null;
-  if (time.type === "slot") return `${new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(time.start))} · ${slotText(locale, time.start)}`;
+  if (time.type === "slot") return `${new Intl.DateTimeFormat(locale, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(riyadhWall(time.start))} · ${slotText(locale, time.start)}`;
   return `${dayText(locale, time.start)} · ${rangeText(locale, time.start, time.end)}`;
 }
 
@@ -148,5 +148,5 @@ export const payableNow = (b: { status: string }) => b.status !== "awaiting_appr
 
 export type ModeOf = OrderMode;
 
-/** A centre slot is the provider's own opening hour written as an instant at UTC (backend labs.service.ts `slotsForProvider`): show it as written. */
-export const slotText = (locale: string, startIso: string) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(new Date(startIso));
+/** A centre slot is the provider's own opening hour, Riyadh clock time (backend labs.service.ts `slotsForProvider`, common/riyadh-slots.ts): show it in Riyadh. */
+export const slotText = (locale: string, startIso: string) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" }).format(riyadhWall(startIso));
