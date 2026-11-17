@@ -1,9 +1,10 @@
-# 2026-11-16 run 134 = deploy main@0f5ac7ff: the P0 fixes of the daytime mongod kills (run 133 data): list indexes with is_deleted last (#2715), catalogue list cached + concurrency gate 3 + maxTimeMS (#2716), nginx rate limit for unknown automated clients on /api/v1/medicines (#2718, nginx -t runs in the deploy), category tree indexes (#2720), oplog explain task (#2717), ordering cancel_reason/refund_amount, nightly jobs bounded, provider literals. New indexes build at the first boot (about 9 on medicines): outside 03:00-05:00 UTC. After: read-only 96r kill window, 96j cache, 96h restarts, 96t oplog slice explain.
-release:0f5ac7ff088d3bffeb4a0ad931ffd0155caf7d8e
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
+# 2026-11-17 run 135 = (1) READ-ONLY measure of the night 03:00-05:00 UTC after deploy 134 (96r kill window, 96j cache, 96h restarts) + launch facts (96u: SCFHS config names, licence dates, migration indexes, domain_outbox counts) + R11 halala counts (96i), THEN (2) deploy main@6d521a46: Riyadh slot times (server #2725 + clients #2731 together), admin hide-actions, ordering cancel_reason/refund_amount, keep provider files on reject, bounded nightly jobs, provider/patient literals. Outside 03:00-05:00 UTC.
+release:6d521a468f799834602bd7b81428bf903af4c39e
 96r-mongod-kill-window
 96j-mongo-cache-check
 96h-mongo-restarts
-96t-oplog-slice-explain
+96u-launch-facts
+96i-halala-counts
+97-free-old-predeploy
+93-free-unused-images
+60-deploy-main
