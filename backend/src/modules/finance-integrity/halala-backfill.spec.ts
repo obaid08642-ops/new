@@ -1,13 +1,13 @@
 import mongoose, { Connection } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { applyBackfill, planBackfill } from './halala-backfill';
+import { applyBackfill, planBackfill, rollbackBackfill, RUN_LOG_COLLECTION } from './halala-backfill';
 
 jest.setTimeout(120_000);
 describe('halala backfill (expand phase)', () => {
   let mongod: MongoMemoryServer; let conn: Connection; let db: any;
   beforeAll(async () => { mongod = await MongoMemoryServer.create(); conn = await mongoose.createConnection(mongod.getUri()).asPromise(); db = conn.getClient().db(conn.name); });
   afterAll(async () => { await conn.close(); await mongod.stop(); });
-  beforeEach(async () => { for (const c of ['transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests', 'wallets', 'wallet_transactions']) await db.collection(c).deleteMany({}); });
+  beforeEach(async () => { for (const c of [RUN_LOG_COLLECTION, 'transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests', 'wallets', 'wallet_transactions']) await db.collection(c).deleteMany({}); });
 
   const seed = async () => {
     await db.collection('transactions').insertMany([
@@ -79,5 +79,43 @@ describe('halala backfill (expand phase)', () => {
     expect((await db.collection('refundrequests').findOne({ id: 'r1' })).amount_halalas).toBe(4990);
     expect((await db.collection('refundrequests').findOne({ id: 'r2' })).refund_amount_halalas).toBe(10000);
     expect((await db.collection('transactions').findOne({ id: 'neg' })).amount_halalas).toBeUndefined();
+  });
+  describe('one collection per run, and an exact rollback', () => {
+    it('`only` limits the run to the named collections', async () => {
+      await seed();
+      await db.collection('wallets').insertOne({ id: 'w1', balance: 50 });
+      expect(await applyBackfill(db, { only: ['wallets'] })).toEqual({ written: 1, skipped_unclean: 0 });
+      expect(await db.collection('transactions').countDocuments({ amount_halalas: { $exists: true } })).toBe(1);   // only t4, as seeded
+    });
+
+    it('a run logs the ids it filled; the rollback removes exactly those shadows and leaves the others and every double', async () => {
+      await seed();
+      const run = await applyBackfill(db, { runId: 'run-1', only: ['transactions'] });
+      expect(run.written).toBe(4);
+      const logged = (await db.collection(RUN_LOG_COLLECTION).find({ run_id: 'run-1' }).toArray()).flatMap((l: any) => l.ids);
+      expect(logged.length).toBe(4);
+      const dry = await rollbackBackfill(db, 'run-1');
+      expect(dry.reduce((n, r) => n + r.to_unset, 0)).toBe(4);
+      expect(await db.collection('transactions').findOne({ id: 't1' })).toHaveProperty('amount_halalas');            // dry run changed nothing
+      const done = await rollbackBackfill(db, 'run-1', { apply: true });
+      expect(done.reduce((n, r) => n + r.to_unset, 0)).toBe(4);
+      expect(await db.collection('transactions').findOne({ id: 't1' })).toMatchObject({ amount: 12.34 });
+      expect(await db.collection('transactions').findOne({ id: 't1' })).not.toHaveProperty('amount_halalas');
+      expect(await db.collection('transactions').findOne({ id: 't4' })).toMatchObject({ amount_halalas: 1000 });    // filled by the app before the run: not in the log, kept
+    });
+
+    it('a row whose double was already dropped keeps its shadow (the shadow is then the only copy)', async () => {
+      await db.collection('transactions').insertOne({ id: 'p1', amount: 20 });
+      await applyBackfill(db, { runId: 'run-2', only: ['transactions'] });
+      await db.collection('transactions').updateOne({ id: 'p1' }, { $unset: { amount: '' } });                       // P3-D happened to this row
+      const done = await rollbackBackfill(db, 'run-2', { apply: true });
+      expect(done.reduce((n, r) => n + r.to_unset, 0)).toBe(0);
+      expect(await db.collection('transactions').findOne({ id: 'p1' })).toMatchObject({ amount_halalas: 2000 });
+    });
+
+    it('rolling back an unknown run changes nothing', async () => {
+      await seed();
+      expect(await rollbackBackfill(db, 'nope', { apply: true })).toEqual([]);
+    });
   });
 });
