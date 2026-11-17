@@ -135,7 +135,6 @@ services:
     env_file: .env.production
     environment:
       NODE_OPTIONS: --max-old-space-size=416   # of the 576m container limit
-      TZ: Asia/Riyadh   # the app's local-time reads (quiet hours, peak-hour surge, weekly slots, doctor/service schedules) mean Riyadh clock time, UTC+3, no DST; without it the container ran in UTC
       NODE_ENV: production
       CLUSTER_MODE: "false"   # ops 2026-10-04: cluster mode crashed the deployed build; one process also saves RAM
       PORT: "8002"
@@ -206,7 +205,6 @@ services:
     env_file: .env.production
     environment:
       NODE_OPTIONS: --max-old-space-size=448   # of the 640m container limit
-      TZ: Asia/Riyadh   # the app's local-time reads (quiet hours, peak-hour surge, weekly slots, doctor/service schedules) mean Riyadh clock time, UTC+3, no DST; without it the container ran in UTC
       NODE_ENV: production
       CLUSTER_MODE: "false"
       PROCESS_ROLE: worker
