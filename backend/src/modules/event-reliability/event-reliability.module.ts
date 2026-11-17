@@ -78,7 +78,7 @@ export class EventReliabilityService {
   }
 
   /** Once a minute, in every API process: the dead-letter and stuck-outbox counts for the scrape (nabd_event_dlq_*, nabd_domain_outbox_stuck). A read problem keeps the last value and never throws. */
-  @Cron('* * * * *')
+  @Cron('* * * * *', { timeZone: 'UTC' })
   async refreshGauges(): Promise<void> {
     const stuckSince = new Date(Date.now() - 30 * 60_000);
     const count = (read: () => Promise<number>) => read().catch(() => -1);

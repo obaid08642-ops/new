@@ -273,7 +273,7 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
   if (phase === 'connecting') {
     return (
       <View style={[st.box, { backgroundColor: '#111' }]}>
-        <ActivityIndicator size="large" color="#FFF" />
+        <ActivityIndicator size="large" color={C.white} />
         <Text style={st.dim}>{tt('sxk.2d8e943f')}</Text>
       </View>
     );
@@ -312,7 +312,7 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
       ) : (
         <View style={st.remoteFallback}>
           <View style={[st.avatar, { backgroundColor: theme.primary }]}>
-            <I name="user" size={44} color="#FFF" />
+            <I name="user" size={44} color={C.white} />
           </View>
           <Text style={st.name}>{peerName || (tt('sxk.2990a575'))}</Text>
           <Text style={st.dim}>{tt('sxk.655e547d')}</Text>
@@ -358,11 +358,11 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
       {/* Controls */}
       <View style={st.controls}>
         <TouchableOpacity style={st.ctrl} onPress={() => setMicOn(v => !v)} accessibilityLabel={tt('sxk.c285d464')}>
-          <I name={micOn ? 'mic' : 'mic-off'} size={22} color="#FFF" />
+          <I name={micOn ? 'mic' : 'mic-off'} size={22} color={C.white} />
         </TouchableOpacity>
         {!voiceOnly && !audioOnly && (
           <TouchableOpacity style={st.ctrl} onPress={() => setCamOn(v => !v)} accessibilityLabel={tt('sxk.20386009')}>
-            <I name={camOn ? 'video' : 'video-off'} size={22} color="#FFF" />
+            <I name={camOn ? 'video' : 'video-off'} size={22} color={C.white} />
           </TouchableOpacity>
         )}
         {!voiceOnly && audioOnly && (
@@ -371,7 +371,7 @@ export function VideoCallRoom({ appointmentId, sessionId: answeredSessionId, pee
           </TouchableOpacity>
         )}
         <TouchableOpacity style={[st.ctrl, { backgroundColor: '#E53935' }]} onPress={handleEnd} accessibilityLabel={tt('sxk.0a1bb802')}>
-          <I name="phone-off" size={22} color="#FFF" />
+          <I name="phone-off" size={22} color={C.white} />
         </TouchableOpacity>
       </View>
     </View>
@@ -392,7 +392,7 @@ const st = StyleSheet.create({
   bar: { width: 4, borderRadius: 1, backgroundColor: C.white },
   box: { flex: 1, minHeight: 260, alignItems: 'center', justifyContent: 'center', borderRadius: R.lg, overflow: 'hidden' },
   dim: { color: 'rgba(255,255,255,0.75)', marginTop: SP.sm, textAlign: 'center', paddingHorizontal: SP.lg },
-  name: { color: '#FFF', fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
+  name: { color: C.white, fontSize: FS.lg, fontWeight: FW.bold, marginTop: SP.sm },
   avatar: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center' },
   remoteFallback: { alignItems: 'center', justifyContent: 'center' },
   banner: { position: 'absolute', top: SP.md, start: SP.md, end: SP.md, padding: SP.sm, borderRadius: R.md, backgroundColor: withAlpha(tokens.navy, 0.65), alignItems: 'center' },

@@ -180,7 +180,7 @@ export function PharmacyDashboardNavigator({ onLogout }: { onLogout:()=>void }) 
 }
 
 const s = StyleSheet.create({
-  tabBar: { flexDirection: 'row', backgroundColor: '#FFF', borderTopWidth: 1, borderColor: '#EEE', paddingBottom: 20, paddingTop: 10, justifyContent: 'space-around' },
+  tabBar: { flexDirection: 'row', backgroundColor: C.white, borderTopWidth: 1, borderColor: '#EEE', paddingBottom: 20, paddingTop: 10, justifyContent: 'space-around' },
   tabItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
   tabIconContainer: { position: 'relative', marginBottom: 4 },
   badge: { position: 'absolute', top: -5, right: -10, borderRadius: 10, paddingHorizontal: 4, paddingVertical: 2, minWidth: 18, alignItems: 'center' },
@@ -1044,7 +1044,7 @@ function SmartBarcodeScannerScreen({ onBack }: any) {
       {!product && <CameraView style={{ flex: 1 }} facing="back" barcodeScannerSettings={{ barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'code93', 'itf14', 'qr', 'datamatrix', 'pdf417'] }} onBarcodeScanned={scanned ? undefined : onBarcodeScanned} />}
       <View style={{ padding: SP.xl, paddingBottom: SP.xxl, backgroundColor: '#111', gap: SP.md }}>
         {loading && <ActivityIndicator color={theme.primary} />}
-        {barcode && <Text style={{ color: '#FFF', textAlign: 'center' }}>{tt('tpz.0de93dcf', { p1: String(barcode) })}</Text>}
+        {barcode && <Text style={{ color: C.white, textAlign: 'center' }}>{tt('tpz.0de93dcf', { p1: String(barcode) })}</Text>}
         {product && (
           <NCard>
             <Text style={{ color: theme.text, fontWeight: FW.bold }}>{AR ? (product.name_ar || product.name_en || product.name || barcode) : (product.name_en || product.name_ar || product.name || barcode)}</Text>
@@ -1305,7 +1305,7 @@ function ActiveInventoryScreen({ onBack, onNavigate }: { onBack: () => void; onN
                   </TouchableOpacity>
                   <Text style={{ fontWeight: 'bold', color: theme.text, width: 30, textAlign: 'center' }}>{item.stock}</Text>
                   <TouchableOpacity onPress={() => updateStock(item.id, 1)} style={{ width: 32, height: 32, backgroundColor: theme.primary, borderRadius: 4, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ color: '#FFF', fontSize: 20 }}>+</Text>
+                    <Text style={{ color: C.white, fontSize: 20 }}>+</Text>
                   </TouchableOpacity>
                 </View>
               </View>

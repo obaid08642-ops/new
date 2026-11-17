@@ -10,7 +10,7 @@ export class CatalogueRankingJob {
   private readonly logger = new Logger('CatalogueRankingJob');
   constructor(private readonly ranking: CatalogueRankingService) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES, { timeZone: 'UTC' })
   @ScheduledOnce()
   async run(): Promise<void> {
     try {

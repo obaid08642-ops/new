@@ -19,6 +19,7 @@ import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-p
 import { UpdateSurgeDto, UpdateFeesDto, ValidateRulesDto } from './business-rules.dto';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { marketParts } from '../../common/market-time';
 export type RuleContext = {
   kind: ServiceDomain;
   patient?: { id?: string; age?: number; sex?: 'male' | 'female'; chronic?: string[] };
@@ -246,7 +247,7 @@ export class BusinessRulesService {
     // Surge: peak hours based on config
     let surge = 1;
     if (ctx.scheduled_at) {
-      const h = new Date(ctx.scheduled_at).getHours();
+      const h = marketParts(ctx.scheduled_at).hour;   // peak hours are market clock time (common/market-time.ts)
       if (h >= this.surgeConfig.startHour && h <= this.surgeConfig.endHour) {
         surge = this.surgeConfig.multiplier;
       }

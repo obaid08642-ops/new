@@ -144,7 +144,7 @@ export class AdminUrgentAlertsService implements OnModuleInit {
   // ── Evaluator ─────────────────────────────────────────────────
 
   /** Runs where background work runs (common/process-role.ts), like the other admin crons. */
-  @Cron('*/5 * * * *')
+  @Cron('*/5 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async scheduledRun() {
     if (this.running) return;

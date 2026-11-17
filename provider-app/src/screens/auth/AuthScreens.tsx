@@ -17,7 +17,7 @@ import {
 } from '../../components/ui';
 import { I } from '../../components/icons';
 import { Biometric, Validate, RateLimiter, buildHeaders, Vault, SK, Tokens } from '../../security/Security';
-import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE } from '../../constants';
+import { SP, R, FS, FW, PROVIDER_TYPES, LIMITS, API_BASE, C } from '../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { tokens } from '../../theme/tokens';
 import { timedFetch } from '../../api/timedFetch';
@@ -52,11 +52,11 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
  alignItems: 'center', justifyContent: 'center',
  marginBottom: SP.xl,
  }}>
- <I name="heart" size={54} color="#FFF" />
+ <I name="heart" size={54} color={C.white} />
  </View>
  </Animated.View>
  <Animated.View style={{ opacity: op2, alignItems: 'center' }}>
- <Text style={{ fontSize: FS['4xl'], fontWeight: FW.xbold, color: '#FFF', letterSpacing: 1 }}>
+ <Text style={{ fontSize: FS['4xl'], fontWeight: FW.xbold, color: C.white, letterSpacing: 1 }}>
  Nabd Plus
  </Text>
  <Text style={{ fontSize: FS.md, color: 'rgba(255,255,255,0.75)', marginTop: SP.xs }}>
@@ -817,7 +817,7 @@ export function PendingScreen({
  alignItems: 'center', justifyContent: 'center',
  marginBottom: SP.xl,
  }}>
- <I name="heart" size={48} color="#FFF" />
+ <I name="heart" size={48} color={C.white} />
  </Animated.View>
  <Text style={{ fontSize: FS['3xl'], fontWeight: FW.bold, color: theme.text, textAlign: 'center', marginBottom: SP.md }}>
  {tt('auth.f3a609d0')}

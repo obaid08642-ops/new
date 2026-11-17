@@ -89,7 +89,7 @@ export class SeoIndexingService {
    * Safety net: every 10 minutes, ping the URLs of anything whose updatedAt moved since the last
    * sweep. One worker at a time (a lease in indexnow_state), bounded per type.
    */
-  @Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { timeZone: 'UTC' })
   async sweep(now = new Date()) {
     const state = this.conn.collection('indexnow_state');
     const lease = await state.findOneAndUpdate(

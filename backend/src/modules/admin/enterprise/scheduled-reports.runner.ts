@@ -25,7 +25,7 @@ export class ScheduledReportsRunner {
     private readonly mail: MailService,
   ) {}
 
-  @Cron('*/30 * * * *')
+  @Cron('*/30 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async runDue() {
     if (this.running) return;

@@ -9,6 +9,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../../common/enums';
+import { inMarketHours } from '../../common/market-time';
 
 /**
  * N10: Behaviour-triggered nudges.
@@ -122,10 +123,9 @@ export async function processNudge(
 
   // 3. Quiet hours → skip (unless transactional)
   const now = new Date();
-  const hour = now.getHours();
   if (settings?.notification_settings?.quiet_hours) {
     const { start, end } = settings.notification_settings.quiet_hours;
-    if (hour >= start && hour < end) return;
+    if (inMarketHours(now, start, end)) return;   // quiet hours are market clock time (common/market-time.ts)
   }
 
   // 4. Cooldown: already had a nudge for this kind within 24h → skip

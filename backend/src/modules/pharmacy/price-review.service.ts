@@ -160,7 +160,7 @@ export class PharmacyPriceReviewService {
    * when the pharmacy is no longer suspended (an admin already acted), is blocked by a price review, or has a LATER temporary suspension still running.
    * A failed reactivation (for example the licence check) gives the claim back and is retried on the next run.
    */
-  @Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async liftExpiredSuspensions(now: Date = new Date()): Promise<{ lifted: number; skipped: number; failed: number }> {
     const out = { lifted: 0, skipped: 0, failed: 0 };

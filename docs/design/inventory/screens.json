@@ -1,5 +1,5 @@
 {
- "commit": "0477c911e",
+ "commit": "67e9153fd",
  "routes": [
   {
    "app": "patient-app",
@@ -8272,7 +8272,7 @@
      "query": "",
      "line": 13,
      "file": "patient-web/lib/notifications/unread-count.ts",
-     "backend": "backend/src/modules/doctors/doctors.module.ts:278",
+     "backend": "backend/src/modules/doctors/doctors.module.ts:275",
      "status": "OK"
     },
     {
@@ -10835,7 +10835,7 @@
      "query": "",
      "line": 13,
      "file": "patient-web/lib/notifications/unread-count.ts",
-     "backend": "backend/src/modules/doctors/doctors.module.ts:278",
+     "backend": "backend/src/modules/doctors/doctors.module.ts:275",
      "status": "OK"
     },
     {
@@ -17075,7 +17075,7 @@
      "query": "",
      "line": 34,
      "file": "patient-web/app/[locale]/notifications/notifications-list.tsx",
-     "backend": "backend/src/modules/doctors/doctors.module.ts:280",
+     "backend": "backend/src/modules/doctors/doctors.module.ts:277",
      "status": "OK"
     },
     {
@@ -22345,7 +22345,7 @@
      "query": "",
      "line": 13,
      "file": "patient-web/lib/notifications/unread-count.ts",
-     "backend": "backend/src/modules/doctors/doctors.module.ts:278",
+     "backend": "backend/src/modules/doctors/doctors.module.ts:275",
      "status": "OK"
     },
     {
