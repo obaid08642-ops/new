@@ -11,7 +11,7 @@ import { ProviderApi } from '../../api/provider';
 import * as DocumentPicker from 'expo-document-picker';
 import { NBtn, NCard, NInput, NStatCard, NAvatar, NBadge, NHeader, NScroll, NSecHeader, NBottomNav, NSheet, NPriceInput, NEmpty } from '../../components/ui';
 import { IBg, I } from '../../components/icons';
-import { SP, R, FS, FW } from '../../constants';
+import { SP, R, FS, FW, C } from '../../constants';
 import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
 import { MyServicesScreen } from '../shared/MyServicesScreen';
@@ -377,7 +377,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
 
       {/* Insurance approval sheet */}
       <NSheet visible={showApproval} onClose={() => setShowApproval(false)} title={tt('raddash.afba36f9')}>
-        <NInput label={tt('raddash.ad1a5d6b')} value={decisionRef} onChange={setDecisionRef} placeholder="REF-XXXXX" />
+        <NInput label={tt('raddash.ad1a5d6b')} value={decisionRef} onChange={setDecisionRef} placeholder={tt('phx.7054830f')} />
         <NPriceInput label={tt('raddash.f096e662')} value={copay} onChange={setCopay} />
         <Text style={{ fontSize: FS.xs, color: tokens.warning, textAlign: AR ? 'right' : 'left', marginBottom: SP.md }}>{tt('raddash.1b52df9b')}</Text>
         <NBtn label={tt('raddash.bbf529ee')} loading={loading} onPress={handleInsuranceApproval} />
@@ -566,14 +566,14 @@ function CatalogManagerTab() {
           <View style={{ flexDirection: 'row', gap: SP.sm }}>{MODALITIES.map(m => <TouchableOpacity key={m} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.md, backgroundColor: modality === m ? tokens.mintDeep : theme.surface2, borderWidth: 1, borderColor: modality === m ? tokens.mintDeep : theme.border }} onPress={() => setModality(m)}><Text style={{ color: modality === m ? '#fff' : theme.text, fontSize: FS.sm }}>{m}</Text></TouchableOpacity>)}</View>
         </ScrollView>
         <NInput label={tt('raddash.d91c01b5')} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
-        <NInput label={tt('raddash.1f9eb88f')} value={nameEn} onChange={setNameEn} placeholder="MRI Brain with Contrast" />
+        <NInput label={tt('raddash.1f9eb88f')} value={nameEn} onChange={setNameEn} placeholder={tt('phx.aa1b2d3b')} />
         <NPriceInput label={tt('raddash.39a4471e')} value={price} onChange={setPrice} />
         <NInput label={tt('raddash.d2889ad9')} value={duration} onChange={setDuration} placeholder="30" />
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{tt('raddash.93a0edf5')}</Text>
         {[{ label: tt('raddash.6596c548'), state: riskPregnancy, set: setRiskPregnancy }, { label: tt('raddash.760780c7'), state: riskMetal, set: setRiskMetal }, { label: tt('raddash.b92b94fe'), state: riskContrast, set: setRiskContrast }].map((item, i) => <View key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text, flex: 1 }}>{item.label}</Text><Switch value={item.state} onValueChange={item.set} trackColor={{ true: tokens.error }} /></View>)}
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}><Text style={{ fontSize: FS.sm, color: theme.text }}>{tt('raddash.e820a35b')}</Text><Switch value={portableUS} onValueChange={setPortableUS} trackColor={{ true: tokens.mintDeep }} /></View>
         <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginVertical: SP.md }}>{tt('raddash.87069951')}</Text>
-        {PREP_OPTIONS.map(p => <TouchableOpacity key={p.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm }} onPress={() => setPrepItems(prev => prev.includes(p.key) ? prev.filter(x => x !== p.key) : [...prev, p.key])}><View style={{ width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: tokens.mintDeep, backgroundColor: prepItems.includes(p.key) ? tokens.mintDeep : 'transparent', alignItems: 'center', justifyContent: 'center' }}>{prepItems.includes(p.key) && <I name="check" size={12} color="#fff" />}</View><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? p.ar : p.en}</Text></TouchableOpacity>)}
+        {PREP_OPTIONS.map(p => <TouchableOpacity key={p.key} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm, paddingVertical: SP.sm }} onPress={() => setPrepItems(prev => prev.includes(p.key) ? prev.filter(x => x !== p.key) : [...prev, p.key])}><View style={{ width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: tokens.mintDeep, backgroundColor: prepItems.includes(p.key) ? tokens.mintDeep : 'transparent', alignItems: 'center', justifyContent: 'center' }}>{prepItems.includes(p.key) && <I name="check" size={12} color={C.white} />}</View><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? p.ar : p.en}</Text></TouchableOpacity>)}
         <NBtn label={tt('raddash.017b19ce')} onPress={handleSubmitDelta} style={{ marginTop: SP.xl }} />
       </NSheet>
     </View>
@@ -605,7 +605,7 @@ function AvailabilityScheduleTab() {
       <NHeader title={tt('raddash.30c7d077')} />
       <NSecHeader title={tt('raddash.71237ac3')} />
       <NCard style={{ marginBottom: SP.lg }}>
-        {DAYS_AR.map((day, i) => <TouchableOpacity key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.md, borderBottomWidth: i < 6 ? 1 : 0, borderColor: theme.border }} onPress={() => setWorkingDays(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? day : DAYS_EN[i]}</Text><View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: workingDays[i] ? tokens.mintDeep : theme.surface2, borderWidth: 2, borderColor: workingDays[i] ? tokens.mintDeep : theme.border, alignItems: 'center', justifyContent: 'center' }}>{workingDays[i] && <I name="check" size={12} color="#fff" />}</View></TouchableOpacity>)}
+        {DAYS_AR.map((day, i) => <TouchableOpacity key={i} style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: SP.md, borderBottomWidth: i < 6 ? 1 : 0, borderColor: theme.border }} onPress={() => setWorkingDays(prev => { const n = [...prev]; n[i] = !n[i]; return n; })}><Text style={{ fontSize: FS.sm, color: theme.text }}>{AR ? day : DAYS_EN[i]}</Text><View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: workingDays[i] ? tokens.mintDeep : theme.surface2, borderWidth: 2, borderColor: workingDays[i] ? tokens.mintDeep : theme.border, alignItems: 'center', justifyContent: 'center' }}>{workingDays[i] && <I name="check" size={12} color={C.white} />}</View></TouchableOpacity>)}
       </NCard>
       <NSecHeader title={tt('raddash.b9fabab9')} />
       <NCard style={{ marginBottom: SP.lg, flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>

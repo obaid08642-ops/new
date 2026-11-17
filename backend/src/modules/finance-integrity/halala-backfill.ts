@@ -91,10 +91,17 @@ export function halalaCountLines(plan: PlanRow[], shadows: ShadowRow[]): string[
   return out;
 }
 
-export async function applyBackfill(db: Db, opts: { targets?: Target[]; includeLedger?: boolean; batch?: number } = {}): Promise<{ written: number; skipped_unclean: number }> {
+/** The collection that records, per run, which rows a backfill filled (ids only, no value), so the run can be undone exactly (`rollbackBackfill`). */
+export const RUN_LOG_COLLECTION = 'money_backfill_runs';
+
+/**
+ * `runId` (optional): every batch writes its row ids to RUN_LOG_COLLECTION under that id. `only`: limit the run to these collections (the runbook backfills one collection per run).
+ */
+export async function applyBackfill(db: Db, opts: { targets?: Target[]; includeLedger?: boolean; batch?: number; runId?: string; only?: string[] } = {}): Promise<{ written: number; skipped_unclean: number }> {
   const batch = opts.batch ?? 500;
   let written = 0; let skipped = 0;
   for (const t of opts.targets ?? TARGETS) {
+    if (opts.only?.length && !opts.only.includes(t.collection)) continue;
     if (t.ledger && !opts.includeLedger) continue;     // the ledger is append-only by convention: only with an explicit flag
     for (const f of t.fields) {
       const col = db.collection(t.collection);
@@ -111,9 +118,37 @@ export async function applyBackfill(db: Db, opts: { targets?: Target[]; includeL
           if (isCleanSar(v) && (t.signed || v >= 0)) ops.push({ updateOne: { filter: { _id: d._id, [shadow(f)]: { $exists: false } }, update: { $set: { [shadow(f)]: toHalalas(v) } } } });
           else skipped++;
         }
-        if (ops.length) { const r = await col.bulkWrite(ops, { ordered: false }); written += r.modifiedCount; }
+        if (ops.length) {
+          // the ids are logged BEFORE the write: a crash in between leaves a log entry for rows that were not written (the rollback skips rows without a shadow), never a written row without an entry
+          if (opts.runId) await db.collection(RUN_LOG_COLLECTION).insertOne({ run_id: opts.runId, collection: t.collection, field: f, ids: ops.map((o: any) => o.updateOne.filter._id), at: new Date() });
+          const r = await col.bulkWrite(ops, { ordered: false }); written += r.modifiedCount;
+        }
       }
     }
   }
   return { written, skipped_unclean: skipped };
+}
+
+export interface RollbackRow { collection: string; field: string; logged: number; to_unset: number }
+
+/**
+ * Undo ONE backfill run: remove the shadow fields that run wrote (the rows are in RUN_LOG_COLLECTION), nothing else. Safe by construction before P3-C: a row is touched only when its
+ * double is STILL there (`<field>` is a number) and the shadow exists; a row whose double was already dropped keeps its shadow (it is then the only copy of the amount). Dry run unless `apply`.
+ */
+export async function rollbackBackfill(db: Db, runId: string, opts: { apply?: boolean } = {}): Promise<RollbackRow[]> {
+  const out: RollbackRow[] = [];
+  const logs = db.collection(RUN_LOG_COLLECTION).find({ run_id: runId }).sort({ at: 1 });
+  const per = new Map<string, RollbackRow>();
+  for await (const l of logs as any) {
+    const key = `${l.collection}.${l.field}`;
+    const row = per.get(key) ?? { collection: l.collection, field: l.field, logged: 0, to_unset: 0 };
+    per.set(key, row);
+    row.logged += l.ids.length;
+    const filter = { _id: { $in: l.ids }, [l.field]: { $type: 'number' }, [shadow(l.field)]: { $exists: true } };
+    const col = db.collection(l.collection);
+    if (opts.apply) row.to_unset += (await col.updateMany(filter, { $unset: { [shadow(l.field)]: '' } })).modifiedCount;
+    else row.to_unset += await col.countDocuments(filter);
+  }
+  out.push(...per.values());
+  return out;
 }

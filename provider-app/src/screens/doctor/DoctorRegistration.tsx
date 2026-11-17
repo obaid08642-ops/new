@@ -402,7 +402,7 @@ function Step2KYC({ data, update, submitRef, uploads }: StepProps<DoctorRegData>
         onClose={() => setShowExpiryCal(false)}
         title={tt('docreg.50ede357')}
       />
-      <NInput label={tt('docreg.730b8353')} placeholder="SA0000000000000000000000" value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required maxLen={24} hint={tt('docreg.f8a55b7b')} />
+      <NInput label={tt('docreg.730b8353')} placeholder={tt('phx.8b707323')} value={data.iban} onChange={v=>update({iban:v.toUpperCase().replace(/\s/g,'')})} required maxLen={24} hint={tt('docreg.f8a55b7b')} />
       <NInput label={tt('docreg.3f934541')} value={data.accountHolderName} onChange={v=>update({accountHolderName:v})} />
       
       <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginTop: SP.md, marginBottom: SP.sm, textAlign: AR ? 'right':'left' }}>{tt('docreg.821ad572')}</Text>

@@ -98,7 +98,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
           {showAdd && (
             <NCard style={{ marginBottom: SP.lg }}>
               <NInput label={tt('fres.f459eb09')} placeholder={tt('fres.4e11e219')} value={nameAr} onChange={setNameAr} />
-              <NInput label={tt('fres.7a61d176')} placeholder="e.g. Operating Room B" value={nameEn} onChange={setNameEn} />
+              <NInput label={tt('fres.7a61d176')} placeholder={tt('phx.05c78d6c')} value={nameEn} onChange={setNameEn} />
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.md }}>
                 {TYPES.filter(t => t.id !== 'all').map(t => (
                   <TouchableOpacity key={t.id} onPress={() => setAddType(t.id)}

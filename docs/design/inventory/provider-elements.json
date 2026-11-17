@@ -1,5 +1,5 @@
 {
- "commit": "9a86080bf",
+ "commit": "84001045f",
  "screens": {
   "PendingDashboard": [
    {
@@ -1178,7 +1178,7 @@
    },
    {
     "kind": "input",
-    "label": "e.g. 192.168.1.10",
+    "label": "{tt('phx.871c8962')}",
     "src": "user input → customIp → request body",
     "status": "ok",
     "file": "provider-app/src/screens/auth/AuthScreens.tsx",
@@ -2475,7 +2475,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 98,
+    "line": 99,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2485,7 +2485,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 112,
+    "line": 113,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2495,7 +2495,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 124,
+    "line": 125,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2505,7 +2505,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 146,
+    "line": 147,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -2515,7 +2515,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 160,
+    "line": 161,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -3773,7 +3773,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 98,
+    "line": 99,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3783,7 +3783,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 112,
+    "line": 113,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3793,7 +3793,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 124,
+    "line": 125,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3803,7 +3803,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 146,
+    "line": 147,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -3813,7 +3813,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 160,
+    "line": 161,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -4466,7 +4466,7 @@
    },
    {
     "kind": "button",
-    "label": "Morning",
+    "label": "{tt('nng.b31948df')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/pharmacy/PharmacyRegistration.tsx",
@@ -4915,7 +4915,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 98,
+    "line": 99,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4925,7 +4925,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 112,
+    "line": 113,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4935,7 +4935,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 124,
+    "line": 125,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4945,7 +4945,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 146,
+    "line": 147,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -4955,7 +4955,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 160,
+    "line": 161,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -5516,7 +5516,7 @@
    },
    {
     "kind": "input",
-    "label": "Home Scan Fee (SAR)",
+    "label": "{tt('nnc.4cc33a33')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -5536,7 +5536,7 @@
    },
    {
     "kind": "input",
-    "label": "Available Techs/Machines",
+    "label": "{tt('nnc.b161a0c5')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6078,7 +6078,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 98,
+    "line": 99,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -6088,7 +6088,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 112,
+    "line": 113,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -6098,7 +6098,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 124,
+    "line": 125,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -6108,7 +6108,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 146,
+    "line": 147,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -6118,7 +6118,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 160,
+    "line": 161,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -6679,7 +6679,7 @@
    },
    {
     "kind": "input",
-    "label": "Home Scan Fee (SAR)",
+    "label": "{tt('nnc.4cc33a33')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -6699,7 +6699,7 @@
    },
    {
     "kind": "input",
-    "label": "Available Techs/Machines",
+    "label": "{tt('nnc.b161a0c5')}",
     "src": "user input → data → request body",
     "status": "ok",
     "file": "provider-app/src/screens/lab/LabRegistration.tsx",
@@ -7241,7 +7241,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 98,
+    "line": 99,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7251,7 +7251,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 112,
+    "line": 113,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7261,7 +7261,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 124,
+    "line": 125,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7271,7 +7271,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 146,
+    "line": 147,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -7281,7 +7281,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 160,
+    "line": 161,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -7946,7 +7946,7 @@
    },
    {
     "kind": "button",
-    "label": "Morning",
+    "label": "{tt('nne.b31948df')}",
     "src": "parent callback update",
     "status": "ok",
     "file": "provider-app/src/screens/nursing/NursingRegistration.tsx",
@@ -8264,7 +8264,7 @@
     "src": "POST /provider/auth/send-otp",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 98,
+    "line": 99,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8274,7 +8274,7 @@
     "src": "user input → parent callback v.replace",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 112,
+    "line": 113,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8284,7 +8284,7 @@
     "src": "POST /provider/auth/verify-email",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 124,
+    "line": 125,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8294,7 +8294,7 @@
     "src": "GET /provider-onboarding/contract",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 146,
+    "line": 147,
     "via": "RegistrationSuccess",
     "note": null
    },
@@ -8304,7 +8304,7 @@
     "src": "parent callback onDone",
     "status": "ok",
     "file": "provider-app/src/screens/shared/RegistrationSuccess.tsx",
-    "line": 160,
+    "line": 161,
     "via": "RegistrationSuccess",
     "note": null
    }
@@ -12060,7 +12060,7 @@
    },
    {
     "kind": "input",
-    "label": "APR-XXXXX",
+    "label": "{tt('phx.8870afeb')}",
     "src": "user input → approvalRef (local)",
     "status": "ok",
     "file": "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx",

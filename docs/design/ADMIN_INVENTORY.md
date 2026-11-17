@@ -33,7 +33,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | finance | `/admin/finance-suite` | `finance.read` | yes | 10 / 0 | 23 / 0 | `admin/src/pages/admin/finance-suite.tsx` |
 | finance | `/admin/financial-ledger` | `finance.read` | yes | 9 / 0 | 13 / 0 | `admin/src/pages/admin/financial-ledger.tsx` |
 | finance | `/admin/payouts` | `finance.read` | yes | 6 / 0 | 20 / 0 | `admin/src/pages/admin/payouts.tsx` |
-| finance | `/admin/returns` | `finance.payout.approve` | yes | 6 / 0 | 10 / 0 | `admin/src/pages/admin/returns.tsx` |
+| finance | `/admin/returns` | `finance.payout.approve` | yes | 6 / 0 | 17 / 0 | `admin/src/pages/admin/returns.tsx` |
 | ops-monitoring | `/admin/appointments-oversight` | `appointment.read` | yes | 6 / 0 | 10 / 0 | `admin/src/pages/admin/appointments-oversight.tsx` |
 | ops-monitoring | `/admin/approvals` | **none** | yes | 15 / 0 | 9 / 0 | `admin/src/pages/admin/approvals.tsx` |
 | ops-monitoring | `/admin/broadcast-monitor` | `order.read` | yes | 1 / 0 | 1 / 0 | `admin/src/pages/admin/broadcast-monitor.tsx` |
@@ -733,8 +733,8 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/returns` | OK | `backend/src/modules/returns/returns.controller.ts:85` | roles:ADMIN | `admin/src/pages/admin/returns.tsx:40` |
-| POST | `/api/admin/admin/returns/:param/decide` | OK | `backend/src/modules/returns/returns.controller.ts:90` | roles:ADMIN perms:finance.payout.approve | `admin/src/pages/admin/returns.tsx:58` |
+| GET | `/api/admin/admin/returns` | OK | `backend/src/modules/returns/returns.controller.ts:85` | roles:ADMIN | `admin/src/pages/admin/returns.tsx:44` |
+| POST | `/api/admin/admin/returns/:param/decide` | OK | `backend/src/modules/returns/returns.controller.ts:90` | roles:ADMIN perms:finance.payout.approve | `admin/src/pages/admin/returns.tsx:68` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |

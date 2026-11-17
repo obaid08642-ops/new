@@ -253,7 +253,7 @@ export default function PharmacyPaymentScreen() {
           <Card theme={theme}>
             <View accessibilityRole="radiogroup" testID="payment-methods">
               {view.methods.map((m, i) => (
-                <Radio key={m} label={k(`pharmacy.pay.method.${m}`)} selected={chosen === m} onChange={() => setPicked(m)} divider={i < view.methods.length - 1} disabled={paying} direction={dir} theme={theme} testID={`payment-method-${m}`} />
+                <Radio key={m} label={k(`pharmacy.pay.method.${m}`)} selected={chosen === m} onChange={() => { payKey.current = null; setPicked(m); }} divider={i < view.methods.length - 1} disabled={paying} direction={dir} theme={theme} testID={`payment-method-${m}`} />
               ))}
             </View>
           </Card>

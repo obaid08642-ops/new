@@ -14,7 +14,7 @@ import {
  NBottomNav, NDivider, NPriceInput, NProfileImageUploader
 } from '../../../components/ui';
 import { I, IBg } from '../../../components/icons';
-import { SP, R, FS, FW, API_BASE } from '../../../constants';
+import { SP, R, FS, FW, API_BASE, C } from '../../../constants';
 import { buildHeaders, Vault, SK } from '../../../security/Security';
 import client from '../../../api/client';
 import { useServicesCatalog, getInsuranceCatalog, useSpecialtiesCatalog } from '../../../api/catalogs';
@@ -393,7 +393,7 @@ export function DoctorAvailabilityScreen({ onBack, onNavigate }: { onBack: () =>
  {(['clinic', 'online', 'home'] as const).map(svc => (
  <TouchableOpacity key={svc} onPress={() => toggleService(c.id, svc)} style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, paddingVertical: 6 }}>
  <View style={{ width: 20, height: 20, borderRadius: 6, borderWidth: 1.5, borderColor: c[svc] ? theme.primary : theme.border, backgroundColor: c[svc] ? theme.primary : 'transparent', alignItems: 'center', justifyContent: 'center' }}>
- {c[svc] ? <Text style={{ color: '#fff', fontSize: 12 }}>✓</Text> : null}
+ {c[svc] ? <Text style={{ color: C.white, fontSize: 12 }}>✓</Text> : null}
  </View>
  <Text style={{ color: theme.text, fontSize: FS.sm }}>{svc === 'clinic' ? (tt('dav.265e8cd4')) : svc === 'online' ? (tt('dav.a6bd2a2a')) : (tt('dav.8ca476d4'))}</Text>
  </TouchableOpacity>

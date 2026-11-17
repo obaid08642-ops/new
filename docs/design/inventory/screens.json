@@ -1,5 +1,5 @@
 {
- "commit": "9a86080bf",
+ "commit": "84001045f",
  "routes": [
   {
    "app": "patient-app",
@@ -150,13 +150,13 @@
      "path": "/auth/guest",
      "target": "backend",
      "query": "",
-     "line": 21,
+     "line": 22,
      "file": "patient-app/src/utils/guestSession.ts",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:215"
     }
    ],
-   "files": 29,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -6718,7 +6718,7 @@
      "line": 284,
      "file": "patient-app/app/pharmacy/product-detail.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1386"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1410"
     },
     {
      "method": "GET",
@@ -8216,7 +8216,7 @@
      "path": "/auth/guest",
      "target": "backend",
      "query": "",
-     "line": 21,
+     "line": 22,
      "file": "patient-app/src/utils/guestSession.ts",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:215"
@@ -8242,7 +8242,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:399"
     }
    ],
-   "files": 41,
+   "files": 43,
    "unresolved": 0
   },
   {
@@ -9056,7 +9056,7 @@
      "line": 219,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1405"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1429"
     },
     {
      "method": "GET",
@@ -9066,7 +9066,7 @@
      "line": 294,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1416"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1440"
     }
    ],
    "files": 72,
@@ -16800,7 +16800,7 @@
      "line": 14,
      "file": "patient-web/app/[locale]/medicines/[medicineId]/page.tsx",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1378"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1402"
     }
    ],
    "files": 6,
@@ -18593,7 +18593,7 @@
      "line": 334,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1370"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1394"
     },
     {
      "method": "GET",
@@ -18603,7 +18603,7 @@
      "line": 323,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1386"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1410"
     },
     {
      "method": "GET",
@@ -18613,7 +18613,7 @@
      "line": 204,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1348"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1372"
     }
    ],
    "files": 88,
@@ -20207,7 +20207,7 @@
      "line": 219,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1405"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1429"
     },
     {
      "method": "GET",
@@ -20217,7 +20217,7 @@
      "line": 294,
      "file": "patient-web/lib/api/public-products-server.ts",
      "status": "OK",
-     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1416"
+     "backend": "backend/src/modules/seo-search/seo-search.module.ts:1440"
     }
    ],
    "files": 72,

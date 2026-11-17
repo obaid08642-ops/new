@@ -222,7 +222,7 @@ export function NPhoneInput({ value, onChange, error, label, required, innerRef 
             <View style={[s.phonePrefix, { borderRightWidth:isRTL?0:1, borderLeftWidth:isRTL?1:0, borderColor:theme.border }]}>
               <Text style={{ fontSize:FS.md, color:theme.text, fontWeight:FW.semi }}> +966</Text>
             </View>
-            <TextInput ref={inputRef} value={value} onChangeText={onChange} placeholder="5X XXX XXXX"
+            <TextInput ref={inputRef} value={value} onChangeText={onChange} placeholder={tt('phx.b556866c')}
               placeholderTextColor={theme.textHint} keyboardType="phone-pad" maxLength={10}
               onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
               style={[s.textInput, { color:theme.text, paddingHorizontal:SP.lg, flex:1 }]} />
@@ -279,7 +279,7 @@ export function NCheckbox({ label, value, onChange, style }:
  backgroundColor:value?theme.primary:'transparent',
  transform:[{scale:sc}],
  }]}>
- {value && <I name="check" size={11} color="#FFF" />}
+ {value && <I name="check" size={11} color={C.white} />}
  </Animated.View>
  {label && <Text style={{ flex:1, fontSize:FS.md, color:theme.text, textAlign:isRTL?'right':'left' }}>{label}</Text>}
  </TouchableOpacity>
@@ -690,7 +690,7 @@ export function NOnlineToggle({ value, onToggle }:{ value:boolean; onToggle:()=>
  <Animated.View style={[s.onlineDot, { backgroundColor:value?theme.success:theme.textSub, transform:[{scale:value?pulse:1}] }]} />
  </View>
  <Text style={{ fontSize:FS.sm, color:value?theme.success:theme.textSub, fontWeight:FW.semi }}>
- {value ? (isRTL?'متاح الآن':'Online') : (isRTL?'غير متاح':'Offline')}
+ {value ? (tt('mma.31b0b426')) : (tt('mma.b2a7fe2e'))}
  </Text>
  </TouchableOpacity>
  );
@@ -751,7 +751,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
               placeholder="0" placeholderTextColor={theme.textHint} keyboardType="numeric"
               style={[s.textInput, { flex:1, color:theme.text, paddingHorizontal:SP.lg }]} />
             <View style={[s.priceSuffix, { borderColor:theme.border, borderLeftWidth:isRTL?0:1, borderRightWidth:isRTL?1:0 }]}>
-              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>{isRTL ? 'ريال' : 'SAR'}</Text>
+              <Text style={{ color:theme.textSub, fontSize:FS.sm, fontWeight:FW.semi }}>{tt('mma.0e39e6ca')}</Text>
             </View>
           </View>
           {error && <Text style={[s.hint, { color:theme.danger }]}>{error}</Text>}
@@ -835,7 +835,7 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: '#000', paddingTop: insets.top }}>
         <View style={{ minHeight: 60, backgroundColor: '#111', flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
-          <Text style={{ color: '#FFF', fontSize: 16, fontWeight: 'bold' }}>
+          <Text style={{ color: C.white, fontSize: 16, fontWeight: 'bold' }}>
             {tt('rrk.47fbe87b')}
           </Text>
           <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
@@ -1213,7 +1213,7 @@ const st = StyleSheet.create({
  container: { marginTop: SP.sm, width: '100%' },
  helperTxt: { fontSize: FS.sm, lineHeight: 20 },
  actionBtn: { paddingVertical: SP.sm, paddingHorizontal: SP.lg, borderRadius: R.md, alignItems: 'center', justifyContent: 'center' },
- actionBtnTxt: { color: '#FFF', fontWeight: FW.bold, fontSize: FS.sm },
+ actionBtnTxt: { color: C.white, fontWeight: FW.bold, fontSize: FS.sm },
  statusRow: { flexDirection: 'row', alignItems: 'center', gap: SP.sm, marginTop: SP.md },
  statusTxt: { fontSize: FS.xs, fontWeight: FW.semi },
 });
@@ -1299,7 +1299,7 @@ export function NDatePickerSheet({
  {/* Header */}
  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.lg }}>
  <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
- {title || (isRTL ? 'اختر التاريخ' : 'Select Date')}
+ {title || (tt('mma.78a33538'))}
  </Text>
  <TouchableOpacity onPress={onClose}>
  <I name="close" size={24} color={theme.textSub} />

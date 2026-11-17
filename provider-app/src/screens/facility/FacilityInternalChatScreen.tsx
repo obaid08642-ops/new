@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-nativ
 import { useTheme, useLang, useToast, useAuth } from '../../context';
 import { NHeader, NCard, NScroll } from '../../components/ui';
 import { I } from '../../components/icons';
-import { SP, FS, FW, R } from '../../constants';
+import { SP, FS, FW, R, C } from '../../constants';
 import client from '../../api/client';
 
 export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
@@ -86,7 +86,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
             onChangeText={setInputText}
           />
           <TouchableOpacity onPress={handleSend} style={{ width: 60, height: 44, borderRadius: R.full, backgroundColor: theme.primary, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: '#FFF', fontWeight: FW.bold }}>{tt('rras.ad89df6b')}</Text>
+            <Text style={{ color: C.white, fontWeight: FW.bold }}>{tt('rras.ad89df6b')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -114,7 +114,7 @@ export function FacilityInternalChatScreen({ onBack }: { onBack: () => void }) {
               </View>
               {ch.unread > 0 && (
                 <View style={{ backgroundColor: theme.danger, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: FW.bold }}>{ch.unread}</Text>
+                  <Text style={{ color: C.white, fontSize: 12, fontWeight: FW.bold }}>{ch.unread}</Text>
                 </View>
               )}
             </NCard>

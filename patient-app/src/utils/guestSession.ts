@@ -5,6 +5,7 @@ import { decodeJwt } from './jwt';
 import type { User } from '../types';
 import { secureGet } from './security';
 import { ensureInstallChecked } from './installCheck';
+import { deviceText } from '../i18n/deviceText';
 
 export interface GuestSession {
   user: User;
@@ -30,7 +31,7 @@ export async function createGuestSession(): Promise<GuestSession> {
   if (!stored) throw new Error('guest_session_not_stored');
   const decoded = decodeJwt(token) || {};
   // A guest has no phone, wallet or points; the backend user (or the token's subject) is what the app keeps.
-  return { user: (res?.user || { id: decoded.sub, role: 'guest', name: 'زائر' }) as User, token };
+  return { user: (res?.user || { id: decoded.sub, role: 'guest', name: deviceText('auth.guestName') }) as User, token };
 }
 
 /**
