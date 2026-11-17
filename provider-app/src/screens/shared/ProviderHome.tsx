@@ -81,7 +81,7 @@ export const ProviderHome = ({ onLogout }: { onLogout?: () => void }) => {
               <Text style={[styles.subText, { color: theme.textSub }]}>{user?.email || ''}</Text>
               <View style={[styles.badgeRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
                 <NBadge
-                  label={AR ? (isApproved ? 'معتمد رسمياً' : 'قيد المراجعة والتدقيق') : (isApproved ? 'Verified Provider' : 'Pending Verification')}
+                  label={(isApproved ? tt('nni.5c0874ab') : tt('nni.36c9f18d'))}
                   variant={isApproved ? 'success' : 'warning'}
                   size="sm"
                 />

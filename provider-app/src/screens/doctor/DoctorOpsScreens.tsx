@@ -254,7 +254,7 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
         <NSecHeader title={tt('dops.972af300')} />
         <NInput label={tt('dops.b6e20c82')} value={nameAr} onChange={setNameAr} placeholder={AR ? 'مثال: التهاب الحلق' : ''} />
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
-          <View style={{ flex: 2 }}><NInput label={tt('dops.60629813')} value={nameEn} onChange={setNameEn} placeholder="Pharyngitis" /></View>
+          <View style={{ flex: 2 }}><NInput label={tt('dops.60629813')} value={nameEn} onChange={setNameEn} placeholder={tt('phx.e43eaf37')} /></View>
           <View style={{ flex: 1 }}><NInput label="ICD" value={icd} onChange={setIcd} placeholder="J02.9" /></View>
         </View>
         <NBtn label={tt('dops.b626c218')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />

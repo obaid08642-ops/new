@@ -277,7 +277,7 @@ export function WithdrawalWorkflow({ onBack }: { onBack: () => void }) {
             />
             <NInput
               label={tt('wd.6e50daf7')}
-              placeholder="SA00 0000 0000 0000 0000 0000"
+              placeholder={tt('phx.e4909b56')}
               value={iban}
               onChange={setIban}
               caps="characters"

@@ -356,9 +356,9 @@ export function DoctorHomeTab({ onNavigate, onTriggerAlarm }: { onNavigate: (s: 
   </TouchableOpacity>
   ))}
   </View>
-  <NInput label={tt('dochome.23442efb')} value={patientCopay} onChange={setPatientCopay} kbType="numeric" placeholder="e.g. 50" icon="" />
-  <NInput label={tt('dochome.003ba72d')} value={insuranceCoverage} onChange={setInsuranceCoverage} kbType="numeric" placeholder="e.g. 150" icon="" />
-  <NInput label={tt('dochome.99ba8875')} value={approvalCode} onChange={setApprovalCode} placeholder="e.g. NPH-9213" icon="" />
+  <NInput label={tt('dochome.23442efb')} value={patientCopay} onChange={setPatientCopay} kbType="numeric" placeholder={tt('phx.bf247b86')} icon="" />
+  <NInput label={tt('dochome.003ba72d')} value={insuranceCoverage} onChange={setInsuranceCoverage} kbType="numeric" placeholder={tt('phx.4ba18ea7')} icon="" />
+  <NInput label={tt('dochome.99ba8875')} value={approvalCode} onChange={setApprovalCode} placeholder={tt('phx.94261ea5')} icon="" />
   <NBtn label={tt('dochome.214ba4e3')} onPress={submitInsuranceGatekeeper} style={{ marginTop: SP.md, marginBottom: SP.xxl }} />
   </ScrollView>
   </KeyboardAvoidingView>
