@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 17:30 UTC — #2748 merged; admin prompt page 6 (#2750)
+- Admin prompt page 6: ProviderFullDetail.tsx, 1 call (document rejection reason) through the ConfirmDialog (PR #2750, test 2). 4 calls in 4 files left after #2739, #2740, #2750: appointments-oversight, provider-audits, scheduled-reports, segments.
+- #2739 and #2740 were re-synced with main again (generated docs only), tests green.
+- Open PRs: #2739, #2740, #2750 (cap).
+
 ## 2026-11-17 16:20 UTC — #2743 merged; admin prompt page 5 (#2748)
 - Admin prompt page 5: content-growth.tsx, 2 calls (coupon on/off, article publish/unpublish) through one ConfirmDialog (PR #2748, test 2; coupon toggle untested, same helper). 5 calls in 5 files left after #2739, #2740, #2748: ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments.
 - Open PRs: #2739, #2740, #2748 (cap). The worker restarted once; nothing was lost (tree clean, last PR pushed).
