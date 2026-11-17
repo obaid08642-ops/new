@@ -20,7 +20,7 @@ interface DoctorUrgentRequestsProps {
 
 export function DoctorUrgentRequests({ requests, onAccept, onDecline }: DoctorUrgentRequestsProps) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
   if (!requests || requests.length === 0) return null;
@@ -29,7 +29,7 @@ export function DoctorUrgentRequests({ requests, onAccept, onDecline }: DoctorUr
     <View style={styles.container}>
       <View style={[styles.headerRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
         <Text style={[styles.title, { color: theme.danger }]}>
-          {AR?' طلبات كشف مستعجلة':' Urgent Consultation Requests'}
+          {tt('rrt.c5520f56')}
         </Text>
         <NBadge label={String(requests.length)} variant="danger" />
       </View>
@@ -45,20 +45,20 @@ export function DoctorUrgentRequests({ requests, onAccept, onDecline }: DoctorUr
             <View style={{ alignItems: AR ? 'flex-end' : 'flex-start' }}>
               <Text style={[styles.patientName, { color: theme.text }]}>{item.patient_name}</Text>
               <Text style={[styles.symptoms, { color: theme.textSub }]} numberOfLines={2}>
-                {item.symptoms || (AR ? 'طلب استشارة فورية' : 'Immediate consultation request')}
+                {item.symptoms || (tt('rrt.c5e7a6bc'))}
               </Text>
             </View>
 
             <View style={[styles.actionRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
               <NBtn
-                label={AR ? 'قبول' : 'Accept'}
+                label={tt('rrt.e3b60bcd')}
                 onPress={() => onAccept(item)}
                 size="sm"
                 variant="primary"
                 style={{ flex: 1 }}
               />
               <NBtn
-                label={AR ? 'رفض' : 'Decline'}
+                label={tt('rrt.8881386a')}
                 onPress={() => onDecline(item.id)}
                 size="sm"
                 variant="outline"

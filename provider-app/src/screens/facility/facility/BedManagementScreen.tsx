@@ -199,7 +199,7 @@ export function BedManagementScreen({ onBack, wards, onRefresh }: { onBack: () =
  {tt('tpn.7c1e7b16', { p1: String(occupied), p2: String(total) })}
  </Text>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color }}>
- {available} {AR ? 'متاح' : 'free'}
+ {available} {tt('qqay.3c0fd317')}
  </Text>
  </View>
  <View style={{ height: 8, backgroundColor: theme.surface2, borderRadius: R.full }}>

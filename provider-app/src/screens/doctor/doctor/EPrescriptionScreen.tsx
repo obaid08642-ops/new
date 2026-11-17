@@ -319,7 +319,7 @@ export function EPrescriptionScreen({ apt, onBack }:
  <View key={t.id} style={{ padding: SP.md, borderBottomWidth: 1, borderBottomColor: theme.border, flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
  <TouchableOpacity style={{ flex: 1 }} disabled={applyingTemplate !== null} onPress={() => applyTemplate(t.id)}>
  <Text style={{ color: theme.text, fontSize: FS.md, fontWeight: FW.bold }}>{AR ? t.titleAr : t.titleEn}</Text>
- <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{t.drugs.length} {AR ? 'أدوية' : 'drugs'}</Text>
+ <Text style={{ color: theme.textSub, fontSize: FS.xs }}>{t.drugs.length} {tt('qqaa.8855693d')}</Text>
  </TouchableOpacity>
  <TouchableOpacity onPress={async () => {
    try {

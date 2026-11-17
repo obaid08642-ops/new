@@ -129,7 +129,7 @@ export function NInput({
 }) {
   multi = multi ?? multiline;
   const { theme } = useTheme();
-  const { isRTL } = useLang();
+  const { isRTL, t: tt } = useLang();
   const [focused, setFocused] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const localRef = useRef<any>(null);
@@ -204,7 +204,7 @@ export function NInput({
 export function NPhoneInput({ value, onChange, error, label, required, innerRef }:
   { value:string; onChange:(v:string)=>void; error?:string; label?:string; required?:boolean; innerRef?:any }) {
   const { theme } = useTheme();
-  const { isRTL, t } = useLang();
+  const { isRTL, t, t: tt } = useLang();
   const [focused, setFocused] = useState(false);
   const localRef = useRef<any>(null);
   const inputRef = innerRef || localRef;
@@ -237,7 +237,7 @@ export function NPhoneInput({ value, onChange, error, label, required, innerRef 
 // ─── Password Strength ────────────────────────────────────────────────────────
 export function NPassStrength({ password }: { password: string }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  if (!password) return null;
  const score = [/.{8,}/, /[A-Z]/, /[a-z]/, /[0-9]/, /[^A-Za-z0-9]/].filter(r=>r.test(password)).length;
  const cols = [C.red500, '#FF7043', C.yellow500, '#8BC34A', C.green500];
@@ -262,7 +262,7 @@ export function NPassStrength({ password }: { password: string }) {
 export function NCheckbox({ label, value, onChange, style }:
  { label?:string; value:boolean; onChange:(v:boolean)=>void; style?:object }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const sc = useRef(new Animated.Value(1)).current;
  const press = () => {
  Animated.sequence([
@@ -290,7 +290,7 @@ export function NCheckbox({ label, value, onChange, style }:
 export function NRadio({ opts, value, onSelect, style }:
  { opts:{value:string;label:string}[]; value:string; onSelect:(v:string)=>void; style?:object }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  return (
  <View style={style}>
  {opts.map(o => (
@@ -310,7 +310,7 @@ export function NRadio({ opts, value, onSelect, style }:
 export function NToggle({ label, sub, value, onChange, style }:
  { label:string; sub?:string; value:boolean; onChange:(v:boolean)=>void; style?:object }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  return (
  <View style={[{ flexDirection:isRTL?'row-reverse':'row', alignItems:'center',
  justifyContent:'space-between', paddingVertical:SP.md,
@@ -381,7 +381,7 @@ export function NDivider({ label, style }:{ label?:string; style?:object }) {
 // child step keeps its own fields but drops its private header/scroll/footer.
 export function WizardSection({ title, sub, children }:{ title?:string; sub?:string; children:ReactNode }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  return (
  <View style={{ marginBottom:SP.lg }}>
  {title ? <Text style={{ fontSize:FS.lg, fontWeight:FW.bold, color:theme.text, textAlign:isRTL?'right':'left', marginBottom:sub?4:SP.md }}>{title}</Text> : null}
@@ -408,7 +408,7 @@ export function NStepBar({ total, current, style }:{ total:number; current:numbe
 export function NHeader({ title, sub, step, total, onBack, right, style }:
  { title?:string; sub?:string; step?:number; total?:number; onBack?:()=>void; right?:ReactNode; style?:object }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const insets = useSafeAreaInsets();
  // Content starts below the notch / Dynamic Island / Android status bar. insets.left/right are physical
  // (landscape cut-outs), so they are the one place where left/right is correct.
@@ -438,7 +438,7 @@ export function NHeader({ title, sub, step, total, onBack, right, style }:
 export function NSheet({ visible, onClose, title, children, height }:
  { visible:boolean; onClose:()=>void; title?:string; children:ReactNode; height?:number }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const insets = useSafeAreaInsets();
  const { height: H } = useWindowDimensions();
  const ty = useRef(new Animated.Value(H)).current;
@@ -473,7 +473,7 @@ export function NSheet({ visible, onClose, title, children, height }:
 export function NConfirm({ visible, title, msg, onOk, onCancel, okLabel, cancelLabel, variant='danger' }:
  { visible:boolean; title:string; msg:string; onOk:()=>void; onCancel:()=>void;
  okLabel?:string; cancelLabel?:string; variant?:'danger'|'primary' }) {
- const { t } = useLang();
+ const { t, t: tt } = useLang();
  const insets = useSafeAreaInsets();
  const { width: W, height: H } = useWindowDimensions();
  const cardMaxH = Math.max(H - insets.top - insets.bottom - SP.xxl * 2, 0);
@@ -501,7 +501,7 @@ export function NConfirm({ visible, title, msg, onOk, onCancel, okLabel, cancelL
 // ─── Loading Overlay ──────────────────────────────────────────────────────────
 export function NLoading({ visible, msg }:{ visible:boolean; msg?:string }) {
  const { theme } = useTheme();
- const { t } = useLang();
+ const { t, t: tt } = useLang();
  if (!visible) return null;
  return (
  <Modal transparent visible animationType="fade">
@@ -554,7 +554,7 @@ export function NEmpty({ icon='', title, sub, subtitle, actionLabel, onAction }:
 export function NSuccess({ icon='', title, sub, primaryLabel, onPrimary, secLabel, onSec }:
  { icon?:string; title:string; sub?:string; primaryLabel?:string; onPrimary?:()=>void; secLabel?:string; onSec?:()=>void }) {
  const { theme } = useTheme();
- const { t } = useLang();
+ const { t, t: tt } = useLang();
  const sc = useRef(new Animated.Value(0)).current;
  useEffect(() => { Animated.spring(sc, { toValue:1, tension:50, friction:5, useNativeDriver:true }).start(); }, []);
  return (
@@ -576,7 +576,7 @@ export function NSuccess({ icon='', title, sub, primaryLabel, onPrimary, secLabe
 export function NOTP({ target, otp, setOtp, onVerify, loading, onResend, error }:
  { target:string; otp:string[]; setOtp:(v:string[])=>void; onVerify:()=>void; loading?:boolean; onResend?:()=>void; error?:string }) {
  const { theme } = useTheme();
- const { isRTL, t } = useLang();
+ const { isRTL, t, t: tt } = useLang();
  const refs = useRef<(TextInputInstance|null)[]>([]);
  const [cd, setCd] = useState(60);
  useEffect(() => {
@@ -619,7 +619,7 @@ export function NOTP({ target, otp, setOtp, onVerify, loading, onResend, error }
 export function NStatCard({ icon, label, value, color, unit, style }:
  { icon:string; label:string; value:string; color?:string; unit?:string; style?:object }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  return (
  <NCard style={[{ padding:SP.lg }, style]}>
  <View style={{ marginBottom:SP.xs }}><NIcon icon={icon} size={24} color={color??theme.primary} /></View>
@@ -635,7 +635,7 @@ export function NStatCard({ icon, label, value, color, unit, style }:
 // ─── Section Header ───────────────────────────────────────────────────────────
 export function NSecHeader({ title, action, onAction }:{ title:string; action?:string; onAction?:()=>void }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  return (
  <View style={{ flexDirection:isRTL?'row-reverse':'row', justifyContent:'space-between',
  alignItems:'center', marginBottom:SP.md, marginTop:SP.md }}>
@@ -651,7 +651,7 @@ export function NSecHeader({ title, action, onAction }:{ title:string; action?:s
 export function NSettingsRow({ icon, label, sub, onPress, right, danger }:
  { icon:string; label:string; sub?:string; onPress?:()=>void; right?:ReactNode; danger?:boolean }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  return (
  <TouchableOpacity onPress={onPress} activeOpacity={0.7}
  style={{ flexDirection:isRTL?'row-reverse':'row', alignItems:'center', gap:SP.lg,
@@ -672,7 +672,7 @@ export function NSettingsRow({ icon, label, sub, onPress, right, danger }:
 // ─── Online Toggle ────────────────────────────────────────────────────────────
 export function NOnlineToggle({ value, onToggle }:{ value:boolean; onToggle:()=>void }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const pulse = useRef(new Animated.Value(1)).current;
  useEffect(() => {
  if (!value) return;
@@ -700,7 +700,7 @@ export function NOnlineToggle({ value, onToggle }:{ value:boolean; onToggle:()=>
 export function NSearch({ value, onChange, placeholder, style }:
  { value:string; onChange:(v:string)=>void; placeholder?:string; style?:object }) {
  const { theme } = useTheme();
- const { isRTL, t } = useLang();
+ const { isRTL, t, t: tt } = useLang();
  return (
  <View style={[{ flexDirection:isRTL?'row-reverse':'row', alignItems:'center', gap:SP.md,
  backgroundColor:theme.inputBg, borderRadius:R.xl, paddingHorizontal:SP.lg, minHeight:48,
@@ -735,7 +735,7 @@ export function NScroll({ children, style, pad=true, refreshControl }:{ children
 export function NPriceInput({ label, value, onChange, error, required, innerRef }:
   { label:string; value:string; onChange:(v:string)=>void; error?:string; required?:boolean; innerRef?:any }) {
   const { theme } = useTheme();
-  const { isRTL } = useLang();
+  const { isRTL, t: tt } = useLang();
   const localRef = useRef<any>(null);
   const inputRef = innerRef || localRef;
   return (
@@ -765,7 +765,7 @@ export function NPriceInput({ label, value, onChange, error, required, innerRef 
 export function NBottomNav({ tabs, active, onPress }:
  { tabs:{key:string;icon:string;label:string;badge?:number}[]; active:string; onPress:(k:string)=>void }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const insets = useSafeAreaInsets();
  // Bar = 56 content + the bottom inset (iOS home indicator / Android gesture or 3-button bar).
  // insets.left/right are physical landscape cut-outs.
@@ -828,7 +828,7 @@ const s = StyleSheet.create({
 import { WebView } from 'react-native-webview';
 
 export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const insets = useSafeAreaInsets();
   return (
@@ -836,11 +836,11 @@ export function NImageOptimizerWebView({ visible, onClose }: { visible: boolean;
       <View style={{ flex: 1, backgroundColor: '#000', paddingTop: insets.top }}>
         <View style={{ minHeight: 60, backgroundColor: '#111', flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
           <Text style={{ color: C.white, fontSize: 16, fontWeight: 'bold' }}>
-            {AR ? ' تحسين وتفريغ الصورة' : ' Remove Background'}
+            {tt('rrk.47fbe87b')}
           </Text>
           <TouchableOpacity onPress={onClose} style={{ padding: 8 }}>
             <Text style={{ color: '#FF3B30', fontSize: 16, fontWeight: 'bold' }}>
-              {AR ? 'إغلاق' : 'Close'}
+              {tt('rrk.e6d3a19e')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -871,7 +871,7 @@ export function NProfileImageUploader({
  ownerType: 'doctor' | 'nurse' | 'pharmacy';
 }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const uploadsOn = useUploadsEnabled();
@@ -917,7 +917,7 @@ export function NProfileImageUploader({
  setStatus(s);
  if (s === 'completed') {
  stopPolling();
- show(AR ? 'تم تحسين وتحديث الصورة بنجاح! ' : 'Profile photo optimized successfully! ', 'success');
+ show(tt('rrk.76db7e20'), 'success');
  if (onProcessComplete) {
  onProcessComplete({
  original: res.data.originalImageUrl,
@@ -928,7 +928,7 @@ export function NProfileImageUploader({
  } else if (s === 'failed') {
  stopPolling();
  setErrorMsg(res.data.error || 'Processing failed');
- show(AR ? 'فشلت معالجة الصورة' : 'Image processing failed', 'error');
+ show(tt('rrk.5f0cfa15'), 'error');
  }
  } catch (e: any) {
  stopPolling();
@@ -948,7 +948,7 @@ export function NProfileImageUploader({
  const pickImage = async () => {
  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
  if (!permission.granted) {
- show(AR ? 'مطلوب إذن الوصول للاستوديو' : 'Permission to access gallery is required', 'warning');
+ show(tt('rrk.7b66b47d'), 'warning');
  return;
  }
 
@@ -983,7 +983,7 @@ export function NProfileImageUploader({
  } catch (e: any) {
  setStatus('failed');
  setErrorMsg(e.message || 'Upload failed');
- show(AR ? 'فشل رفع الصورة' : 'Photo upload failed', 'error');
+ show(tt('rrk.141b9b03'), 'error');
  }
  };
 
@@ -993,7 +993,7 @@ export function NProfileImageUploader({
  <View style={st.statusRow}>
  <ActivityIndicator size="small" color={theme.primary} />
  <Text style={[st.statusTxt, { color: theme.textSub }]}>
- {AR ? 'جاري تهيئة الصورة...' : 'Preparing photo...'}
+ {tt('rrk.96ae7575')}
  </Text>
  </View>
  );
@@ -1003,7 +1003,7 @@ export function NProfileImageUploader({
  <View style={st.statusRow}>
  <ActivityIndicator size="small" color={theme.primary} />
  <Text style={[st.statusTxt, { color: theme.textSub }]}>
- {AR ? 'جاري معالجة إزالة الخلفية والضغط...' : 'Removing background & optimizing...'}
+ {tt('rrk.bae1db48')}
  </Text>
  </View>
  );
@@ -1012,7 +1012,7 @@ export function NProfileImageUploader({
  return (
  <View style={st.statusRow}>
  <Text style={[st.statusTxt, { color: theme.danger }]}>
- {AR ? 'فشلت المعالجة: ' : 'Failed: '} {errorMsg}
+ {tt('rrk.a44d74cf')} {errorMsg}
  </Text>
  </View>
  );
@@ -1021,7 +1021,7 @@ export function NProfileImageUploader({
  return (
  <View style={st.statusRow}>
  <Text style={[st.statusTxt, { color: theme.success }]}>
- {AR ? 'تم التحسين والجاهزية' : 'Optimized & Ready'}
+ {tt('rrk.f589aa4b')}
  </Text>
  </View>
  );
@@ -1032,20 +1032,18 @@ export function NProfileImageUploader({
  return (
  <View style={st.container}>
  <Text style={[st.helperTxt, { color: theme.textSub, textAlign: AR ? 'right' : 'left' }]}>
- {AR
- ? ' لتحسين مظهر البروفايل وزيادة ثقة المرضى، يفضل استخدام صورة بخلفية شفافة.'
- : ' For a professional look and patient trust, it is recommended to use a photo with a transparent background.'}
+ {tt('rrk.aa96b12d')}
  </Text>
  
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.md, alignItems: 'center' }}>
  {uploadsOn ? (
 <TouchableOpacity onPress={pickImage} style={[st.actionBtn, { backgroundColor: theme.primary }]}>
- <Text style={st.actionBtnTxt}> {AR ? 'تحميل صورة' : 'Upload Photo'}</Text>
+ <Text style={st.actionBtnTxt}> {tt('rrk.7fa2a02a')}</Text>
  </TouchableOpacity>
 ) : <UploadsUnavailable />}
  
  <TouchableOpacity onPress={() => setShowWebView(true)} style={[st.actionBtn, { backgroundColor: theme.surface2, borderColor: theme.border, borderWidth: 1 }]}>
- <Text style={[st.actionBtnTxt, { color: theme.text }]}> {AR ? 'تحسين الصورة' : 'Improve Photo'}</Text>
+ <Text style={[st.actionBtnTxt, { color: theme.text }]}> {tt('rrk.ce0994be')}</Text>
  </TouchableOpacity>
  </View>
 
@@ -1067,7 +1065,7 @@ export function NDropdown({
  placeholder?: string;
 }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const [open, setOpen] = useState(false);
 
  const selectedOpt = options.find(o => o.val === value);
@@ -1231,7 +1229,7 @@ export function NDatePickerSheet({
  title?: string;
 }) {
  const { theme } = useTheme();
- const { isRTL } = useLang();
+ const { isRTL, t: tt } = useLang();
  const insets = useSafeAreaInsets();
  
  // Initial date parse or fallback to today

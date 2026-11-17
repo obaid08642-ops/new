@@ -191,17 +191,17 @@ const NURSING_WIZARD: WizardConfig<NurseRegData> = {
     banner: (d) => (d.cashOnly ? { ar: 'خدمات التمريض المنزلي تعمل بنظام الدفع النقدي فقط — لا يوجد تأمين صحي.', en: 'Home nursing services operate on cash-only basis — no health insurance.' } : null),
     summary: {
       titleAr: 'ملخص الطلب', titleEn: 'Application Summary',
-      rows: (d, AR) => {
+      rows: (d, AR, tt) => {
         const pm = PROVIDER_MODES.find((m) => m.id === d.mode);
         const prices = PRICING_MODELS.filter((m) => d.pricingModels.includes(m.id)).map((m) => (AR ? m.ar : m.en)).join(' / ');
         return [
-          { label: AR ? 'الاسم' : 'Name', value: d.nameAr || '—' },
-          { label: AR ? 'النوع' : 'Type', value: pm ? (AR ? pm.ar : pm.en) : '—' },
-          { label: AR ? 'المدينة' : 'City', value: [d.region, d.city, d.district].filter(Boolean).join(' / ') || '—' },
-          { label: AR ? 'الخدمات' : 'Services', value: `${d.enabledServices.length}` },
-          { label: AR ? 'نموذج التسعير' : 'Pricing', value: prices || '—' },
-          { label: AR ? 'نطاق التغطية' : 'Coverage', value: `${d.coverageRadius} km` },
-          { label: AR ? 'الدفع' : 'Payment', value: d.cashOnly ? (AR ? 'نقدي فقط' : 'Cash only') : (AR ? 'نقدي + تأمين' : 'Cash + Insurance') },
+          { label: tt('nreg.78e727ee'), value: d.nameAr || '—' },
+          { label: tt('nreg.518e68b1'), value: pm ? (AR ? pm.ar : pm.en) : '—' },
+          { label: tt('nreg.095d1753'), value: [d.region, d.city, d.district].filter(Boolean).join(' / ') || '—' },
+          { label: tt('nreg.4e1c5cae'), value: `${d.enabledServices.length}` },
+          { label: tt('nreg.d6702eb6'), value: prices || '—' },
+          { label: tt('nreg.d39f530f'), value: `${d.coverageRadius} km` },
+          { label: tt('nreg.c79563f6'), value: d.cashOnly ? (tt('nreg.f2447cd4')) : (tt('nreg.4c580f5b')) },
         ];
       },
     },
@@ -209,26 +209,26 @@ const NURSING_WIZARD: WizardConfig<NurseRegData> = {
     signatureTitle: { ar: 'توقيع الممثل المفوض', en: 'Authorized Signature' },
     agree: { ar: 'أوافق على شروط وأحكام نبض بلس وسياسة الخصوصية.', en: 'I agree to Nabd+ Terms & Privacy Policy.' },
     submitLabel: { ar: 'إرسال الطلب للمراجعة', en: 'Submit Application' },
-    precheck: (data, AR) => {
+    precheck: (data, AR, tt) => {
       if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
-        return AR ? 'أكمل بيانات مقدم الرعاية والموقع والعنوان والبريد' : 'Complete provider identity, location, address, and email';
+        return tt('nreg.d9e47bf9');
       }
       if (!data.location?.lat || !data.location?.lng) {
-        return AR ? 'حدد موقع مقدم الرعاية على الخريطة' : 'Pick the provider location on the map';
+        return tt('nreg.48d20ddb');
       }
       if (!data.enabledServices.length || !data.pricingModels.length) {
-        return AR ? 'اختر خدمة ونموذج تسعير واحداً على الأقل' : 'Select at least one nursing service and pricing model';
+        return tt('nreg.fd6cc3d2');
       }
       if (data.enabledServices.some((id: string) => parsePrice(data.servicePrices?.[id] ?? '') === null)) {
-        return AR ? 'أدخل سعراً أكبر من صفر لكل خدمة مختارة' : 'Enter a price above zero for each selected service';
+        return tt('nreg.bcabe5ed');
       }
       const priceByModel: Record<string, string> = { per_visit: data.priceVisit, per_hour: data.priceHour, per_day: data.priceDay, per_month: data.priceMonth };
       const missingPrice = data.pricingModels.find((model: string) => !String(priceByModel[model] || '').trim() || Number(priceByModel[model]) <= 0);
       if (missingPrice) {
-        return AR ? 'أدخل سعراً موجباً لكل نموذج تسعير مختار' : 'Enter a positive price for each selected pricing model';
+        return tt('nreg.50608b2a');
       }
       if (!Number(data.coverageRadius) || data.coverageRadius <= 0 || (!data.is24_7 && (!data.workDays.length || !data.openTime || !data.closeTime))) {
-        return AR ? 'أكمل نطاق التغطية وأيام وساعات العمل' : 'Complete coverage radius and working days/hours';
+        return tt('nreg.5ce9ecac');
       }
       return null;
     },
@@ -368,7 +368,7 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
     const e: Record<string, string> = {};
     if (isIndiv && !data.scfhsNumber.trim()) e.scfhs = tt('nurreg.c67a5627');
     if (!isIndiv && !Validate.cr(data.crNumber)) e.cr = tt('nurreg.52d01160');
-    const expiryErr = licenseExpiryError(data.scfhsExpiry, AR); if (expiryErr) e.expiry = expiryErr;
+    const expiryErr = licenseExpiryError(data.scfhsExpiry, AR, tt); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = tt('nurreg.20b4266b');
     setErrs(e); return Object.keys(e).length === 0;
   };
@@ -444,13 +444,13 @@ function NS2({ data, update, submitRef, uploads }: StepProps<NurseRegData>) {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.md, marginBottom: SP.xl }}>
         {isIndiv ? (
           <>
-            <DocCard label={AR ? 'ترخيص\nSCFHS' : 'SCFHS\nLicense'} done={!!data.scfhsUri} onPress={() => pick('scfhsUri')} />
-            <DocCard label={AR ? 'صورة\nشخصية' : 'Profile\nPhoto'} done={!!data.photoUri} onPress={() => pick('photoUri')} />
+            <DocCard label={tt('qqbr.d1f5270a')} done={!!data.scfhsUri} onPress={() => pick('scfhsUri')} />
+            <DocCard label={tt('qqbr.c721299d')} done={!!data.photoUri} onPress={() => pick('photoUri')} />
           </>
         ) : (
           <>
-            <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} done={!!data.crUri} onPress={() => pick('crUri')} />
-            <DocCard label={AR ? 'ترخيص\nMOH' : 'MOH\nLicense'} done={!!data.mohUri} onPress={() => pick('mohUri')} />
+            <DocCard label={tt('qqbr.e6133586')} done={!!data.crUri} onPress={() => pick('crUri')} />
+            <DocCard label={tt('qqbr.bade04d5')} done={!!data.mohUri} onPress={() => pick('mohUri')} />
           </>
         )}
       </View>
@@ -637,7 +637,7 @@ function NS5({ data, update, submitRef }: StepProps<NurseRegData>) {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: SP.sm }}>
           {[5, 10, 15, 20, 30, 50].map(r => (
             <TouchableOpacity key={r} onPress={() => update({ coverageRadius: r })} style={[st.chip, { backgroundColor: data.coverageRadius === r ? tokens.pink : theme.surface2, borderColor: data.coverageRadius === r ? tokens.pink : theme.border }]}>
-              <Text style={{ color: data.coverageRadius === r ? theme.textInv : theme.text, fontWeight: FW.semi }}>{r} {AR ? 'كم' : 'km'}</Text>
+              <Text style={{ color: data.coverageRadius === r ? theme.textInv : theme.text, fontWeight: FW.semi }}>{r} {tt('qqbr.43b7eb43')}</Text>
             </TouchableOpacity>
           ))}
         </View>

@@ -492,7 +492,7 @@ export function LoginScreen({
  </Text>
  </TouchableOpacity>
 
- <NDivider label={AR ? 'أو' : 'or'} />
+ <NDivider label={tt('qqj.6a2cc041')} />
 
 
  <TouchableOpacity onPress={onRegister} style={{ alignItems: 'center', paddingVertical: SP.lg }}>
@@ -823,9 +823,7 @@ export function PendingScreen({
  {tt('auth.f3a609d0')}
  </Text>
  <Text style={{ fontSize: FS.md, color: theme.textSub, textAlign: 'center', lineHeight: 26 }}>
- {AR
- ? 'تم استلام ملفك الشامل بنجاح.\nسيصلك إشعار وتفعيل خلال 24 ساعة.'
- : 'Your complete file has been received.\nYou will be notified within 24 hours.'}
+ {tt('qqj.77aa97a9')}
  </Text>
  </Animated.View>
 

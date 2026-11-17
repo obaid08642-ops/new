@@ -51,7 +51,7 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
      setPulse(Boolean(response.data.instant_available));
      if (response.data.instant_available_minutes) setMinutes(String(response.data.instant_available_minutes));
    }).catch(() => {
-     if (active) show(AR ? 'تعذر تحميل حالة التوفر' : 'Unable to load availability state', 'error');
+     if (active) show(tt('rrw.a40524f9'), 'error');
    });
    return () => { active = false; };
  }, [AR, show]);
@@ -67,7 +67,7 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? ' نبضة التوفر الفوري' : ' Availability Pulse'} onBack={onBack} />
+ <NHeader title={tt('rrw.9a4e1480')} onBack={onBack} />
 
  <NCard style={{ backgroundColor: theme.primaryLight, marginBottom: SP.xl, alignItems: 'center', padding: SP.xxl }}>
  <Animated.View style={{ transform: [{ scale: pulseOn ? pulseAnim : 1 }] }}>
@@ -83,29 +83,27 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
  <Text style={{ fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, textAlign: 'center' }}>
  {pulseOn
  ? (tt('tpe.e0a23dc7', { p1: String(minutes) }))
- : (AR ? 'النبضة معطّلة' : 'Pulse Off')}
+ : (tt('rrw.d6d190ff'))}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginTop: SP.xs }}>
- {AR
- ? 'يظهر للمرضى في التطبيق بأنك متاح بشكل فوري'
- : 'Patients see you are instantly available right now'}
+ {tt('rrw.6fc76ec7')}
  </Text>
  </NCard>
 
  <NCard style={{ marginBottom: SP.xl }}>
  <NToggle
- label={AR ? ' تفعيل نبضة التوفر الفوري' : ' Enable Availability Pulse'}
- sub={AR ? 'يخبر المرضى بتوفرك الفوري ويزيد الطلب' : 'Tells patients you are available now — boosts demand'}
+ label={tt('rrw.5678b5bb')}
+ sub={tt('rrw.87f6296b')}
  value={pulseOn} onChange={v => {
  setPulse(v);
- show(v ? (AR ? 'نبضة التوفر مفعّلة ' : 'Pulse activated ') : (AR ? 'نبضة التوفر معطّلة' : 'Pulse off'), v ? 'success' : 'info');
+ show(v ? (tt('rrw.70e6f274')) : (tt('rrw.f2a63a32')), v ? 'success' : 'info');
  }}
  />
 
  {pulseOn && (
  <View style={{ marginTop: SP.lg }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: AR ? 'right' : 'left', marginBottom: SP.sm }}>
- {AR ? 'متاح خلال:' : 'Available within:'}
+ {tt('rrw.97d9ce4a')}
  </Text>
  <View style={{ flexDirection: 'row', gap: SP.sm }}>
  {['2','5','10','15','30'].map(m => (
@@ -115,7 +113,7 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
  borderColor: minutes === m ? theme.primary : theme.border,
  }]}>
  <Text style={{ color: minutes === m ? '#FFF' : theme.text, fontWeight: FW.semi }}>
- {m} {AR ? 'دق' : 'min'}
+ {m} {tt('qqu.8e09b590')}
  </Text>
  </TouchableOpacity>
  ))}
@@ -126,18 +124,18 @@ export function AvailabilityPulseScreen({ onBack }: { onBack: () => void }) {
 
   <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-  {AR ? 'لا يتم إعلان توفر فوري للمريض قبل حفظ هذا الإعداد في الخادم.' : 'Patients are not shown instant availability until this setting is saved on the server.'}
+  {tt('rrw.93fe39e6')}
  </Text>
  </NCard>
- <NBtn label={AR ? ' حفظ' : ' Save'} loading={saving}
+ <NBtn label={tt('rrw.89af874d')} loading={saving}
  onPress={async () => {
    setSaving(true);
    try {
      await client.patch('/provider/profile/availability', { instant_available: pulseOn, instant_available_minutes: Number(minutes) });
-     show(AR ? 'تم حفظ حالة التوفر' : 'Availability saved', 'success');
+     show(tt('rrw.22e6ef54'), 'success');
      onBack();
    } catch (error: any) {
-     show(error?.response?.data?.message || (AR ? 'تعذر حفظ حالة التوفر' : 'Unable to save availability'), 'error');
+     show(error?.response?.data?.message || (tt('rrw.6442aec5')), 'error');
    } finally { setSaving(false); }
  }} />
  </NScroll>

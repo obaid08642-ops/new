@@ -39,7 +39,7 @@ import { scanStateOfRequestError, scanOfStored } from '../../../utils/scanRegist
 import { scanStateOfUpload } from '../../../utils/scanStatus';
 
 export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
- const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+ const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
  const [search, setSearch] = useState('');
  const [selectedCat, setSelectedCat] = useState('all');
  const [selectedDrug, setSelectedDrug] = useState<any | null>(null);
@@ -105,13 +105,13 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
  const pickSuggestImage = async () => {
    try {
      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-     if (!perm.granted) { show(AR ? 'يلزم إذن الوصول إلى الصور' : 'Photo permission required', 'error'); return; }
+     if (!perm.granted) { show(tt('rrdn.49ef39ed'), 'error'); return; }
      const r = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'] as any, quality: 0.85 });
      if (r.canceled || !r.assets?.[0]) return;
      const a: any = r.assets[0];
      setSuggestImg({ uri: a.uri, mime: a.mimeType || 'image/jpeg' });
    } catch {
-     show(AR ? 'تعذر اختيار الصورة' : 'Could not pick image', 'error');
+     show(tt('rrdn.5ec86a12'), 'error');
    }
  };
 
@@ -126,11 +126,11 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
      if (v !== curStr.trim()) changes[f.key] = f.numeric ? Number(v) : v;
    }
    if (Object.keys(changes).length === 0) {
-     show(AR ? 'لم تقم بتعديل أي حقل' : 'No field was modified', 'info');
+     show(tt('rrdn.60a19662'), 'info');
      return;
    }
    if (changes.price !== undefined && !isFinite(changes.price)) {
-     show(AR ? 'السعر المدخل غير صالح' : 'Invalid price', 'error');
+     show(tt('rrdn.6e1e3353'), 'error');
      return;
    }
    setSuggestBusy(true);
@@ -140,7 +140,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
        changes,
        note: suggestNote.trim() || undefined,
      });
-     show(AR ? 'تم إرسال الاقتراح — بانتظار موافقة الإدارة' : 'Suggestion sent — pending admin approval', 'success');
+     show(tt('rrdn.6dae9c28'), 'success');
      setSuggestOpen(false);
    } catch (e: any) {
      show(AR ? `فشل إرسال الاقتراح: ${e?.response?.data?.message || e?.message || ''}` : 'Failed to send suggestion', 'error');
@@ -180,7 +180,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
        storage_id: storageId,
        note: suggestNote.trim() || undefined,
      });
-     show(AR ? 'تم إرسال الصورة المقترحة — بانتظار موافقة الإدارة' : 'Image suggestion sent — pending admin approval', 'success');
+     show(tt('rrdn.955d67f8'), 'success');
      announceScan(show, lang, scanStateOfUpload(up.data));
      setSuggestOpen(false);
      setSuggestImg(null);
@@ -281,7 +281,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
     <DrugIndexHeader ctx={ctx} />
 
  <View style={{ paddingHorizontal: SP.lg, paddingTop: SP.md, gap: SP.md, backgroundColor: theme.bg }}>
- <NSearch value={search} onChange={setSearch} placeholder={AR ? 'ابحث باسم الدواء أو المادة الفعالة...' : 'Search drug name or active ingredient...'} />
+ <NSearch value={search} onChange={setSearch} placeholder={tt('rrdn.570f8b83')} />
 
  {/* Categories Carousel (from live catalog) */}
  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexDirection: AR ? 'row-reverse' : 'row' }}>
@@ -292,7 +292,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
  backgroundColor: selectedCat === cat.key ? theme.primary : theme.surface2, borderColor: selectedCat === cat.key ? theme.primary : theme.border
  }]}>
  <Text style={{ color: selectedCat === cat.key ? '#FFF' : theme.text, fontSize: FS.sm, fontWeight: FW.semi }}>
- {cat.key === 'all' ? (AR ? 'الكل' : 'All') : cat.key}{cat.count ? ` (${cat.count})` : ''}
+ {cat.key === 'all' ? (tt('rrdn.eabe5f68')) : cat.key}{cat.count ? ` (${cat.count})` : ''}
  </Text>
  </TouchableOpacity>
  ))}
@@ -311,7 +311,7 @@ export function MedicalDrugIndexScreen({ onBack }: { onBack: () => void }) {
  scrollEventThrottle={16}
  keyExtractor={item => item.id}
  contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}
- ListEmptyComponent={<NEmpty title={AR ? 'لا توجد أدوية' : 'No drugs found'} sub={AR ? 'حاول تغيير كلمات البحث' : 'Try a different search'} />}
+ ListEmptyComponent={<NEmpty title={tt('rrdn.a523776b')} sub={tt('rrdn.b6976f1f')} />}
  renderItem={({ item }) => (
  <DrugIndexCard item={item} ctx={ctx} />
  )}

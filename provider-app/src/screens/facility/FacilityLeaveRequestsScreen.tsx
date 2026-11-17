@@ -21,7 +21,7 @@ interface LeaveRequest {
 import client from '../../api/client';
 
 export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang, t } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -50,13 +50,13 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
       setRequests(reqs => reqs.map(r => r.id === id ? { ...r, status: action } : r));
       show(AR ? `تم ${action === 'approved' ? 'قبول' : 'رفض'} الطلب` : `Request ${action}`, 'success');
     } catch (e) {
-      show(AR ? 'حدث خطأ' : 'An error occurred', 'error');
+      show(tt('rrau.030d5d2e'), 'error');
     }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'إدارة الإجازات والأعذار' : 'Leave Management'} onBack={onBack} />
+      <NHeader title={tt('rrau.7786d617')} onBack={onBack} />
       <NScroll>
         <View style={{ padding: SP.xl, gap: SP.md }}>
           {requests.map(req => (
@@ -66,14 +66,14 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
                   <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{req.provider_name || req.providerName}</Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4 }}>{req.provider_type || req.providerType}</Text>
                   <Text style={{ fontSize: FS.sm, color: theme.text, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-                    {AR ? 'السبب: ' : 'Reason: '}{req.reason}
+                    {tt('rrau.61065b69')}{req.reason}
                   </Text>
                   <Text style={{ fontSize: FS.sm, color: theme.textSub, marginTop: 4 }}>
                     {String(req.start_date || req.startDate || '').slice(0, 10)} → {String(req.end_date || req.endDate || '').slice(0, 10)}
                   </Text>
                 </View>
                 <NBadge 
-                  label={req.status === 'pending' ? (AR ? 'قيد الانتظار' : 'Pending') : req.status === 'approved' ? (AR ? 'مقبول' : 'Approved') : (AR ? 'مرفوض' : 'Rejected')} 
+                  label={req.status === 'pending' ? (tt('rrau.25cd2b1f')) : req.status === 'approved' ? (tt('rrau.aecf1337')) : (tt('rrau.8290f876'))} 
                   variant={req.status === 'pending' ? 'warning' : req.status === 'approved' ? 'success' : 'danger'} 
                 />
               </View>
@@ -81,7 +81,7 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
               {req.status === 'pending' && (
                 <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginTop: SP.lg }}>
                   <NBtn 
-                    label={AR ? 'رفض' : 'Reject'} 
+                    label={tt('rrau.8a223f36')} 
                     variant="outline" 
                     full={false} 
                     style={{ flex: 1, borderColor: theme.danger }} 
@@ -89,7 +89,7 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
                     onPress={() => handleAction(req.id, 'rejected')} 
                   />
                   <NBtn 
-                    label={AR ? 'قبول' : 'Approve'} 
+                    label={tt('rrau.040b5756')} 
                     full={false} 
                     style={{ flex: 1, backgroundColor: theme.success }} 
                     onPress={() => handleAction(req.id, 'approved')} 
@@ -103,7 +103,7 @@ export function FacilityLeaveRequestsScreen({ onBack }: { onBack: () => void }) 
           )}
           {!loadFailed && requests.length === 0 && (
             <Text style={{ textAlign: 'center', color: theme.textSub, marginTop: SP.xxl }}>
-              {AR ? 'لا توجد طلبات إجازة' : 'No leave requests'}
+              {tt('rrau.36a0f3dd')}
             </Text>
           )}
         </View>

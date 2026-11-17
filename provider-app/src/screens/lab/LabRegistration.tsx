@@ -227,16 +227,16 @@ const DIAGNOSTICS_WIZARD: WizardConfig<DiagnosticsRegData> = {
     headerAr: 'مراجعة وإرسال', headerEn: 'Review & Submit',
     summary: {
       titleAr: 'ملخص ملف المركز', titleEn: 'Center Summary',
-      rows: (d, AR) => {
+      rows: (d, AR, tt) => {
         const ct = CENTER_TYPES.find((c) => c.id === d.centerType);
         return [
-          { label: AR ? 'اسم المركز' : 'Center Name', value: d.nameAr || '—' },
-          { label: AR ? 'النوع' : 'Type', value: AR ? (ct?.label_ar ?? '—') : (ct?.label_en ?? '—') },
-          { label: AR ? 'المنطقة / المدينة / الحي' : 'Region / City / District', value: [d.region, d.city, d.district].filter(Boolean).join(' / ') || '—' },
-          ...(d.centerType === 'radiology' ? [] : [{ label: AR ? 'التحاليل' : 'Lab Tests', value: `${d.enabledTests.length}` }]),
-          ...(d.centerType === 'lab' ? [] : [{ label: AR ? 'الأشعة' : 'Scans', value: `${d.enabledScans.length}` }]),
-          { label: AR ? 'خدمة منزلية' : 'Home Svc', value: d.hasHomeSvc ? `${d.homeRadius} km` : (AR ? 'لا' : 'No') },
-          { label: AR ? 'التأمين' : 'Insurance', value: d.cashOnly ? (AR ? 'نقدي' : 'Cash') : `${d.acceptedInsurance.length}` },
+          { label: tt('lreg.9369a14d'), value: d.nameAr || '—' },
+          { label: tt('lreg.518e68b1'), value: AR ? (ct?.label_ar ?? '—') : (ct?.label_en ?? '—') },
+          { label: tt('lreg.5a85d253'), value: [d.region, d.city, d.district].filter(Boolean).join(' / ') || '—' },
+          ...(d.centerType === 'radiology' ? [] : [{ label: tt('lreg.6315d9e6'), value: `${d.enabledTests.length}` }]),
+          ...(d.centerType === 'lab' ? [] : [{ label: tt('lreg.2a3dfd50'), value: `${d.enabledScans.length}` }]),
+          { label: tt('lreg.85df8e48'), value: d.hasHomeSvc ? `${d.homeRadius} km` : (tt('lreg.52c2ca8a')) },
+          { label: tt('lreg.5e936739'), value: d.cashOnly ? (tt('lreg.84c27552')) : `${d.acceptedInsurance.length}` },
         ];
       },
     },
@@ -247,21 +247,21 @@ const DIAGNOSTICS_WIZARD: WizardConfig<DiagnosticsRegData> = {
       en: 'I agree to Nabd+ Terms & Conditions and Privacy Policy, and confirm all data is accurate.',
     },
     submitLabel: { ar: 'إرسال ملف المركز للمراجعة', en: 'Submit Center Application' },
-    precheck: (data, AR) => {
+    precheck: (data, AR, tt) => {
       if (!data.nameAr.trim() || !data.nameEn.trim() || !data.managerEmail.trim() || !data.city.trim() || !data.address.trim()) {
-        return AR ? 'أكمل بيانات المركز والموقع والعنوان والبريد' : 'Complete center identity, location, address, and email';
+        return tt('lreg.07a9eb7b');
       }
       if (!data.location?.lat || !data.location?.lng) {
-        return AR ? 'حدد موقع المركز على الخريطة' : 'Pick the center location on the map';
+        return tt('lreg.496ee384');
       }
       if (!data.enabledTests.length && !data.enabledScans.length) {
-        return AR ? 'اختر تحليلاً أو فحصاً واحداً على الأقل' : 'Select at least one laboratory test or scan';
+        return tt('lreg.c8428f3c');
       }
       if (!data.workDays.length || !data.openTime || !data.closeTime) {
-        return AR ? 'أكمل أيام وساعات عمل المركز' : 'Complete center working days and hours';
+        return tt('lreg.4960df4b');
       }
       if (data.hasHomeSvc && (!data.homeWorkDays.length || !Number(data.homeRadius) || data.homeRadius <= 0 || !data.homeOpenTime || !data.homeCloseTime)) {
-        return AR ? 'أكمل نطاق وأيام وساعات الخدمة المنزلية' : 'Complete home-service radius, days, and hours';
+        return tt('lreg.eb5d3e01');
       }
       return null;
     },
@@ -461,7 +461,7 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
     const e: Record<string, string> = {};
     if (!Validate.cr(data.crNumber)) e.cr = tt('labreg.3d1b511a');
     if (!data.mohLicense.trim()) e.moh = tt('labreg.b4bde92d');
-    const expiryErr = licenseExpiryError(data.licenseExpiry, AR); if (expiryErr) e.expiry = expiryErr;
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR, tt); if (expiryErr) e.expiry = expiryErr;
     if (!Validate.iban(data.iban)) e.iban = tt('labreg.53935c75');
     
     // Custom validation for Lab/Radiology separation
@@ -587,9 +587,9 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
         {tt('labreg.79461c83')}
       </Text>
       <View style={st.docGrid}>
-        <DocCard label={AR ? 'السجل\nالتجاري' : 'CR\nDoc'} done={!!data.crUri} onPress={() => pick('crUri')} required />
-        <DocCard label={AR ? 'ترخيص\nMOH' : 'MOH\nLicense'} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
-        <DocCard label={AR ? 'شعار\nالمركز' : 'Center\nLogo'} done={!!data.logoUri} onPress={() => pick('logoUri')} />
+        <DocCard label={tt('qqbo.e6133586')} done={!!data.crUri} onPress={() => pick('crUri')} required />
+        <DocCard label={tt('qqbo.bade04d5')} done={!!data.mohUri} onPress={() => pick('mohUri')} required />
+        <DocCard label={tt('qqbo.a704384a')} done={!!data.logoUri} onPress={() => pick('logoUri')} />
       </View>
     </View>
   );
@@ -711,7 +711,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
                     color: data.homeRadius === r ? theme.textInv : theme.text,
                     fontWeight: FW.semi, fontSize: FS.sm,
                   }}>
-                    {r} {AR ? 'كم' : 'km'}
+                    {r} {tt('qqbo.43b7eb43')}
                   </Text>
                 </TouchableOpacity>
               ))}

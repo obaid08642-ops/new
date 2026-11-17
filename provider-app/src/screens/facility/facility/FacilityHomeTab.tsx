@@ -182,7 +182,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
           {tt('fachome.6773e657')}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.danger, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-          {todayApts.filter((a: any) => String(a.type || a.kind || '').toLowerCase().includes('emergency')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'حالات' : 'cases'}</Text>
+          {todayApts.filter((a: any) => String(a.type || a.kind || '').toLowerCase().includes('emergency')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{tt('qqbb.d4880495')}</Text>
         </Text>
       </NCard>
 
@@ -208,7 +208,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
           {tt('fachome.be913741')}
         </Text>
         <Text style={{ fontSize: FS.xl, fontWeight: FW.xbold, color: theme.primary, textAlign: AR ? 'right' : 'left', marginTop: SP.xs }}>
-          {subaccounts.filter((st: any) => String(st.staff_role || st.role || '').toLowerCase().includes('doctor')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{AR ? 'طبيب' : 'doctors'}</Text>
+          {subaccounts.filter((st: any) => String(st.staff_role || st.role || '').toLowerCase().includes('doctor')).length} <Text style={{ fontSize: FS.xs, color: theme.textSub, fontWeight: FW.med }}>{tt('qqbb.d8909163')}</Text>
         </Text>
       </NCard>
     </View>
@@ -267,7 +267,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  {available}
  </Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: 'center' }}>
- {AR ? 'متاح' : 'free'}
+ {tt('qqbb.3c0fd317')}
  </Text>
  <View style={{ height: 4, backgroundColor: theme.surface2, borderRadius: R.full, marginTop: SP.sm }}>
  <View style={{ height: 4, width: `${pct * 100}%`, backgroundColor: color, borderRadius: R.full }} />

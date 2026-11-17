@@ -126,7 +126,7 @@ export function MedicalJobsApplicant({ ctx }: any) {
           
             <View style={{ backgroundColor: theme.surface, borderRadius: R.lg, padding: SP.lg, borderWidth: 1, borderColor: theme.border, gap: SP.md }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{tt('mja.f94827be')}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.scfhs}</Text></View>
-              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{tt('mja.2e160981')}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.exp} {AR ? 'سنوات' : 'years'}</Text></View>
+              <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{tt('mja.2e160981')}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.exp} {tt('qqdi.5f5e1f1e')}</Text></View>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{tt('mja.820ba03c')}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.ready}</Text></View>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}><Text style={{ color: theme.textSub }}>{tt('mja.046cc83f')}</Text><Text style={{ fontWeight: FW.bold, color: theme.text }}>{selectedApp.phone}</Text></View>
             </View>

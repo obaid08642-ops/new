@@ -19,20 +19,20 @@ import { SP, R, FS, FW, C } from '../../../constants';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function NurseChecklistConsole({ onBack }: { onBack: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const { show } = useToast(); const AR = lang === 'ar';
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     client.get('/provider/nursing/checklist').then(r => setItems(Array.isArray(r.data) ? r.data : [])).catch(() => {
-      show(AR ? 'تعذر تحميل القائمة' : 'Could not load checklist', 'error');
+      show(tt('rrcy.50d583ce'), 'error');
     }).finally(() => setLoading(false));
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'قائمة مهام التمريض' : 'Nurse Checklist Console'} onBack={onBack} />
+      <NHeader title={tt('rrcy.28a59dbd')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, gap: SP.sm }}>
         {loading ? <ActivityIndicator color={theme.primary} style={{ marginTop: 40 }} /> : items.length === 0 ? (
-          <NEmpty icon="checklist" title={AR ? 'لا توجد مهام' : 'No tasks'} sub={AR ? 'لا توجد عناصر في القائمة' : 'Checklist is empty'} />
+          <NEmpty icon="checklist" title={tt('rrcy.7a36d84f')} sub={tt('rrcy.38aa1d2c')} />
         ) : items.map((it: any, i: number) => (
           <NCard key={String(it.id || i)} style={{ marginBottom: SP.sm }}>
             <Text style={{ color: theme.text }}>{it.title || it.name || it.label || String(it.id || '')}</Text>

@@ -10,7 +10,8 @@ import { SEAT_COLLECTION } from './lab-slot-seats';
 
 // The lab's own number of bookings per slot (`slot_capacity`, default 1): the slot picker and the booking use it, and the last seat goes to one booking only.
 describe('lab slot capacity: picker and booking', () => {
-  const SLOT = new Date(Date.now() + 3 * 86_400_000); SLOT.setUTCHours(10, 0, 0, 0);
+  // 10:00 Riyadh (UTC+3) = 07:00Z: the lab hours 09:00-12:00 are Riyadh clock time (common/riyadh-slots.ts)
+  const SLOT = new Date(Date.now() + 3 * 86_400_000); SLOT.setUTCHours(7, 0, 0, 0);
   const DAY = SLOT.toISOString().slice(0, 10);
   const DOW = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'][SLOT.getUTCDay()];
 

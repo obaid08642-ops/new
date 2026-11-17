@@ -44,8 +44,8 @@ export function SubscriptionsAdsScreen({ onBack, onNavigate }: { onBack: () => v
  const handlePurchase = async () => {
  const b = parseInt(budget, 10);
  const d = parseInt(duration, 10);
- if (!b || b <= 0) { show(AR ? 'أدخل ميزانية صحيحة' : 'Enter a valid budget', 'error'); return; }
- if (!d || d <= 0) { show(AR ? 'أدخل مدة صحيحة' : 'Enter a valid duration', 'error'); return; }
+ if (!b || b <= 0) { show(tt('rrde.ffffb898'), 'error'); return; }
+ if (!d || d <= 0) { show(tt('rrde.accfef6a'), 'error'); return; }
  setLoading(true);
  try {
  await client.post('/provider/promotions', {
@@ -57,11 +57,11 @@ export function SubscriptionsAdsScreen({ onBack, onNavigate }: { onBack: () => v
  end_date: new Date(Date.now() + d * 24 * 60 * 60 * 1000).toISOString(),
  target_parameters: { budget_sar: b, duration_days: d },
  });
- show(AR ? 'تم إرسال طلب الحملة الإعلانية — ستُفعّل بعد مراجعة الإدارة' : 'Ad campaign submitted — goes live after admin review', 'success');
+ show(tt('rrde.a1d961df'), 'success');
  onBack();
  } catch (e: any) {
  const m = e?.response?.data?.message;
- show(typeof m === 'string' ? m : (AR ? 'فشل إرسال الطلب — حاول مجدداً' : 'Failed to submit — retry'), 'error');
+ show(typeof m === 'string' ? m : (tt('rrde.c8e06c91')), 'error');
  } finally {
  setLoading(false);
  }
@@ -70,7 +70,7 @@ export function SubscriptionsAdsScreen({ onBack, onNavigate }: { onBack: () => v
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR ? 'الاشتراكات والترويج المدفوع' : 'Subscriptions & Ads Purchases'} onBack={onBack} />
+ <NHeader title={tt('rrde.87ae3f9c')} onBack={onBack} />
  <View style={{ padding: SP.xl, gap: SP.xl }}>
  <NCard style={{ borderLeftWidth: 4, borderColor: '#7C3AED' }}>
  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>
@@ -83,16 +83,16 @@ export function SubscriptionsAdsScreen({ onBack, onNavigate }: { onBack: () => v
  )}
  </NCard>
 
- <NSecHeader title={AR ? 'شراء إعلانات ظهور متقدم (Ads)' : 'Purchase Featured Placement (Ads)'} />
+ <NSecHeader title={tt('rrde.d0a6327b')} />
  
- <NInput label={AR ? 'الميزانية الإجمالية (ريال)' : 'Ad Budget (SAR)'} value={budget} onChange={setBudget} kbType="numeric" />
- <NInput label={AR ? 'مدة الإعلان (أيام)' : 'Ad Duration (Days)'} value={duration} onChange={setDuration} kbType="numeric" />
+ <NInput label={tt('rrde.52590089')} value={budget} onChange={setBudget} kbType="numeric" />
+ <NInput label={tt('rrde.2a23f2f7')} value={duration} onChange={setDuration} kbType="numeric" />
 
- <NBtn label={AR ? ' تأكيد ودفع رسوم الإعلان' : ' Pay & Launch Ad'} onPress={handlePurchase} loading={loading} />
+ <NBtn label={tt('rrde.06b154f7')} onPress={handlePurchase} loading={loading} />
 
  <NDivider />
 
- <NBtn label={AR ? ' برنامج المسوقين والشركاء (Affiliate)' : ' B2B Affiliate Portal'} variant="outline" onPress={() => onNavigate('affiliate')} />
+ <NBtn label={tt('rrde.fd24bd11')} variant="outline" onPress={() => onNavigate('affiliate')} />
  </View>
  </NScroll>
  </View>

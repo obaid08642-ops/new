@@ -241,7 +241,7 @@ function Step2Legal({ data, update, submitRef }: StepProps<FacilityRegData>) {
   const [errs, setErrs] = useState<Record<string, string>>({});
 
   const handleNext = () => {
-    const expiryErr = licenseExpiryError(data.licenseExpiry, AR);
+    const expiryErr = licenseExpiryError(data.licenseExpiry, AR, tt);
     setErrs(expiryErr ? { expiry: expiryErr } : {});
     return !expiryErr;
   };

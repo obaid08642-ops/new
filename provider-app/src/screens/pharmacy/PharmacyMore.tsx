@@ -198,11 +198,11 @@ export function SetupChecklist({ onNavigate, onToggleOnline, compact, onOpenMore
           <Text style={{ flex: 1, color: item.done ? theme.textSub : theme.text, textAlign: AR ? 'right' : 'left', textDecorationLine: item.done ? 'line-through' : 'none' }}>
             {AR ? item.ar : item.en}
           </Text>
-          {item.done === null && <NBadge size="xs" variant="default" label={AR ? 'تعذر التحقق' : 'Could not check'} />}
+          {item.done === null && <NBadge size="xs" variant="default" label={tt('rrcd.cfb11e4e')} />}
         </TouchableOpacity>
       ))}
       <TouchableOpacity onPress={reload} style={{ alignSelf: AR ? 'flex-end' : 'flex-start', paddingVertical: SP.xs }}>
-        <Text style={{ color: theme.primary, fontSize: FS.sm }}>{AR ? 'تحديث' : 'Refresh'}</Text>
+        <Text style={{ color: theme.primary, fontSize: FS.sm }}>{tt('rrcd.d612cb94')}</Text>
       </TouchableOpacity>
     </NCard>
   );
@@ -211,10 +211,10 @@ export function SetupChecklist({ onNavigate, onToggleOnline, compact, onOpenMore
 // ─── More tab ────────────────────────────────────────────────────────────────
 
 export function PharmacyMoreScreen({ onNavigate, onToggleOnline }: { onNavigate: PharmacyNavigate; onToggleOnline: () => void }) {
-  const { theme } = useTheme(); const { lang } = useLang(); const AR = lang === 'ar';
+  const { theme } = useTheme(); const { lang, t: tt } = useLang(); const AR = lang === 'ar';
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'المزيد' : 'More'} />
+      <NHeader title={tt('rrcd.4ec28739')} />
       <ScrollView contentContainerStyle={{ padding: SP.lg, paddingBottom: 100 }}>
         <SetupChecklist onNavigate={onNavigate} onToggleOnline={onToggleOnline} />
         {PHARMACY_MENU.map(section => (

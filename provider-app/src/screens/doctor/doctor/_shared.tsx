@@ -37,7 +37,7 @@ import { tokens } from '../../../theme/tokens';
 export const { width: W } = Dimensions.get('window');
 export function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const [rows, setRows] = useState<any[]>([]);
@@ -48,7 +48,7 @@ export function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () =>
       const res = await client.get('/calls/provider/waiting-room', { params: { service_type: 'video' } });
       setRows(Array.isArray(res.data) ? res.data : []);
     } catch {
-      show(AR ? 'تعذر تحميل غرفة الانتظار' : 'Could not load waiting room', 'error');
+      show(tt('rrao.527617cc'), 'error');
     } finally {
       setLoading(false);
     }
@@ -56,12 +56,12 @@ export function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () =>
   useEffect(() => { void load(); }, [load]);
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'غرفة الانتظار الافتراضية' : 'Virtual Waiting Room'} onBack={onBack} />
+      <NHeader title={tt('rrao.633526c3')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.xl, gap: SP.md }}>
         {loading ? (
           <ActivityIndicator color={theme.primary} style={{ marginTop: SP.xl }} />
         ) : rows.length === 0 ? (
-          <NEmpty title={AR ? 'لا يوجد مرضى بانتظار مكالمة فيديو اليوم' : 'No patients waiting for a video call today'} icon="video" />
+          <NEmpty title={tt('rrao.1659a764')} icon="video" />
         ) : rows.map((r: any) => (
           <NCard key={String(r.id)}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -69,14 +69,14 @@ export function VirtualWaitingRoomScreen({ onBack, onNavigate }: { onBack: () =>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{r.name}</Text>
                 <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
                   {r.time ? new Date(r.time).toLocaleTimeString(AR ? 'ar-SA' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : ''} · {r.status}
-                  {r.checkedIn ? (AR ? ' · وصل' : ' · checked in') : ''}
+                  {r.checkedIn ? (tt('rrao.b70509ad')) : ''}
                 </Text>
               </View>
-              <NBtn label={AR ? 'انضمام' : 'Join'} full={false} onPress={() => onNavigate('video_call', { id: r.id, patient: r.name, service_type: 'video' })} />
+              <NBtn label={tt('rrao.62541b49')} full={false} onPress={() => onNavigate('video_call', { id: r.id, patient: r.name, service_type: 'video' })} />
             </View>
           </NCard>
         ))}
-        <NBtn label={AR ? 'تحديث' : 'Refresh'} variant="outline" onPress={() => void load()} />
+        <NBtn label={tt('rrao.d612cb94')} variant="outline" onPress={() => void load()} />
       </ScrollView>
     </View>
   );

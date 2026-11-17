@@ -8,7 +8,7 @@ import client from '../../api/client';
 
 export function FacilityPatientTrackerScreen({ onBack, onNavigate }: { onBack: () => void; onNavigate?: (s: string, p?: any) => void }) {
   const { theme } = useTheme();
-  const { lang, t, isRTL } = useLang();
+  const { lang, t, isRTL, t: tt } = useLang();
   const AR = lang === 'ar';
 
   const [patients, setPatients] = useState<any[]>([]);
@@ -21,11 +21,11 @@ export function FacilityPatientTrackerScreen({ onBack, onNavigate }: { onBack: (
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'تتبع المرضى (Patient Tracker)' : 'Patient Tracker'} onBack={onBack} />
+      <NHeader title={tt('rrav.5743fd6d')} onBack={onBack} />
       
       <View style={{ padding: SP.md, backgroundColor: theme.surface }}>
         <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center' }}>
-          {AR ? 'مراقبة حية للمرضى المنومين وحالات الطوارئ' : 'Live monitoring for inpatients and ER cases'}
+          {tt('rrav.a04b7cac')}
         </Text>
       </View>
 

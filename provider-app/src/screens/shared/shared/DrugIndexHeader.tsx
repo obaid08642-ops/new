@@ -30,6 +30,7 @@ import { DrugSection } from './MedicalJobsScreen';
 
 
 export function DrugIndexHeader({ ctx }: any) {
+  const { t: tt } = useLang();
   const { theme, AR, insets, onBack, headerHeight, headerOpacity } = ctx;
   return (
     <>
@@ -39,7 +40,7 @@ export function DrugIndexHeader({ ctx }: any) {
            <I name="back" size={20} color={theme.text} />
          </TouchableOpacity>
          <Animated.Text style={{ flex: 1, fontSize: FS.xl, fontWeight: FW.bold, color: theme.text, textAlign: 'center', opacity: headerOpacity }}>
-           {AR ? 'دليل الأدوية الطبي' : 'Medical Drug Index'}
+           {tt('rrzb.0e14b12f')}
          </Animated.Text>
          <View style={{ width: 40 }} />
        </View>

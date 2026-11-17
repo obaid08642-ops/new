@@ -20,16 +20,16 @@ interface DoctorQueueListProps {
 
 export function DoctorQueueList({ appointments, onSelect }: DoctorQueueListProps) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
 
   if (!appointments || appointments.length === 0) {
     return (
       <View style={styles.container}>
         <Text style={[styles.sectionTitle, { color: theme.text, textAlign: AR ? 'right' : 'left' }]}>
-          {AR ? 'قائمة مواعيد اليوم' : "Today's Queue"}
+          {tt('rrr.a8aefa7b')}
         </Text>
-        <NEmpty title={AR ? 'لا توجد مواعيد مجدولة اليوم' : 'No appointments scheduled for today'} />
+        <NEmpty title={tt('rrr.811ac3a5')} />
       </View>
     );
   }
@@ -38,9 +38,9 @@ export function DoctorQueueList({ appointments, onSelect }: DoctorQueueListProps
     <View style={styles.container}>
       <View style={[styles.headerRow, { flexDirection: AR ? 'row-reverse' : 'row' }]}>
         <Text style={[styles.sectionTitle, { color: theme.text }]}>
-          {AR ? 'قائمة مواعيد اليوم' : "Today's Queue"}
+          {tt('rrr.a8aefa7b')}
         </Text>
-        <NBadge label={`${appointments.length} ${AR ? 'مريض' : 'patients'}`} />
+        <NBadge label={`${appointments.length} ${tt('qqp.bb636ae9')}`} />
       </View>
 
       <FlatList
@@ -55,12 +55,12 @@ export function DoctorQueueList({ appointments, onSelect }: DoctorQueueListProps
                 <View style={{ flex: 1, alignItems: AR ? 'flex-end' : 'flex-start' }}>
                   <Text style={[styles.patientName, { color: theme.text }]}>{item.patient_name}</Text>
                   <Text style={[styles.aptTime, { color: theme.textSub }]}>
-                     {item.scheduled_time || item.time || (AR?'الآن':'Now')}
+                     {item.scheduled_time || item.time || (tt('rrr.0dc10d36'))}
                   </Text>
                 </View>
 
                 <NBadge
-                  label={item.status === 'COMPLETED' ? (AR ? 'مكتمل' : 'Completed') : item.status === 'IN_PROGRESS' ? (AR ? 'جاري الكشف' : 'In Progress') : (AR ? 'مجدول' : 'Scheduled')}
+                  label={item.status === 'COMPLETED' ? (tt('rrr.a78b4dfb')) : item.status === 'IN_PROGRESS' ? (tt('rrr.373c20b5')) : (tt('rrr.29e17b4a'))}
                   variant={item.status === 'COMPLETED' ? 'success' : item.status === 'IN_PROGRESS' ? 'warning' : 'primary'}
                 />
               </View>

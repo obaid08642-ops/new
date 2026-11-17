@@ -7,7 +7,7 @@ import client from '../../api/client';
 
 export function FacilityAnnouncementsScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
 
@@ -31,23 +31,23 @@ export function FacilityAnnouncementsScreen({ onBack }: { onBack: () => void }) 
     try {
       await client.post('/facility/announcements', { text: message.trim() });
       setMessage('');
-      show(AR ? 'تم نشر التعميم' : 'Announcement published', 'success');
+      show(tt('rraq.734affcd'), 'success');
       fetchAll();
     } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'فشل نشر التعميم' : 'Failed to publish'), 'error');
+      show(err?.response?.data?.message || (tt('rraq.a3b6b0c1')), 'error');
     } finally { setSending(false); }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? 'التعاميم والإعلانات' : 'Announcements'} onBack={onBack} />
+      <NHeader title={tt('rraq.bee5d6db')} onBack={onBack} />
       
       <NScroll>
         <View style={{ padding: SP.xl }}>
           
           <NCard style={{ marginBottom: SP.xl, backgroundColor: theme.primaryLight, borderColor: theme.primary }}>
             <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.primary, marginBottom: SP.sm, textAlign: AR ? 'right' : 'left' }}>
-              {AR ? 'إرسال تعميم جديد' : 'New Broadcast'}
+              {tt('rraq.1031cb7e')}
             </Text>
             <TextInput
               style={{
@@ -59,28 +59,28 @@ export function FacilityAnnouncementsScreen({ onBack }: { onBack: () => void }) 
                 textAlignVertical: 'top',
                 textAlign: AR ? 'right' : 'left'
               }}
-              placeholder={AR ? 'اكتب التعميم هنا وسيظهر لجميع المزودين المرتبطين...' : 'Type announcement here to broadcast to all linked providers...'}
+              placeholder={tt('rraq.3473c74c')}
               placeholderTextColor={theme.textSub}
               multiline
               value={message}
               onChangeText={setMessage}
             />
-            <NBtn label={AR ? 'نشر التعميم' : 'Broadcast'} loading={sending} onPress={handleBroadcast} style={{ marginTop: SP.md }} />
+            <NBtn label={tt('rraq.35e65e09')} loading={sending} onPress={handleBroadcast} style={{ marginTop: SP.md }} />
           </NCard>
 
           <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, marginBottom: SP.md, textAlign: AR ? 'right' : 'left' }}>
-            {AR ? 'التعاميم السابقة' : 'Previous Announcements'}
+            {tt('rraq.6eb6f7aa')}
           </Text>
 
           {loading ? (
             <ActivityIndicator color={theme.primary} style={{ marginVertical: SP.xl }} />
           ) : announcements.length === 0 ? (
-            <NEmpty title={AR ? 'لا توجد تعاميم بعد' : 'No announcements yet'} subtitle={AR ? 'أول تعميم تنشره سيظهر هنا' : 'Announcements you publish will appear here'} />
+            <NEmpty title={tt('rraq.ef7f0bea')} subtitle={tt('rraq.180f4a96')} />
           ) : announcements.map(ann => (
             <NCard key={ann.id} style={{ marginBottom: SP.md }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.sm }}>
                 <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>
-                  {ann.sender || (AR ? 'الإدارة' : 'Admin')}
+                  {ann.sender || (tt('rraq.9a391f2a'))}
                 </Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub }}>
                   {(ann.createdAt || '').slice(0, 10)}

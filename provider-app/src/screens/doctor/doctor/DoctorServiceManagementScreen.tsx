@@ -238,7 +238,7 @@ export function DoctorServiceManagementScreen({ onBack }: { onBack: () => void }
   {s.price} {tt('dsm.0e39e6ca')}
  </Text>
  <Text style={{ fontSize: FS.sm, color: theme.textSub }}>
- ⏱️ {s.duration} {AR ? 'دقيقة' : 'min'}
+ ⏱️ {s.duration} {tt('qqy.c95d0c8a')}
  </Text>
  </View>
  

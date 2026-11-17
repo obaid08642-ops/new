@@ -53,6 +53,7 @@ import { nearestFirst } from '../provider/services/nearest-first';
 import { publicLabFilter } from './labs-public';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
 import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
+import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -1282,7 +1283,8 @@ export class LabsService {
 
     if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
 
-    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    // the day starts at Riyadh midnight (UTC+3), see common/riyadh-slots.ts; `dow` above is the weekday of that same calendar day
+    const baseDate = riyadhDayStart(dateStr);
     const slots: { id: string; start: string; end: string; label: string; available: boolean; remaining?: number }[] = [];
     const seen = new Set<string>();
     const now = Date.now();
@@ -1300,7 +1302,7 @@ export class LabsService {
         const slotId = start.toISOString();
         if (seen.has(slotId)) continue;
         seen.add(slotId);
-        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: riyadhClockLabel(start), available: true });
       }
     }
     slots.sort((x, y) => x.start.localeCompare(y.start));

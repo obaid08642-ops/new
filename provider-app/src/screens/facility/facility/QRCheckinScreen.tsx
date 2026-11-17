@@ -43,7 +43,7 @@ import { tokens } from '../../../theme/tokens';
 
 export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang, t } = useLang();
+ const { lang, t, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [mode, setMode] = useState<'scan'|'manual'|'history'>('scan');
@@ -64,13 +64,13 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  setCheckingIn(true);
  try {
  await client.patch(`/care/appointments/${encodeURIComponent(apptId)}/check-in`);
- show(AR ? 'تم تأكيد وصول المريض' : 'Patient arrival confirmed', 'success');
+ show(tt('rrbj.cd19bf8c'), 'success');
  setManualId('');
  fetchHistory();
  setMode('history');
  } catch (err: any) {
  const msg = err?.response?.data?.message;
- show(msg || (AR ? 'تعذر تأكيد الوصول — تحقق من رقم الموعد' : 'Check-in failed — verify appointment ID'), 'error');
+ show(msg || (tt('rrbj.c1d6cd6e')), 'error');
  } finally { setCheckingIn(false); }
  };
 
@@ -78,10 +78,10 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  try {
  if (!camPerm?.granted) {
  const r = await requestCamPerm();
- if (!r?.granted) { show(AR ? 'صلاحية الكاميرا مرفوضة' : 'Camera permission denied', 'error'); return; }
+ if (!r?.granted) { show(tt('rrbj.fc9abbca'), 'error'); return; }
  }
  setShowCam(true);
- } catch { show(AR ? 'الكاميرا غير متاحة على هذا الجهاز' : 'Camera unavailable on this device', 'error'); }
+ } catch { show(tt('rrbj.6fdc4816'), 'error'); }
  };
 
  useEffect(() => {
@@ -107,7 +107,7 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
 
  return (
  <NScroll>
- <NHeader title={AR ? ' تسجيل دخول المرضى QR' : ' Patient QR Check-in'} onBack={onBack} />
+ <NHeader title={tt('rrbj.d75744fd')} onBack={onBack} />
 
  {/* Mode tabs */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginBottom: SP.xl }}>
@@ -138,17 +138,15 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  </View>
  </Animated.View>
  <Text style={{ fontSize: FS.md, color: theme.text, marginTop: SP.lg, textAlign: 'center', fontWeight: FW.semi }}>
- {AR ? 'وجّه الكاميرا نحو رمز QR الموعد' : 'Point camera at appointment QR code'}
+ {tt('rrbj.2011e10f')}
  </Text>
- <NBtn label={AR?'تفعيل الكاميرا':'Open Camera'} onPress={openScanner}
+ <NBtn label={tt('rrbj.1abacc02')} onPress={openScanner}
  style={{ marginTop: SP.xl }} />
  </NCard>
 
  <NCard style={{ backgroundColor: theme.infoBg }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
- {AR
- ? 'كل مريض يمتلك QR Code فريد في تطبيق المريض. مسحه يؤكد وصوله ويبدأ العداد الزمني للانتظار.'
- : 'Each patient has a unique QR in their app. Scanning it confirms arrival and starts the wait timer.'}
+ {tt('rrbj.ae641276')}
  </Text>
  </NCard>
  </View>
@@ -157,18 +155,18 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  {mode === 'manual' && (
  <View>
  <NInput
- label={AR ? 'رقم الموعد أو هوية المريض' : 'Appointment ID or Patient ID'}
+ label={tt('rrbj.a975a4f2')}
  placeholder={AR ? 'APT-2025-XXXXX' : 'APT-2025-XXXXX'}
  value={manualId} onChange={setManualId} icon=""
  />
- <NBtn label={AR?'تأكيد الوصول':'Confirm Arrival'} disabled={!manualId.trim()} loading={checkingIn}
+ <NBtn label={tt('rrbj.bdd8b823')} disabled={!manualId.trim()} loading={checkingIn}
  onPress={() => doCheckin(extractApptId(manualId))} />
  </View>
  )}
 
  {mode === 'history' && (
  <View>
- <NSecHeader title={AR?'سجل تسجيل الدخول اليوم':'Today\'s Check-in Log'} />
+ <NSecHeader title={tt('rrbj.433fe7bc')} />
  {CHECKIN_HISTORY.map(ch => (
  <NCard key={ch.id} style={{ marginBottom: SP.sm }}>
  <View style={{ flexDirection: AR?'row-reverse':'row', alignItems:'center', gap: SP.md }}>
@@ -196,7 +194,7 @@ export function QRCheckinScreen({ onBack }: { onBack: () => void }) {
  onBarcodeScanned={({ data }: any) => { if (data) { setShowCam(false); doCheckin(extractApptId(String(data))); } }}
  />
  <TouchableOpacity onPress={()=>setShowCam(false)} style={{ position: 'absolute', bottom: 60, alignSelf: 'center', backgroundColor: '#00000099', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 28 }}>
- <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'إلغاء' : 'Cancel'}</Text>
+ <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{tt('rrbj.210b779f')}</Text>
  </TouchableOpacity>
  </View>
  </Modal>

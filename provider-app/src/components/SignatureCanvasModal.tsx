@@ -16,7 +16,7 @@ interface SignatureCanvasModalProps {
 
 export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvasModalProps) => {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const ref = useRef<any>(null);
 
@@ -42,7 +42,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
             
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.lg, borderBottomWidth: 1, borderBottomColor: theme.border }}>
               <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
-                {AR ? 'التوقيع الإلكتروني' : 'Electronic Signature'}
+                {tt('rrh.7d12abbe')}
               </Text>
               <TouchableOpacity onPress={onClose} style={{ padding: SP.sm, backgroundColor: theme.surface2, borderRadius: R.full }}>
                 <NIcon name="close" size={20} color={theme.textSub} />
@@ -54,7 +54,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
                 ref={ref}
                 onOK={handleOK}
                 onEmpty={() => {
-                  Alert.alert(AR ? 'عذراً' : 'Sorry', AR ? 'الرجاء رسم التوقيع داخل المربع أولاً' : 'Please draw your signature inside the box first');
+                  Alert.alert(tt('rrh.f356fbdb'), tt('rrh.5055b695'));
                 }}
                 webStyle={`
                   .m-signature-pad { box-shadow: none; border: none; margin: 0; height: 100%; }
@@ -63,7 +63,7 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
                   body,html { width: 100%; height: 100%; margin: 0; padding: 0; }
                 `}
                 autoClear={true}
-                descriptionText={AR ? 'وقع هنا' : 'Sign Here'}
+                descriptionText={tt('rrh.6b2bed26')}
                 penColor={theme.text}
               />
             </View>
@@ -74,14 +74,14 @@ export const SignatureCanvasModal = ({ visible, onClose, onOK }: SignatureCanvas
                 style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.xs, paddingVertical: SP.sm, paddingHorizontal: SP.lg, borderRadius: R.md, backgroundColor: theme.surface2 }}
               >
                 <NIcon name="refresh" size={16} color={theme.textSub} />
-                <Text style={{ color: theme.textSub, fontWeight: FW.med, fontSize: FS.md }}>{AR ? 'مسح' : 'Clear'}</Text>
+                <Text style={{ color: theme.textSub, fontWeight: FW.med, fontSize: FS.md }}>{tt('rrh.7d758bb1')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 onPress={handleConfirm} 
                 style={{ paddingVertical: SP.sm, paddingHorizontal: SP.xl, borderRadius: R.md, backgroundColor: theme.primary }}
               >
-                <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{AR ? 'حفظ التوقيع' : 'Save Signature'}</Text>
+                <Text style={{ color: C.white, fontWeight: FW.bold, fontSize: FS.md }}>{tt('rrh.290020b3')}</Text>
               </TouchableOpacity>
             </View>
 

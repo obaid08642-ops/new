@@ -19,7 +19,7 @@ const APP_VERSION: string = (() => {
 export function AppGate({ children }: { children: React.ReactNode }) {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const AR = lang === 'ar';
   const [state, setState] = useState<'checking' | 'ok' | 'maintenance' | 'update'>('checking');
   // the admin's text in both languages; the language is picked when drawing (the saved language loads after the first check)
@@ -60,15 +60,15 @@ export function AppGate({ children }: { children: React.ReactNode }) {
   return (
     <View style={[styles.center, { paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: theme.bg }]}>
       <Text style={[styles.title, { color: theme.text }]}>
-        {state === 'maintenance' ? (AR ? 'صيانة مجدولة' : 'Scheduled maintenance') : (AR ? 'تحديث مطلوب' : 'Update required')}
+        {state === 'maintenance' ? (tt('rra.c0680c09')) : (tt('rra.90226363'))}
       </Text>
       <Text style={[styles.body, { color: theme.textSub }]}>
         {(AR ? texts.ar : texts.en) || (state === 'maintenance'
-          ? (AR ? 'تطبيق المزود في صيانة مجدولة. حاول لاحقاً.' : 'The provider app is under scheduled maintenance. Try again later.')
-          : (AR ? 'يتوفر إصدار جديد إلزامي. حدّث التطبيق للمتابعة.' : 'A new version is required. Update the app to continue.'))}
+          ? (tt('rra.d15a0250'))
+          : (tt('rra.e51b7c33')))}
       </Text>
       <TouchableOpacity style={[styles.retry, { backgroundColor: theme.primary }]} onPress={() => void check()}>
-        <Text style={[styles.retryText, { color: theme.textInv }]}>{AR ? 'إعادة المحاولة' : 'Try again'}</Text>
+        <Text style={[styles.retryText, { color: theme.textInv }]}>{tt('rra.96cbdad3')}</Text>
       </TouchableOpacity>
     </View>
   );

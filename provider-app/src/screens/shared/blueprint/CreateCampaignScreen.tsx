@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export function CreateCampaignScreen({ onBack }: { onBack: () => void }) {
  const { theme } = useTheme();
- const { lang } = useLang();
+ const { lang, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
 
@@ -33,7 +33,7 @@ export function CreateCampaignScreen({ onBack }: { onBack: () => void }) {
 
  const handleCreate = async () => {
  if (!title.trim() || !origPrice || !discPrice) {
- show(AR ? 'يرجى إكمال جميع الحقول الإلزامية' : 'Please complete all required fields', 'warning');
+ show(tt('rrct.9bde3e13'), 'warning');
  return;
  }
  setLoading(true);
@@ -46,10 +46,10 @@ export function CreateCampaignScreen({ onBack }: { onBack: () => void }) {
  start_date: startDate,
  end_date: endDate,
  });
- show(AR ? 'تم إرسال العرض للمراجعة بنجاح ' : 'Promotion sent for review successfully ', 'success');
+ show(tt('rrct.58c8445f'), 'success');
  onBack();
  } catch (err: any) {
- show(AR ? 'فشل إنشاء العرض الترويجي' : 'Failed to create promotion campaign', 'error');
+ show(tt('rrct.950e30b9'), 'error');
  } finally {
  setLoading(false);
  }
@@ -58,14 +58,14 @@ export function CreateCampaignScreen({ onBack }: { onBack: () => void }) {
  return (
  <View style={{ flex: 1, backgroundColor: theme.bg }}>
  <NScroll>
- <NHeader title={AR ? 'إنشاء حملة ترويجية' : 'Create Campaign'} onBack={onBack} />
+ <NHeader title={tt('rrct.66cd7b73')} onBack={onBack} />
  <View style={{ padding: SP.xl, gap: SP.lg }}>
- <NInput label={AR ? 'عنوان الحملة' : 'Campaign Title'} placeholder={AR ? 'مثال: باقة الفحص السريع' : 'e.g. Rapid Checkup Package'} value={title} onChange={setTitle} required />
- <NPriceInput label={AR ? 'السعر الأصلي' : 'Original Price'} value={origPrice} onChange={setOrigPrice} />
- <NPriceInput label={AR ? 'السعر بعد الخصم' : 'Discounted Price'} value={discPrice} onChange={setDiscPrice} />
- <NInput label={AR ? 'تاريخ البدء' : 'Start Date'} placeholder="YYYY-MM-DD" value={startDate} onChange={setStartDate} />
- <NInput label={AR ? 'تاريخ الانتهاء' : 'End Date'} placeholder="YYYY-MM-DD" value={endDate} onChange={setEndDate} />
- <NBtn label={AR ? ' إرسال للموافقة' : ' Submit for Approval'} onPress={handleCreate} loading={loading} style={{ marginTop: SP.lg }} />
+ <NInput label={tt('rrct.93e87b33')} placeholder={tt('rrct.d0efc7dd')} value={title} onChange={setTitle} required />
+ <NPriceInput label={tt('rrct.59ada1a4')} value={origPrice} onChange={setOrigPrice} />
+ <NPriceInput label={tt('rrct.ba8b259b')} value={discPrice} onChange={setDiscPrice} />
+ <NInput label={tt('rrct.86bb1b4d')} placeholder="YYYY-MM-DD" value={startDate} onChange={setStartDate} />
+ <NInput label={tt('rrct.916c6ba4')} placeholder="YYYY-MM-DD" value={endDate} onChange={setEndDate} />
+ <NBtn label={tt('rrct.39d6d232')} onPress={handleCreate} loading={loading} style={{ marginTop: SP.lg }} />
  </View>
  </NScroll>
  </View>

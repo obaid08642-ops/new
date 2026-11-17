@@ -33,6 +33,7 @@ import { billableUnits, effectiveBookingOptions, resolveBookingChoice } from './
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
+import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
 
 /**
  * The catalogue rows as the apps see them: `booking_options` is what the service really offers (booking-mode.ts: the admin's own lists, else the current defaults), so the booking
@@ -333,7 +334,8 @@ export class HomeCareSvc {
 
     if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
 
-    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    // the day starts at Riyadh midnight (UTC+3), see common/riyadh-slots.ts; `dow` above is the weekday of that same calendar day
+    const baseDate = riyadhDayStart(dateStr);
     const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
     const seen = new Set<string>();
     const now = Date.now();
@@ -351,7 +353,7 @@ export class HomeCareSvc {
         const slotId = start.toISOString();
         if (seen.has(slotId)) continue;
         seen.add(slotId);
-        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: riyadhClockLabel(start), available: true });
       }
     }
     slots.sort((x, y) => x.start.localeCompare(y.start));

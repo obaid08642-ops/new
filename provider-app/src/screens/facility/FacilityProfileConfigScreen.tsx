@@ -9,7 +9,7 @@ import client from '../../api/client';
 
 export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) {
   const { theme } = useTheme();
-  const { lang } = useLang();
+  const { lang, t: tt } = useLang();
   const { show } = useToast();
   const AR = lang === 'ar';
   const specialties = useSpecialtiesCatalog();
@@ -35,7 +35,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
         setWhatsapp(p.social?.whatsapp || '');
         setSelectedSpecs(Array.isArray(p.sub_specialties) ? p.sub_specialties : []);
       } catch {
-        show(AR ? 'تعذر تحميل ملف المنشأة' : 'Could not load facility profile', 'error');
+        show(tt('rraw.a27c41a5'), 'error');
       } finally { setLoading(false); }
     })();
   }, []);
@@ -50,10 +50,10 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
         social: { whatsapp: whatsapp || undefined },
         sub_specialties: selectedSpecs,
       });
-      show(AR ? 'تم الإرسال — تُطبق بعد اعتماد الإدارة' : 'Sent — applied after admin approval', 'success');
+      show(tt('rraw.14f4e375'), 'success');
       onBack();
     } catch (err: any) {
-      show(err?.response?.data?.message || (AR ? 'فشل حفظ الملف' : 'Failed to save profile'), 'error');
+      show(err?.response?.data?.message || (tt('rraw.a021c091')), 'error');
     } finally { setSaving(false); }
   };
 
@@ -64,7 +64,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
   if (loading) {
     return (
       <NScroll>
-        <NHeader title={AR ? 'ملف المنشأة' : 'Facility Profile'} onBack={onBack} />
+        <NHeader title={tt('rraw.ffb5db3c')} onBack={onBack} />
         <ActivityIndicator color={theme.primary} style={{ marginTop: 80 }} />
       </NScroll>
     );
@@ -72,7 +72,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
 
   return (
     <NScroll>
-      <NHeader title={AR ? 'ملف المنشأة' : 'Facility Profile'} onBack={onBack} />
+      <NHeader title={tt('rraw.ffb5db3c')} onBack={onBack} />
       
       {/* Facility identity (images managed via KYC/profile media flow) */}
       <NCard style={{ marginBottom: SP.xl, alignItems: 'center', padding: SP.xl }}>
@@ -82,16 +82,16 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
         <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>{facilityName || '—'}</Text>
       </NCard>
 
-      <NSecHeader title={AR ? 'التفاصيل العامة' : 'General Details'} />
-      <NInput label={AR ? 'الوصف (عربي)' : 'Description (AR)'} value={descAr} onChange={setDescAr} icon="" />
-      <NInput label={AR ? 'الوصف (إنجليزي)' : 'Description (EN)'} value={descEn} onChange={setDescEn} icon="" />
+      <NSecHeader title={tt('rraw.2e7697a3')} />
+      <NInput label={tt('rraw.89d192e2')} value={descAr} onChange={setDescAr} icon="" />
+      <NInput label={tt('rraw.85514f39')} value={descEn} onChange={setDescEn} icon="" />
 
       <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md }}>
-        <NInput label={AR ? 'الموقع الإلكتروني' : 'Website'} value={website} onChange={setWebsite} kbType="url" icon="globe" style={{ flex: 1 }} />
-        <NInput label={AR ? 'رقم الواتساب' : 'WhatsApp'} value={whatsapp} onChange={setWhatsapp} kbType="phone-pad" icon="chat" style={{ flex: 1 }} />
+        <NInput label={tt('rraw.a10e480e')} value={website} onChange={setWebsite} kbType="url" icon="globe" style={{ flex: 1 }} />
+        <NInput label={tt('rraw.c0f73034')} value={whatsapp} onChange={setWhatsapp} kbType="phone-pad" icon="chat" style={{ flex: 1 }} />
       </View>
 
-      <NSecHeader title={AR ? 'التخصصات المتاحة' : 'Available Specialties'} />
+      <NSecHeader title={tt('rraw.8ca57be7')} />
       <NCard style={{ marginBottom: SP.xl }}>
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', flexWrap: 'wrap', gap: SP.sm }}>
           {specialties.map(sp => {
@@ -117,7 +117,7 @@ export function FacilityProfileConfigScreen({ onBack }: { onBack: () => void }) 
         </View>
       </NCard>
 
-      <NBtn label={AR ? 'حفظ التحديثات' : 'Save Updates'} onPress={handleSave} loading={saving} style={{ marginBottom: SP.xl }} />
+      <NBtn label={tt('rraw.428a5619')} onPress={handleSave} loading={saving} style={{ marginBottom: SP.xl }} />
     </NScroll>
   );
 }

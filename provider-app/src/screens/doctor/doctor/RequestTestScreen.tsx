@@ -40,7 +40,7 @@ import { DoctorSettingsTab } from './DoctorSettingsTab';
 export function RequestTestScreen({ apt, onBack }:
  { apt: any; onBack: () => void }) {
  const { theme } = useTheme();
- const { lang, t } = useLang();
+ const { lang, t, t: tt } = useLang();
  const { show } = useToast();
  const AR = lang === 'ar';
  const [type, setType] = useState<'lab'|'radiology'|'nursing'>(apt?.initialType || 'lab');
@@ -55,7 +55,7 @@ export function RequestTestScreen({ apt, onBack }:
 
  return (
  <NScroll>
- <NHeader title={AR ? '🩺 طلب خدمات طبية' : '🩺 Request Medical Services'} onBack={onBack} />
+ <NHeader title={tt('rram.52fc3ad0')} onBack={onBack} />
 
  {/* Type toggle */}
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm, marginBottom: SP.xl }}>
@@ -75,7 +75,7 @@ export function RequestTestScreen({ apt, onBack }:
  {selected.length > 0 && (
  <NCard style={{ backgroundColor: theme.successBg, marginBottom: SP.lg }}>
  <Text style={{ color: theme.success, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>
- {selected.length} {AR ? 'بنود مختارة' : 'items selected'}
+ {selected.length} {tt('rram.6923e8fe')}
  </Text>
  </NCard>
  )}
@@ -94,7 +94,7 @@ export function RequestTestScreen({ apt, onBack }:
  <Text style={{ fontSize: FS.md, color: theme.text, fontWeight: FW.med,
  textAlign: AR ? 'right' : 'left' }}>{AR ? item.ar : item.en}</Text>
  <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 2 }}>
- ⏱ {item.hours} {AR ? 'ساعة' : 'hr'}{item.fasting ? ` · ${AR?'صيام مطلوب':'Fasting required'}` : ''}
+ ⏱ {item.hours} {tt('qqak.ecc567e1')}{item.fasting ? ` · ${tt('rram.e0006d0d')}` : ''}
  </Text>
  </View>
  </View>
@@ -103,16 +103,16 @@ export function RequestTestScreen({ apt, onBack }:
  ))}
 
  <View style={{ height: SP.xl }} />
- <NInput label={AR ? 'تعليمات إضافية' : 'Additional Instructions'}
+ <NInput label={tt('rram.6d09564c')}
  value={notes} onChange={setNotes} multi lines={3} icon="" />
 
- <NBtn label={AR ? ' إرسال الطلب' : ' Send Request'}
+ <NBtn label={tt('rram.b72f8d71')}
  disabled={selected.length === 0}
  onPress={async () => { 
  try {
       const patientId = apt?.patient_id;
       if (!patientId) {
-        show(AR ? 'لا يمكن إرسال الطلب دون مريض مرتبط بالاستشارة' : 'Cannot request services without a linked patient', 'error');
+        show(tt('rram.83f4b74d'), 'error');
         return;
       }
       // A doctor's request is a referral of the patient to a lab, a radiology centre or a nursing service (POST /provider/referrals); the
@@ -127,7 +127,7 @@ export function RequestTestScreen({ apt, onBack }:
  show(AR?`تم إرسال طلب ${selected.length} فحص `:`${selected.length} test(s) requested `,'success'); 
  onBack(); 
  } catch(e) {
- show(AR?'حدث خطأ أثناء إرسال الطلب':'Failed to submit request','error');
+ show(tt('rram.5d3ada34'),'error');
  }
  }} />
  </NScroll>
