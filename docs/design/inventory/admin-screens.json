@@ -372,6 +372,7 @@
   "/admin/module-switches": "modules.manage",
   "/admin/kill-switches": "modules.manage",
   "/admin/config-portal": "settings.edit",
+  "/admin/locations": "settings.edit",
   "/admin/ai-control": "settings.edit",
   "/admin/audit-logs": "data.export",
   "/admin/logs": "system.logs.view",
@@ -700,7 +701,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -721,7 +722,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -744,7 +745,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -783,7 +784,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     }
    ],
@@ -1101,7 +1102,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -1122,7 +1123,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -1145,7 +1146,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -1184,7 +1185,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -1489,7 +1490,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -1510,7 +1511,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -1533,7 +1534,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -1566,23 +1567,13 @@
    ],
    "guardFindings": [
     {
-     "code": "G-PAGE-NOPERM",
-     "note": "Page has no client permission (any admin sees it) but GET /admin/finance/payouts requires finance.read; roles without it get a 403 inside the page.",
-     "severity": "low",
-     "method": "GET",
-     "path": "/api/admin/admin/finance/payouts",
-     "file": "admin/src/pages/admin/approvals.tsx",
-     "line": 26,
-     "backend": "backend/src/modules/admin/enterprise/admin-finance.controller.ts:47"
-    },
-    {
      "code": "G-OPEN",
      "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
      "severity": "low",
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -2371,7 +2362,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:509",
      "backendPath": "/insurance/companies/all",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 419,
+     "line": 421,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2395,7 +2386,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:526",
      "backendPath": "/insurance/companies/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 430,
+     "line": 432,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2420,7 +2411,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:517",
      "backendPath": "/insurance/companies",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 431,
+     "line": 433,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2445,7 +2436,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:526",
      "backendPath": "/insurance/companies/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 441,
+     "line": 443,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2470,7 +2461,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:567",
      "backendPath": "/insurance/companies/:param/networks",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 452,
+     "line": 454,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2495,7 +2486,7 @@
      "backend": "backend/src/modules/insurance/insurance.module.ts:553",
      "backendPath": "/insurance/companies/:param/networks/:param",
      "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 466,
+     "line": 468,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -2520,7 +2511,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -2541,7 +2532,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -2564,7 +2555,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -2597,53 +2588,13 @@
    ],
    "guardFindings": [
     {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but PATCH /insurance/companies/:param requires insurance.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "PATCH",
-     "path": "/insurance/companies/:param",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 430,
-     "backend": "backend/src/modules/insurance/insurance.module.ts:526"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but POST /insurance/companies requires insurance.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/insurance/companies",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 431,
-     "backend": "backend/src/modules/insurance/insurance.module.ts:517"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but POST /insurance/companies/:param/networks requires insurance.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/insurance/companies/:param/networks",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 452,
-     "backend": "backend/src/modules/insurance/insurance.module.ts:567"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but DELETE /insurance/companies/:param/networks/:param requires insurance.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "DELETE",
-     "path": "/insurance/companies/:param/networks/:param",
-     "file": "admin/src/pages/admin/catalog-manager.tsx",
-     "line": 466,
-     "backend": "backend/src/modules/insurance/insurance.module.ts:553"
-    },
-    {
      "code": "G-OPEN",
      "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
      "severity": "low",
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -2834,7 +2785,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -2855,7 +2806,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -2878,7 +2829,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -2917,7 +2868,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     }
    ],
@@ -3051,7 +3002,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -3072,7 +3023,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -3095,7 +3046,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -3145,7 +3096,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -3213,7 +3164,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:402",
      "backendPath": "/admin/pharmacy/broadcasts/config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 44,
+     "line": 46,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3238,7 +3189,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:409",
      "backendPath": "/admin/pharmacy/broadcasts/config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 56,
+     "line": 58,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3263,7 +3214,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:27",
      "backendPath": "/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 68,
+     "line": 70,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3284,7 +3235,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:35",
      "backendPath": "/admin/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 77,
+     "line": 79,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3309,7 +3260,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:83",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 88,
+     "line": 90,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3332,7 +3283,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:105",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 96,
+     "line": 98,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3357,7 +3308,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:144",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 104,
+     "line": 106,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3382,7 +3333,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:317",
      "backendPath": "/business-rules/config/pricing",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 118,
+     "line": 120,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3405,7 +3356,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:309",
      "backendPath": "/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 140,
+     "line": 142,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3430,7 +3381,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:322",
      "backendPath": "/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 143,
+     "line": 145,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3455,7 +3406,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:379",
      "backendPath": "/admin/pharmacy/fulfillment-policies",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 154,
+     "line": 156,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3480,7 +3431,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:381",
      "backendPath": "/admin/pharmacy/fulfillment-policies/cod",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 163,
+     "line": 165,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3505,7 +3456,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:26",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 171,
+     "line": 173,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3528,7 +3479,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:96",
      "backendPath": "/admin/config/orders-console-config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 190,
+     "line": 192,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3551,7 +3502,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:104",
      "backendPath": "/admin/config/orders-console-config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 196,
+     "line": 198,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3576,7 +3527,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:35",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 221,
+     "line": 223,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3601,7 +3552,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -3622,7 +3573,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -3645,7 +3596,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -3679,22 +3630,12 @@
    "guardFindings": [
     {
      "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"settings.edit\" but PUT /admin/mental-health/urgent-help requires cms.edit; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "PUT",
-     "path": "/api/admin/admin/mental-health/urgent-help",
-     "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 77,
-     "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:35"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
      "note": "Page requires \"settings.edit\" but POST /business-rules/config/surge requires finance.config.edit; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "POST",
      "path": "/api/admin/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 140,
+     "line": 142,
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:309"
     },
     {
@@ -3704,7 +3645,7 @@
      "method": "POST",
      "path": "/api/admin/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 143,
+     "line": 145,
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:322"
     },
     {
@@ -3714,7 +3655,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -3758,7 +3699,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:40",
      "backendPath": "/support/admin/faqs",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 18,
+     "line": 20,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3783,7 +3724,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:42",
      "backendPath": "/support/admin/faqs",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 24,
+     "line": 26,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3808,7 +3749,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:44",
      "backendPath": "/support/admin/faqs/:param",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 32,
+     "line": 34,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3833,7 +3774,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:33",
      "backendPath": "/admin/cms/articles",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 35,
+     "line": 37,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3858,7 +3799,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86",
      "backendPath": "/admin/coupons",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 35,
+     "line": 37,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3883,7 +3824,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:502",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 35,
+     "line": 37,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3906,7 +3847,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:484",
      "backendPath": "/admin/notification-center/segments",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 35,
+     "line": 37,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3929,7 +3870,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:54",
      "backendPath": "/admin/cms/articles",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 39,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3954,7 +3895,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:115",
      "backendPath": "/admin/cms/:param/schedule",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 39,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3979,7 +3920,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:94",
      "backendPath": "/admin/cms/:param/publish",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 39,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4004,7 +3945,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:96",
      "backendPath": "/admin/coupons",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 38,
+     "line": 40,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4029,7 +3970,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:134",
      "backendPath": "/admin/coupons/:param",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 39,
+     "line": 41,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4054,7 +3995,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:94",
      "backendPath": "/admin/cms/:param/publish",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 46,
+     "line": 48,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4079,7 +4020,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:132",
      "backendPath": "/admin/cms/:param/unpublish",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 47,
+     "line": 49,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4104,7 +4045,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:498",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 51,
+     "line": 53,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4129,7 +4070,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:513",
      "backendPath": "/admin/notification-center/campaigns/:param/send",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 52,
+     "line": 54,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4154,7 +4095,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -4175,7 +4116,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -4198,7 +4139,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -4231,33 +4172,13 @@
    ],
    "guardFindings": [
     {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"cms.edit\" but POST /admin/notification-center/campaigns requires notifications.send; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/notification-center/campaigns",
-     "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 51,
-     "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:498"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"cms.edit\" but POST /admin/notification-center/campaigns/:param/send requires notifications.send; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/api/admin/admin/notification-center/campaigns/:param/send",
-     "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 52,
-     "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:513"
-    },
-    {
      "code": "G-OPEN",
      "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
      "severity": "low",
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -4374,7 +4295,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -4395,7 +4316,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -4418,7 +4339,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -4457,7 +4378,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -4662,7 +4583,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -4683,7 +4604,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -4706,7 +4627,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -4745,7 +4666,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -5016,7 +4937,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -5037,7 +4958,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -5060,7 +4981,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -5099,7 +5020,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -5265,7 +5186,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -5286,7 +5207,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -5309,7 +5230,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -5348,7 +5269,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -5604,7 +5525,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -5625,7 +5546,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -5648,7 +5569,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -5687,7 +5608,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -6007,7 +5928,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -6028,7 +5949,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -6051,7 +5972,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -6155,7 +6076,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -6934,9 +6855,14 @@
    "area": "customers-growth",
    "unit": [
     "admin/src/pages/admin/locations.tsx",
-    "admin/src/components/DataTable.tsx"
+    "admin/src/components/DataTable.tsx",
+    "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/useDrawer.ts",
+    "admin/src/components/useMediaQuery.ts",
+    "admin/src/components/useLegacyTableCards.ts",
+    "admin/src/components/AlertsBell.tsx"
    ],
-   "clientPermission": null,
+   "clientPermission": "settings.edit",
    "navPermission": null,
    "inNav": true,
    "navLine": 93,
@@ -6950,7 +6876,7 @@
      "backend": "backend/src/modules/location/admin-location.controller.ts:24",
      "backendPath": "/admin/locations",
      "file": "admin/src/pages/admin/locations.tsx",
-     "line": 32,
+     "line": 35,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6973,7 +6899,7 @@
      "backend": "backend/src/modules/location/admin-location.controller.ts:35",
      "backendPath": "/admin/locations",
      "file": "admin/src/pages/admin/locations.tsx",
-     "line": 43,
+     "line": 46,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -6998,7 +6924,7 @@
      "backend": "backend/src/modules/location/admin-location.controller.ts:67",
      "backendPath": "/admin/locations/:param",
      "file": "admin/src/pages/admin/locations.tsx",
-     "line": 53,
+     "line": 56,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -7014,28 +6940,110 @@
      "routeFile": "backend/src/modules/location/admin-location.controller.ts",
      "routeLine": 67,
      "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:269",
+     "backendPath": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/auth/auth.controller.ts",
+     "routeLine": 269,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/session",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
+     "backendPath": "/admin/session",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 267,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/admin-security.controller.ts",
+     "routeLine": 80,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/logout",
+     "target": "backend",
+     "status": "BFF",
+     "backend": "admin/src/pages/api/admin/auth/logout.ts",
+     "note": "handled by a specific Next BFF handler",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 295,
+     "fn": "adminMutation",
+     "via": "AdminGuard",
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25",
+     "backendPath": "/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts",
+     "routeLine": 25,
+     "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-PAGE-NOPERM",
-     "note": "Page has no client permission (any admin sees it) but POST /admin/locations requires settings.edit; roles without it get a 403 inside the page.",
+     "code": "G-OPEN",
+     "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
      "severity": "low",
      "method": "POST",
-     "path": "/api/admin/admin/locations",
-     "file": "admin/src/pages/admin/locations.tsx",
-     "line": 43,
-     "backend": "backend/src/modules/location/admin-location.controller.ts:35"
+     "path": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
-     "code": "G-PAGE-NOPERM",
-     "note": "Page has no client permission (any admin sees it) but DELETE /admin/locations/:param requires settings.edit; roles without it get a 403 inside the page.",
-     "severity": "low",
-     "method": "DELETE",
-     "path": "/api/admin/admin/locations/:param",
-     "file": "admin/src/pages/admin/locations.tsx",
-     "line": 53,
-     "backend": "backend/src/modules/location/admin-location.controller.ts:67"
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"settings.edit\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
     }
    ],
    "orphan": false
@@ -7746,7 +7754,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -7767,7 +7775,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -7790,7 +7798,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -7959,7 +7967,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -8388,7 +8396,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -8409,7 +8417,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -8432,7 +8440,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -8471,7 +8479,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -8494,7 +8502,12 @@
    "line": 1,
    "area": "providers",
    "unit": [
-    "admin/src/pages/admin/nursing-portal.tsx"
+    "admin/src/pages/admin/nursing-portal.tsx",
+    "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/useDrawer.ts",
+    "admin/src/components/useMediaQuery.ts",
+    "admin/src/components/useLegacyTableCards.ts",
+    "admin/src/components/AlertsBell.tsx"
    ],
    "clientPermission": "appointment.read",
    "navPermission": null,
@@ -8510,7 +8523,7 @@
      "backend": "backend/src/modules/compat/admin-spa.module.ts:1325",
      "backendPath": "/admin/nursing/requests",
      "file": "admin/src/pages/admin/nursing-portal.tsx",
-     "line": 24,
+     "line": 27,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8533,7 +8546,7 @@
      "backend": "backend/src/modules/compat/admin-spa.module.ts:1359",
      "backendPath": "/admin/nursing/requests/:param/eligible-providers",
      "file": "admin/src/pages/admin/nursing-portal.tsx",
-     "line": 38,
+     "line": 41,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8556,7 +8569,7 @@
      "backend": "backend/src/modules/compat/admin-spa.module.ts:1373",
      "backendPath": "/admin/nursing/requests/:param/:param",
      "file": "admin/src/pages/admin/nursing-portal.tsx",
-     "line": 54,
+     "line": 57,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -8572,18 +8585,110 @@
      "routeFile": "backend/src/modules/compat/admin-spa.module.ts",
      "routeLine": 1373,
      "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:269",
+     "backendPath": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/auth/auth.controller.ts",
+     "routeLine": 269,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/session",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
+     "backendPath": "/admin/session",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 267,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/admin-security.controller.ts",
+     "routeLine": 80,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/logout",
+     "target": "backend",
+     "status": "BFF",
+     "backend": "admin/src/pages/api/admin/auth/logout.ts",
+     "note": "handled by a specific Next BFF handler",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 295,
+     "fn": "adminMutation",
+     "via": "AdminGuard",
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25",
+     "backendPath": "/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts",
+     "routeLine": 25,
+     "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"appointment.read\" but POST /admin/nursing/requests/:param/:param requires order.reassign; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
+     "code": "G-OPEN",
+     "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
+     "severity": "low",
      "method": "POST",
-     "path": "/api/admin/admin/nursing/requests/:param/:param",
-     "file": "admin/src/pages/admin/nursing-portal.tsx",
-     "line": 54,
-     "backend": "backend/src/modules/compat/admin-spa.module.ts:1373"
+     "path": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "backend": "backend/src/modules/auth/auth.controller.ts:269"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"appointment.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
     }
    ],
    "orphan": false
@@ -8685,7 +8790,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -8706,7 +8811,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -8729,7 +8834,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -8768,7 +8873,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -8910,7 +9015,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -8931,7 +9036,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -8954,7 +9059,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -8993,7 +9098,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -9038,7 +9143,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:256",
      "backendPath": "/admin/pharmacy/price-review",
      "file": "admin/src/pages/admin/pharmacy-price-review.tsx",
-     "line": 39,
+     "line": 42,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9061,7 +9166,7 @@
      "backend": "backend/src/modules/medicines/medicines.controller.ts:287",
      "backendPath": "/medicines/admin/catalog/:param",
      "file": "admin/src/pages/admin/pharmacy-price-review.tsx",
-     "line": 56,
+     "line": 59,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9087,7 +9192,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:312",
      "backendPath": "/admin/pharmacy/price-review/:param/resolve",
      "file": "admin/src/pages/admin/pharmacy-price-review.tsx",
-     "line": 69,
+     "line": 72,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9112,7 +9217,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -9133,7 +9238,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -9156,7 +9261,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -9189,23 +9294,13 @@
    ],
    "guardFindings": [
     {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but PATCH /medicines/admin/catalog/:param requires catalog.update + catalog.price.write; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "PATCH",
-     "path": "/medicines/admin/catalog/:param",
-     "file": "admin/src/pages/admin/pharmacy-price-review.tsx",
-     "line": 56,
-     "backend": "backend/src/modules/medicines/medicines.controller.ts:287"
-    },
-    {
      "code": "G-OPEN",
      "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
      "severity": "low",
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -9229,7 +9324,12 @@
    "area": "providers",
    "unit": [
     "admin/src/pages/admin/pharmacy-procurement.tsx",
-    "admin/src/components/DataTable.tsx"
+    "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/DataTable.tsx",
+    "admin/src/components/useDrawer.ts",
+    "admin/src/components/useMediaQuery.ts",
+    "admin/src/components/useLegacyTableCards.ts",
+    "admin/src/components/AlertsBell.tsx"
    ],
    "clientPermission": "pharmacy.inventory.read",
    "navPermission": null,
@@ -9245,7 +9345,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:17",
      "backendPath": "/admin/extended-operations/procurement/pending",
      "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 48,
+     "line": 51,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9268,7 +9368,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:28",
      "backendPath": "/admin/extended-operations/issue-quote/:param",
      "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 78,
+     "line": 81,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9284,18 +9384,110 @@
      "routeFile": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts",
      "routeLine": 28,
      "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:269",
+     "backendPath": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/auth/auth.controller.ts",
+     "routeLine": 269,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/session",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
+     "backendPath": "/admin/session",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 267,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/admin-security.controller.ts",
+     "routeLine": 80,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/logout",
+     "target": "backend",
+     "status": "BFF",
+     "backend": "admin/src/pages/api/admin/auth/logout.ts",
+     "note": "handled by a specific Next BFF handler",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 295,
+     "fn": "adminMutation",
+     "via": "AdminGuard",
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25",
+     "backendPath": "/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts",
+     "routeLine": 25,
+     "raw": false
     }
    ],
    "guardFindings": [
     {
+     "code": "G-OPEN",
+     "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
+     "severity": "low",
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "backend": "backend/src/modules/auth/auth.controller.ts:269"
+    },
+    {
      "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"pharmacy.inventory.read\" but PATCH /admin/extended-operations/issue-quote/:param requires pharmacy.inventory.edit; an admin role with the page permission only gets a 403 on this call.",
+     "note": "Page requires \"pharmacy.inventory.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
-     "method": "PATCH",
-     "path": "/api/admin/admin/extended-operations/issue-quote/:param",
-     "file": "admin/src/pages/admin/pharmacy-procurement.tsx",
-     "line": 78,
-     "backend": "backend/src/modules/admin/web-core/controllers/admin-extended-operations.controller.ts:28"
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
     }
    ],
    "orphan": false
@@ -9541,7 +9733,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -9562,7 +9754,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -9585,7 +9777,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -9624,7 +9816,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -10189,7 +10381,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10210,7 +10402,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10233,7 +10425,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "ProviderFullDetail",
      "raw": false
@@ -10312,7 +10504,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     }
    ],
@@ -10515,7 +10707,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -10536,7 +10728,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -10559,7 +10751,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -10598,7 +10790,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -10773,7 +10965,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -10794,7 +10986,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -10817,7 +11009,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -10856,7 +11048,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -10880,7 +11072,12 @@
    "area": "system",
    "unit": [
     "admin/src/pages/admin/risk-dashboard.tsx",
-    "admin/src/components/DataTable.tsx"
+    "admin/src/components/DataTable.tsx",
+    "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/useDrawer.ts",
+    "admin/src/components/useMediaQuery.ts",
+    "admin/src/components/useLegacyTableCards.ts",
+    "admin/src/components/AlertsBell.tsx"
    ],
    "clientPermission": "analytics.read",
    "navPermission": "analytics.read",
@@ -10896,7 +11093,7 @@
      "backend": "backend/src/modules/risk/risk.controller.ts:15",
      "backendPath": "/admin/risk/summary",
      "file": "admin/src/pages/admin/risk-dashboard.tsx",
-     "line": 57,
+     "line": 60,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10921,7 +11118,7 @@
      "backend": "backend/src/modules/risk/risk.controller.ts:19",
      "backendPath": "/admin/risk/users",
      "file": "admin/src/pages/admin/risk-dashboard.tsx",
-     "line": 58,
+     "line": 61,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10946,7 +11143,7 @@
      "backend": "backend/src/modules/risk/risk.controller.ts:30",
      "backendPath": "/admin/risk/users/:param/rescore",
      "file": "admin/src/pages/admin/risk-dashboard.tsx",
-     "line": 77,
+     "line": 80,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10962,18 +11159,110 @@
      "routeFile": "backend/src/modules/risk/risk.controller.ts",
      "routeLine": 30,
      "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:269",
+     "backendPath": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/auth/auth.controller.ts",
+     "routeLine": 269,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/session",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
+     "backendPath": "/admin/session",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 267,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/admin-security.controller.ts",
+     "routeLine": 80,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/logout",
+     "target": "backend",
+     "status": "BFF",
+     "backend": "admin/src/pages/api/admin/auth/logout.ts",
+     "note": "handled by a specific Next BFF handler",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 295,
+     "fn": "adminMutation",
+     "via": "AdminGuard",
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25",
+     "backendPath": "/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts",
+     "routeLine": 25,
+     "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"analytics.read\" but POST /admin/risk/users/:param/rescore requires security.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
+     "code": "G-OPEN",
+     "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
+     "severity": "low",
      "method": "POST",
-     "path": "/api/admin/admin/risk/users/:param/rescore",
-     "file": "admin/src/pages/admin/risk-dashboard.tsx",
-     "line": 77,
-     "backend": "backend/src/modules/risk/risk.controller.ts:30"
+     "path": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "backend": "backend/src/modules/auth/auth.controller.ts:269"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"analytics.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
     }
    ],
    "orphan": false
@@ -11157,7 +11446,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -11178,7 +11467,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -11201,7 +11490,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -11240,7 +11529,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -11780,7 +12069,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -11801,7 +12090,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -11824,7 +12113,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -11863,7 +12152,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -11981,7 +12270,12 @@
    "line": 1,
    "area": "system",
    "unit": [
-    "admin/src/pages/admin/service-proposals.tsx"
+    "admin/src/pages/admin/service-proposals.tsx",
+    "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/useDrawer.ts",
+    "admin/src/components/useMediaQuery.ts",
+    "admin/src/components/useLegacyTableCards.ts",
+    "admin/src/components/AlertsBell.tsx"
    ],
    "clientPermission": "catalog.read",
    "navPermission": "catalog.read",
@@ -11997,7 +12291,7 @@
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:368",
      "backendPath": "/approval-workflow/requests/pending",
      "file": "admin/src/pages/admin/service-proposals.tsx",
-     "line": 66,
+     "line": 69,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12020,7 +12314,7 @@
      "backend": "backend/src/modules/labs/labs.controller.ts:57",
      "backendPath": "/labs/categories",
      "file": "admin/src/pages/admin/service-proposals.tsx",
-     "line": 75,
+     "line": 78,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12041,7 +12335,7 @@
      "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:380",
      "backendPath": "/approval-workflow/requests/:param/decide",
      "file": "admin/src/pages/admin/service-proposals.tsx",
-     "line": 88,
+     "line": 91,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12057,18 +12351,110 @@
      "routeFile": "backend/src/modules/approval-workflow/approval-workflow.module.ts",
      "routeLine": 380,
      "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:269",
+     "backendPath": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/auth/auth.controller.ts",
+     "routeLine": 269,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/session",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
+     "backendPath": "/admin/session",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 267,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/admin-security.controller.ts",
+     "routeLine": 80,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/logout",
+     "target": "backend",
+     "status": "BFF",
+     "backend": "admin/src/pages/api/admin/auth/logout.ts",
+     "note": "handled by a specific Next BFF handler",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 295,
+     "fn": "adminMutation",
+     "via": "AdminGuard",
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25",
+     "backendPath": "/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts",
+     "routeLine": 25,
+     "raw": false
     }
    ],
    "guardFindings": [
     {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"catalog.read\" but POST /approval-workflow/requests/:param/decide requires catalog.approve; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
+     "code": "G-OPEN",
+     "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
+     "severity": "low",
      "method": "POST",
-     "path": "/approval-workflow/requests/:param/decide",
-     "file": "admin/src/pages/admin/service-proposals.tsx",
-     "line": 88,
-     "backend": "backend/src/modules/approval-workflow/approval-workflow.module.ts:380"
+     "path": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "backend": "backend/src/modules/auth/auth.controller.ts:269"
+    },
+    {
+     "code": "G-PERM-MISMATCH",
+     "note": "Page requires \"catalog.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this call.",
+     "severity": "medium",
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
     }
    ],
    "orphan": false
@@ -12177,7 +12563,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -12198,7 +12584,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -12221,7 +12607,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -12260,7 +12646,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -12284,7 +12670,12 @@
    "area": "customers-growth",
    "unit": [
     "admin/src/pages/admin/support-tickets.tsx",
-    "admin/src/components/EmptyIcon.tsx"
+    "admin/src/components/EmptyIcon.tsx",
+    "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/useDrawer.ts",
+    "admin/src/components/useMediaQuery.ts",
+    "admin/src/components/useLegacyTableCards.ts",
+    "admin/src/components/AlertsBell.tsx"
    ],
    "clientPermission": "crm.read",
    "navPermission": null,
@@ -12300,7 +12691,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:23",
      "backendPath": "/support/admin/requests",
      "file": "admin/src/pages/admin/support-tickets.tsx",
-     "line": 31,
+     "line": 35,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -12325,7 +12716,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:25",
      "backendPath": "/support/admin/requests/:param",
      "file": "admin/src/pages/admin/support-tickets.tsx",
-     "line": 44,
+     "line": 48,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -12350,7 +12741,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:20",
      "backendPath": "/support/requests/:param/reply",
      "file": "admin/src/pages/admin/support-tickets.tsx",
-     "line": 52,
+     "line": 56,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -12366,38 +12757,110 @@
      "routeFile": "backend/src/modules/support/support.controller.ts",
      "routeLine": 20,
      "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/auth/auth.controller.ts:269",
+     "backendPath": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/auth/auth.controller.ts",
+     "routeLine": 269,
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/session",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
+     "backendPath": "/admin/session",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 267,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/enterprise/admin-security.controller.ts",
+     "routeLine": 80,
+     "raw": false
+    },
+    {
+     "method": "POST",
+     "path": "/auth/logout",
+     "target": "backend",
+     "status": "BFF",
+     "backend": "admin/src/pages/api/admin/auth/logout.ts",
+     "note": "handled by a specific Next BFF handler",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 295,
+     "fn": "adminMutation",
+     "via": "AdminGuard",
+     "raw": false
+    },
+    {
+     "method": "GET",
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "target": "backend",
+     "status": "OK",
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25",
+     "backendPath": "/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "fn": "adminFetch",
+     "via": "AdminGuard",
+     "guards": {
+      "public": false,
+      "roles": [
+       "ADMIN"
+      ],
+      "perms": [
+       "command.center.view"
+      ],
+      "useGuards": "JwtAuthGuard"
+     },
+     "routeFile": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts",
+     "routeLine": 25,
+     "raw": false
     }
    ],
    "guardFindings": [
     {
+     "code": "G-OPEN",
+     "note": "POST /auth/heartbeat has no @Roles, @RequirePermissions or @Public: JwtAuthGuard lets ANY signed-in user (patient/provider) through; and the path is outside /admin, so there is no network gate either.",
+     "severity": "low",
+     "method": "POST",
+     "path": "/auth/heartbeat",
+     "file": "admin/src/components/AdminGuard.tsx",
+     "line": 256,
+     "backend": "backend/src/modules/auth/auth.controller.ts:269"
+    },
+    {
      "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"crm.read\" but GET /support/admin/requests requires support.manage; an admin role with the page permission only gets a 403 on this call.",
+     "note": "Page requires \"crm.read\" but GET /admin/urgent-alerts/unread-count requires command.center.view; an admin role with the page permission only gets a 403 on this call.",
      "severity": "medium",
      "method": "GET",
-     "path": "/support/admin/requests",
-     "file": "admin/src/pages/admin/support-tickets.tsx",
-     "line": 31,
-     "backend": "backend/src/modules/support/support.controller.ts:23"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"crm.read\" but PATCH /support/admin/requests/:param requires support.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "PATCH",
-     "path": "/support/admin/requests/:param",
-     "file": "admin/src/pages/admin/support-tickets.tsx",
-     "line": 44,
-     "backend": "backend/src/modules/support/support.controller.ts:25"
-    },
-    {
-     "code": "G-PERM-MISMATCH",
-     "note": "Page requires \"crm.read\" but POST /support/requests/:param/reply requires support.manage; an admin role with the page permission only gets a 403 on this call.",
-     "severity": "medium",
-     "method": "POST",
-     "path": "/support/requests/:param/reply",
-     "file": "admin/src/pages/admin/support-tickets.tsx",
-     "line": 52,
-     "backend": "backend/src/modules/support/support.controller.ts:20"
+     "path": "/api/admin/admin/urgent-alerts/unread-count",
+     "file": "admin/src/components/AlertsBell.tsx",
+     "line": 19,
+     "backend": "backend/src/modules/admin/alerts/admin-urgent-alerts.controller.ts:25"
     }
    ],
    "orphan": false
@@ -12679,7 +13142,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -12700,7 +13163,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -12723,7 +13186,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -12762,7 +13225,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {
@@ -13399,7 +13862,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:269",
      "backendPath": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -13420,7 +13883,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-security.controller.ts:80",
      "backendPath": "/admin/session",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 265,
+     "line": 267,
      "fn": "adminFetch",
      "via": "AdminGuard",
      "guards": {
@@ -13443,7 +13906,7 @@
      "backend": "admin/src/pages/api/admin/auth/logout.ts",
      "note": "handled by a specific Next BFF handler",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 293,
+     "line": 295,
      "fn": "adminMutation",
      "via": "AdminGuard",
      "raw": false
@@ -13547,7 +14010,7 @@
      "method": "POST",
      "path": "/auth/heartbeat",
      "file": "admin/src/components/AdminGuard.tsx",
-     "line": 254,
+     "line": 256,
      "backend": "backend/src/modules/auth/auth.controller.ts:269"
     },
     {

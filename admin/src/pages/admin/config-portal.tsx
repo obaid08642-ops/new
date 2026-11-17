@@ -39,6 +39,8 @@ export default function ConfigPortal() {
   const [stopAfter, setStopAfter] = useState('3');
   const [broadcastMsg, setBroadcastMsg] = useState('');
   const canSettings = useCan('settings.edit');
+  // PUT /admin/mental-health/urgent-help needs cms.edit; the page itself only needs settings.edit
+  const canEditUrgentHelp = useCan('cms.edit');
   const loadBroadcastCfg = async () => {
     try {
       const res = await fetchWithAdminGuard('/api/admin/admin/pharmacy/broadcasts/config');
@@ -415,9 +417,9 @@ export default function ConfigPortal() {
               <h2 className="text-xl font-bold mb-1">رقم &laquo;تحتاج مساعدة عاجلة؟&raquo; في الصحة النفسية</h2>
               <p className="text-sm text-gray-500 mb-4">الرقم الرسمي الذي يفتحه زر المساعدة العاجلة في التطبيقات. لا يظهر الزر حتى يُحفظ رقم.</p>
               <label className="text-sm block max-w-sm">رقم الهاتف
-                <input value={urgentPhone} onChange={(e) => setUrgentPhone(e.target.value)} dir="ltr" inputMode="tel" className="mt-1 w-full border rounded p-2" />
+                <input value={urgentPhone} onChange={(e) => setUrgentPhone(e.target.value)} readOnly={!canEditUrgentHelp} dir="ltr" inputMode="tel" className="mt-1 w-full border rounded p-2" />
               </label>
-              <button onClick={() => void saveUrgentHelp()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الرقم</button>
+              {canEditUrgentHelp ? <button onClick={() => void saveUrgentHelp()} className="mt-4 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-6 rounded-lg">حفظ الرقم</button> : <p className="mt-2 text-xs text-gray-500">تعديل هذا الرقم يحتاج صلاحية cms.edit.</p>}
               {urgentMsg && <p className="mt-2 text-sm font-bold">{urgentMsg}</p>}
             </div>
           </div>

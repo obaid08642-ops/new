@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
 import { adminFetch } from '@/lib/admin-client';
+import { useCan } from '@/components/AdminGuard';
 
 /**
  * Provider proposals waiting for an admin (provider-journeys 28): a lab's or radiology centre's new test, scan or
@@ -52,6 +53,8 @@ function title(p: Proposal): string {
 }
 
 export default function ServiceProposalsPage() {
+  // POST /approval-workflow/requests/:id/decide needs catalog.approve; the page itself only needs catalog.read
+  const canDecide = useCan('catalog.approve');
   const [rows, setRows] = useState<Proposal[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
@@ -128,12 +131,14 @@ export default function ServiceProposalsPage() {
                     <input list="lab-categories" value={category[p.id] || ''} maxLength={60} onChange={(e) => setCategory((c) => ({ ...c, [p.id]: e.target.value }))} className="min-h-11 rounded-lg border px-3" />
                   </label>
                 ) : null}
+                {canDecide ? (
                 <div className="flex flex-wrap items-center gap-2">
                   <input aria-label="سبب الرفض أو ملاحظة" placeholder="سبب الرفض أو ملاحظة" value={notes[p.id] || ''} maxLength={500}
                     onChange={(e) => setNotes((n) => ({ ...n, [p.id]: e.target.value }))} className="min-h-11 min-w-0 flex-1 rounded-lg border px-3 text-sm" />
                   <button onClick={() => void decide(p, 'approved')} disabled={busy === p.id} className="min-h-11 rounded-lg bg-emerald-600 px-4 text-sm font-bold text-white disabled:opacity-50">اعتماد</button>
                   <button onClick={() => void decide(p, 'rejected')} disabled={busy === p.id} className="min-h-11 rounded-lg border border-rose-300 px-4 text-sm font-bold text-rose-700 disabled:opacity-50">رفض</button>
                 </div>
+                ) : null}
               </li>
             ))}
           </ul>

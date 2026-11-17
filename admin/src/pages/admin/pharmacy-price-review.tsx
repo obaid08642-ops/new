@@ -20,7 +20,10 @@ const sar = (n: number | null | undefined) => (typeof n === 'number' && Number.i
  * (POST /admin/pharmacy/price-review/:id/resolve).
  */
 export default function PharmacyPriceReviewPage() {
-  const canWritePrice = useCan('catalog.price.write');
+  // PATCH /medicines/admin/catalog/:id needs catalog.update AND catalog.price.write (backend medicines.controller.ts); the page itself only needs catalog.read
+  const canWriteCatalogPrice = useCan('catalog.price.write');
+  const canUpdateCatalog = useCan('catalog.update');
+  const canWritePrice = canWriteCatalogPrice && canUpdateCatalog;
   const [status, setStatus] = useState<'open' | 'closed'>('open');
   const [reason, setReason] = useState<'' | ReviewLine['reason']>('');
   const [page, setPage] = useState(1);

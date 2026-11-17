@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { dateLocale } from '../../utils/dates';
+import { useCan } from '@/components/AdminGuard';
 import { DataTable, type LooseRow } from '@/components/DataTable';
 
 /**
@@ -22,6 +23,8 @@ const STATUS_AR: Record<string, { ar: string; cls: string }> = {
 };
 
 export default function PharmacyProcurementPage() {
+  // PATCH /admin/extended-operations/issue-quote/:id needs pharmacy.inventory.edit; the page itself only needs pharmacy.inventory.read
+  const canIssueQuote = useCan('pharmacy.inventory.edit');
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -183,7 +186,7 @@ export default function PharmacyProcurementPage() {
                         ]}
                       />
 
-                      {r.status === 'PENDING_ADMIN_REVIEW' && (
+                      {canIssueQuote && r.status === 'PENDING_ADMIN_REVIEW' && (
                         <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-50 rounded-lg p-3">
                           <div className="text-lg font-black text-slate-800">
                             الإجمالي: <span dir="ltr">{totalOf(r).toFixed(2)}</span> ر.س

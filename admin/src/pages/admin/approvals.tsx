@@ -44,10 +44,12 @@ const ROWS: Row[] = [
 export default function ApprovalsPage() {
   const canFacility = useCan('facility.edit');
   const canCatalog = useCan('catalog.read');
+  // the withdrawals row (GET /finance/payouts) asks for finance.read; it was never in the granted map, so it was hidden for every role
+  const canFinance = useCan('finance.read');
   const allowed = useMemo(() => {
-    const granted: Record<string, boolean> = { 'facility.edit': canFacility, 'catalog.read': canCatalog };
+    const granted: Record<string, boolean> = { 'facility.edit': canFacility, 'catalog.read': canCatalog, 'finance.read': canFinance };
     return ROWS.filter((row) => !row.permission || granted[row.permission]);
-  }, [canFacility, canCatalog]);
+  }, [canFacility, canCatalog, canFinance]);
   const [counts, setCounts] = useState<Record<string, Count | undefined>>({});
   const [failed, setFailed] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
