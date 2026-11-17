@@ -88,7 +88,7 @@ export class ScfhsLicenseService {
   }
 
   /** Daily: re-check every public licensed provider and hide the ones whose licence is no longer good. */
-  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  @Cron(CronExpression.EVERY_DAY_AT_4AM, { timeZone: 'UTC' })
   @ScheduledOnce()
   async dailyRecheck(): Promise<{ checked: number; hidden: number }> {
     if (!this.configured()) return { checked: 0, hidden: 0 };

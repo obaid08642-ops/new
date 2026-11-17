@@ -481,7 +481,7 @@ export class FinanceSuiteService {
    * `locked`: the provider is still charged once (the lock holds the amount) but the ledger shows no cleared payout. Every 10 minutes the payouts paid in the last 7 days
    * (more than 5 minutes ago) get their reservation cleared if it is still locked. Idempotent: a cleared reservation no longer matches.
    */
-  @Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
   async clearPaidReservations(now: Date = new Date()): Promise<number> {
     const paid: any[] = await this.withdrawals.find({ state: 'PAID', paid_at: { $gte: new Date(now.getTime() - 7 * 86_400_000), $lte: new Date(now.getTime() - 5 * 60_000) } }).limit(200).toArray();

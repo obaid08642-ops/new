@@ -19,7 +19,7 @@ export class DbIntegrityService {
   constructor(@InjectConnection() private readonly conn: Connection) {}
   private get findings() { return this.conn.collection(FINDINGS); }
 
-  @Cron('10 2 * * *')   // 2026-11-14: spread out (serial group 'nightly-heavy'), before the 03:00 dump
+  @Cron('10 2 * * *', { timeZone: 'UTC' })   // 2026-11-14: spread out (serial group 'nightly-heavy'), before the 03:00 dump
   @ScheduledOnce({ ttlMs: 10 * 60_000, holdMs: 60_000, serial: 'nightly-heavy' })
   async nightly() { return this.run(); }
 

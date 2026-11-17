@@ -832,7 +832,7 @@ export class InsuranceFlowService {
   // Every 15s, not every minute: the patient is waiting on the result, and a
   // 60s safety net means a failed event delivery holds the service for a full
   // minute. The sweep is cheap (one indexed find + at most 100 guarded writes).
-  @Cron('*/15 * * * * *')
+  @Cron('*/15 * * * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ holdMs: 3000 })
   async reconcileCopays() {
     try {

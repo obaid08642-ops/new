@@ -19,6 +19,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import axios from 'axios';
 import { PushService } from '../push/push.module';
+import { inMarketHours } from '../../common/market-time';
 
 /** The patient's notification category of each type (Settings > Notifications; users.service NOTIFICATION_CATEGORIES). */
 const NOTIFICATION_CATEGORY: Record<string, string> = {
@@ -165,8 +166,7 @@ export class NotificationsService {
         const qh = settings?.notification_settings?.quiet_hours;
         if (qh) {
           const now = new Date();
-          const hour = now.getHours();
-          if (hour >= qh.start && hour < qh.end) {
+          if (inMarketHours(now, qh.start, qh.end)) {   // the user's quiet hours are market clock time (common/market-time.ts); the container runs in UTC
             // Defer: mark as pending and skip delivery
             await this.model.updateOne({ id }, { $set: { status: 'DEFERRED', delivery } });
             return;
