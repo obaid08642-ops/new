@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 05:30 UTC — admin permission actions READY, PR waits for a free slot (3 open: #2719 #2730 #2731)
+- Branch `p2/admin-hide-actions` (pushed, one commit, tsc clean, admin vitest 113 pass, next build ok). I did NOT open the PR: 3 are open (cap). Tell me to open it, or merge one of the three and the next wake opens it.
+- 12 rows of docs/design/ADMIN_PERMISSION_ACTIONS.md (your message said 13): 10 changed in the client; row 2 (alerts bell) was already gated by `canSeeAlerts` (command.center.view) in AdminGuard, nothing to do; row 12 (approvals): the page has no ROUTE_PERMISSIONS entry on purpose (AdminGuard.tsx:208 says every admin opens it and each row is filtered by its own permission); I fixed the real bug there instead: the withdrawals row asks for finance.read, which the page never granted, so that row was hidden for every role.
+- Row 8 (pharmacy-price-review): the endpoint requires catalog.update AND catalog.price.write (medicines.controller.ts:289); the control now needs both (it only checked price.write). Row 11 (locations): route permission settings.edit added (all four backend routes need it) plus hidden create/deactivate.
+- Test: admin/src/components/__tests__/permission-actions.test.ts (one line per row).
+
 ## 2026-11-17 04:00 UTC — #2730 and #2719 fixed, Riyadh slot pickers (PR #2731)
 - #2730: merged main (locale files merged by key, inventories regenerated), pushed. #2719: failing check was no-raw-color (a clean file still in its baseline): merged main, reapplied C.white, no-raw-color 414 -> 402, client-token-sync 335, pushed; both should be mergeable now.
 - #2731: web + app slot pickers read and ask for Riyadh time (home-care nurse slots, ordering windows). Riyadh is fixed UTC+3 so the helper shifts the instant by 3 h and formats as UTC (works in Hermes without a tz database). Tests under 3 time zones (web 11, app 4); one app test rewritten on purpose (it built instants from the phone's local time). Doctors' slots untouched. Deploy together with #2725.
