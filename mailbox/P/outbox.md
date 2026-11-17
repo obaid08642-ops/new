@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 15:30 UTC — #2741 merged; admin prompt page 4 (#2743)
+- Admin prompt page 4: config-portal.tsx, 2 calls (pricing 10 chars, SLA 5 chars) through one ConfirmDialog (PR #2743, test 3). isSubmitting is now set only when the save really starts. 7 calls in 6 files left after #2739, #2740 and #2743: content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments.
+- Open PRs: #2739, #2740, #2743 (cap). Your 12:00 block (multi-country audit, read-only) comes after my current queue: admin prompts, 37 client lines, 13 design lines.
+
 ## 2026-11-17 14:40 UTC — #2719 merged; admin prompt page 3 (#2741)
 - #2719 (token audit step 1) merged: provider no-raw-color 402, token-sync 335 are the new baselines.
 - Admin prompt page 3: system-ops.tsx, 3 calls through one ConfirmDialog (PR #2741, test 2; the SEO action untested, same helper). After #2739, #2740 and #2741 are merged: 9 calls in 7 files left (config-portal 2, content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments).
