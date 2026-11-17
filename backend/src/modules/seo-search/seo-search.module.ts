@@ -151,7 +151,7 @@ import { UserRole } from '../../common/enums';
 import { AutoEntitySeoPipelineService, PipelineEntityType } from '../events/auto-entity-seo-pipeline.service';
 import { PUBLIC_MEDICINE, PUBLIC_TYPED_PROVIDER } from '../entity-graph/entity-graph.service';
 import { resolveMedicinePublicDto, productLocaleToDb, PUBLIC_CATALOG_LOCALES } from '../medicines/med-i18n';
-import { catalogueFilterClauses, CatalogueFilterInput } from './catalogue-filters';
+import { catalogueFilterClauses, CatalogueFilterInput, CatalogueFacets } from './catalogue-filters';
 import { toPublicMedicine, toPublicProductCard } from '../medicines/public-medicine';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { EquivalentRow, ingredientCandidatePattern, ingredientParts, rankEquivalents } from './product-equivalents';
@@ -256,6 +256,27 @@ export class SeoSearchService {
   }
 
   /**
+   * The brand and form values of the public catalogue, for the exact brand / form filters of the category listing. Two covered `distinct` scans (public_manufacturer_covering_v1, public_form_covering_v1:
+   * no document is read), kept 30 min in the process, one build at a time, and the old copy is served when a refresh fails. null when they were never read (the caller falls back to the regex).
+   */
+  private facetCache: { exp: number; val: CatalogueFacets } | null = null;
+  private facetPending: Promise<CatalogueFacets> | null = null;
+  private static readonly FACET_FRESH_MS = 30 * 60_000;
+  private async catalogueFacets(): Promise<CatalogueFacets | null> {
+    const now = Date.now();
+    if (this.facetCache && now < this.facetCache.exp) return this.facetCache.val;
+    if (!this.facetPending) {
+      const medicines = this.conn.collection(CATALOG_COLLECTIONS.medicines);
+      const gate = publicMedicineFilter();
+      const read = async (key: string): Promise<string[]> => (await medicines.distinct(key, { ...gate, [key]: { $ne: null } }, { maxTimeMS: 8000 } as any)).filter((v: unknown): v is string => typeof v === 'string' && v.length > 0);
+      this.facetPending = Promise.all([read('manufacturer'), read('form')])
+        .then(([brands, forms]) => { this.facetCache = { exp: Date.now() + SeoSearchService.FACET_FRESH_MS, val: { brands, forms } }; return this.facetCache.val; })
+        .finally(() => { this.facetPending = null; });
+    }
+    try { return await this.facetPending; } catch { return this.facetCache?.val ?? null; }
+  }
+
+  /**
    * P14.3: the number of public products, the `total` of every catalogue page without a search term. It was a
    * countDocuments over the whole catalogue on each page (the second-largest Mongo cost in the 2026-10-16 capacity run).
    * Kept 60 s in the process; concurrent misses share one count. A publish shows in the total within a minute; the
@@ -277,7 +298,7 @@ export class SeoSearchService {
       for (const [k, v] of this.publicCountCache) if (!v.pending && v.staleUntil <= now) this.publicCountCache.delete(k);
       if (this.publicCountCache.size >= 500) this.publicCountCache.clear();
     }
-    const pending: Promise<number> = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter)
+    const pending: Promise<number> = this.conn.collection(CATALOG_COLLECTIONS.medicines).countDocuments(filter, { maxTimeMS: 8000 })
       .then((n) => { const t = Date.now(); this.publicCountCache.set(key, { exp: t + SeoSearchService.COUNT_FRESH_MS, staleUntil: t + SeoSearchService.COUNT_STALE_MS, val: n, pending: null }); return n; })
       .catch((e) => { if (c?.val !== undefined) this.publicCountCache.set(key, { ...c, pending: null }); else this.publicCountCache.delete(key); throw e; });
     this.publicCountCache.set(key, { exp: c?.exp ?? 0, staleUntil: c?.staleUntil ?? 0, val: c?.val, pending });
@@ -1008,17 +1029,20 @@ export class SeoSearchService {
     }
 
     // Design parity (#1819): form / brand / rx / price range, validated in catalogue-filters.ts.
-    const extras = catalogueFilterClauses(extra, db);
+    const facets = extra.brand || extra.form ? await this.catalogueFacets() : null;
+    const extras = catalogueFilterClauses(extra, db, facets);
     if (extras.and.length) filter.$and = [...(filter.$and || []), ...extras.and];
 
     const perPage = Math.min(Math.max(limit, 1), 48);
     // Popularity-first ordering (views → rating → stable id). Deliberately NOT
     // image-first: imageless medicines were buried under cosmetics on "All".
     // #816: the patient may order by price or newest; the default stays popularity (views, rating, stable id).
-    const sortClause: any = sort === 'price_asc' ? { price: 1, _id: 1 }
-      : sort === 'price_desc' ? { price: -1, _id: 1 }
-      : sort === 'newest' ? { createdAt: -1, _id: 1 }
-      : sort === 'most_ordered' ? { orders_count: -1, _id: 1 }
+    // The tie-breaker is `id` (not `_id`): the indexes public_live_*_v2 hold the sort key, then `id`, then is_deleted, so a page is read in index order; with `_id` the planner took the old
+    // price index, fetched every document to test is_deleted and the other filters (run 135: docsExamined 20,990, 21 s).
+    const sortClause: any = sort === 'price_asc' ? { price: 1, id: 1 }
+      : sort === 'price_desc' ? { price: -1, id: 1 }
+      : sort === 'newest' ? { createdAt: -1, id: 1 }
+      : sort === 'most_ordered' ? { orders_count: -1, id: 1 }
       : { usage_count: -1, rating: -1, _id: 1 };
     // An explicit price order skips items without a real price (a 0 is "no price", never the cheapest).
     if (sort === 'price_asc' || sort === 'price_desc') filter.price = { $gt: 0 };
@@ -1031,7 +1055,7 @@ export class SeoSearchService {
     const [rows, total] = await Promise.all([
       sort === 'popular'
         ? popularPage(medicines as any, filter, skip, perPage, projection, decodedCat === 'all' && !q)
-        : medicines.find(filter, { projection } as any).sort(sortClause).skip(skip).limit(perPage).toArray(),
+        : medicines.find(filter, { projection, maxTimeMS: 8000 } as any).sort(sortClause).skip(skip).limit(perPage).toArray(),
       this.publicListingCount(filter),
     ]);
     const items = rows.map((m: any) => {
