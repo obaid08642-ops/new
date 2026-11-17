@@ -109,9 +109,9 @@ export function OfferDetailView() {
   const remote = useRemote(
     async () => {
       if (!offerId) throw new Error('no offer id');
-      const offer = await apiFetch<Offer | null>(`/offers/${offerId}`);
+      const offer = await apiFetch<Offer | null>(`/offers/${encodeURIComponent(offerId)}`);
       if (!offer) throw new Error('offer not found');
-      const providers = await apiFetch<unknown>(`/promotions/offers/${offerId}/providers`).catch(() => []);
+      const providers = await apiFetch<unknown>(`/promotions/offers/${encodeURIComponent(offerId)}/providers`).catch(() => []);
       return { offer, providers: Array.isArray(providers) ? (providers as ProviderRow[]) : [] };
     },
     [offerId],

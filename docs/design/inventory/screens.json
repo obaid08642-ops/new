@@ -1,5 +1,5 @@
 {
- "commit": "9a86080bf",
+ "commit": "6d521a468",
  "routes": [
   {
    "app": "patient-app",
@@ -150,13 +150,13 @@
      "path": "/auth/guest",
      "target": "backend",
      "query": "",
-     "line": 21,
+     "line": 22,
      "file": "patient-app/src/utils/guestSession.ts",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:215"
     }
    ],
-   "files": 29,
+   "files": 31,
    "unresolved": 0
   },
   {
@@ -8216,7 +8216,7 @@
      "path": "/auth/guest",
      "target": "backend",
      "query": "",
-     "line": 21,
+     "line": 22,
      "file": "patient-app/src/utils/guestSession.ts",
      "status": "OK",
      "backend": "backend/src/modules/auth/auth.controller.ts:215"
@@ -8242,7 +8242,7 @@
      "backend": "backend/src/modules/auth/auth.controller.ts:399"
     }
    ],
-   "files": 41,
+   "files": 43,
    "unresolved": 0
   },
   {

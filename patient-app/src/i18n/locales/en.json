@@ -4086,5 +4086,7 @@
   "tour.next": "Next",
   "errors.adminRequired": "Access denied. This area is for administrators only.",
   "map.preview": "Map preview",
-  "map.marker": "Map marker"
+  "map.marker": "Map marker",
+  "errors.resetLinkInvalid": "This reset link is invalid or has expired. Request a new one.",
+  "auth.guestName": "Guest"
 }
