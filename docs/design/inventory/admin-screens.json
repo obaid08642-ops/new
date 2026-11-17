@@ -3122,6 +3122,7 @@
     "admin/src/pages/admin/config-portal.tsx",
     "admin/src/components/DataTable.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -3141,7 +3142,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:135",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 25,
+     "line": 26,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3164,7 +3165,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:402",
      "backendPath": "/admin/pharmacy/broadcasts/config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 46,
+     "line": 47,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3189,7 +3190,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:409",
      "backendPath": "/admin/pharmacy/broadcasts/config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 58,
+     "line": 59,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3214,7 +3215,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:27",
      "backendPath": "/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 70,
+     "line": 71,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3235,7 +3236,7 @@
      "backend": "backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:35",
      "backendPath": "/admin/mental-health/urgent-help",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 79,
+     "line": 80,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3260,7 +3261,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:83",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 90,
+     "line": 91,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3283,7 +3284,7 @@
      "backend": "backend/src/modules/medicines/rx-consult.controller.ts:105",
      "backendPath": "/admin/pharmacy/rx-consult-specialties",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 98,
+     "line": 99,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3308,7 +3309,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:144",
      "backendPath": "/admin/config/app-versions",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 106,
+     "line": 107,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3333,7 +3334,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:317",
      "backendPath": "/business-rules/config/pricing",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 120,
+     "line": 121,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3356,7 +3357,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:309",
      "backendPath": "/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 142,
+     "line": 154,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3381,7 +3382,7 @@
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:322",
      "backendPath": "/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 145,
+     "line": 157,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3406,7 +3407,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:379",
      "backendPath": "/admin/pharmacy/fulfillment-policies",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 156,
+     "line": 169,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3431,7 +3432,7 @@
      "backend": "backend/src/modules/pharmacy/pharmacy.controllers.ts:381",
      "backendPath": "/admin/pharmacy/fulfillment-policies/cod",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 165,
+     "line": 178,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3456,7 +3457,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:26",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 173,
+     "line": 186,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3479,7 +3480,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:96",
      "backendPath": "/admin/config/orders-console-config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 192,
+     "line": 205,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3502,7 +3503,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:104",
      "backendPath": "/admin/config/orders-console-config",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 198,
+     "line": 211,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3527,7 +3528,7 @@
      "backend": "backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:35",
      "backendPath": "/admin/config/sla",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 223,
+     "line": 231,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -3635,7 +3636,7 @@
      "method": "POST",
      "path": "/api/admin/business-rules/config/surge",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 142,
+     "line": 154,
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:309"
     },
     {
@@ -3645,7 +3646,7 @@
      "method": "POST",
      "path": "/api/admin/business-rules/config/fees",
      "file": "admin/src/pages/admin/config-portal.tsx",
-     "line": 145,
+     "line": 157,
      "backend": "backend/src/modules/business-rules/business-rules.module.ts:322"
     },
     {

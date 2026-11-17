@@ -57,7 +57,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | system | `/admin/alerts` | `command.center.view` | yes | 10 / 0 | 18 / 0 | `admin/src/pages/admin/alerts.tsx` |
 | system | `/admin/article-review` | `cms.edit` | yes | 4 / 0 | 12 / 0 | `admin/src/pages/admin/article-review.tsx` |
 | system | `/admin/audit-logs` | `data.export` | yes | 1 / 0 | 15 / 0 | `admin/src/pages/admin/audit-logs.tsx` |
-| system | `/admin/config-portal` | `settings.edit` | yes | 21 / 0 | 42 / 0 | `admin/src/pages/admin/config-portal.tsx` |
+| system | `/admin/config-portal` | `settings.edit` | yes | 21 / 0 | 49 / 0 | `admin/src/pages/admin/config-portal.tsx` |
 | system | `/admin/facility-members` | `facility.edit` | yes | 2 / 1 | 11 / 0 | `admin/src/pages/admin/facility-members.tsx` |
 | system | `/admin/guest-jobs` | `facility.edit` | yes | 6 / 0 | 19 / 0 | `admin/src/pages/admin/guest-jobs.tsx` |
 | system | `/admin/kill-switches` | `modules.manage` | yes | 4 / 0 | 12 / 0 | `admin/src/pages/admin/kill-switches.tsx` |
@@ -246,23 +246,23 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/config/app-versions` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:135` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:25` |
-| GET | `/api/admin/admin/pharmacy/broadcasts/config` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:402` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:46` |
-| PUT | `/api/admin/admin/pharmacy/broadcasts/config` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:409` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:58` |
-| GET | `/api/admin/mental-health/urgent-help` | OK | `backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:27` | PUBLIC | `admin/src/pages/admin/config-portal.tsx:70` |
-| PUT | `/api/admin/admin/mental-health/urgent-help` | OK | `backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:35` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/config-portal.tsx:79` |
-| GET | `/api/admin/admin/pharmacy/rx-consult-specialties` | OK | `backend/src/modules/medicines/rx-consult.controller.ts:83` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:90` |
-| PUT | `/api/admin/admin/pharmacy/rx-consult-specialties` | OK | `backend/src/modules/medicines/rx-consult.controller.ts:105` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:98` |
-| PUT | `/api/admin/admin/config/app-versions` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:144` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:106` |
-| GET | `/api/admin/business-rules/config/pricing` | OK | `backend/src/modules/business-rules/business-rules.module.ts:317` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:120` |
-| POST | `/api/admin/business-rules/config/surge` | OK | `backend/src/modules/business-rules/business-rules.module.ts:309` | roles:ADMIN perms:finance.config.edit | `admin/src/pages/admin/config-portal.tsx:142` |
-| POST | `/api/admin/business-rules/config/fees` | OK | `backend/src/modules/business-rules/business-rules.module.ts:322` | roles:ADMIN perms:finance.config.edit | `admin/src/pages/admin/config-portal.tsx:145` |
-| GET | `/api/admin/admin/pharmacy/fulfillment-policies` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:379` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:156` |
-| PUT | `/api/admin/admin/pharmacy/fulfillment-policies/cod` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:381` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:165` |
-| GET | `/api/admin/admin/config/sla` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:26` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:173` |
-| GET | `/api/admin/admin/config/orders-console-config` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:96` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:192` |
-| PUT | `/api/admin/admin/config/orders-console-config` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:104` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:198` |
-| PUT | `/api/admin/admin/config/sla` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:35` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:223` |
+| GET | `/api/admin/admin/config/app-versions` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:135` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:26` |
+| GET | `/api/admin/admin/pharmacy/broadcasts/config` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:402` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:47` |
+| PUT | `/api/admin/admin/pharmacy/broadcasts/config` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:409` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:59` |
+| GET | `/api/admin/mental-health/urgent-help` | OK | `backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:27` | PUBLIC | `admin/src/pages/admin/config-portal.tsx:71` |
+| PUT | `/api/admin/admin/mental-health/urgent-help` | OK | `backend/src/modules/mental-health/mental-health-urgent-help.controller.ts:35` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/config-portal.tsx:80` |
+| GET | `/api/admin/admin/pharmacy/rx-consult-specialties` | OK | `backend/src/modules/medicines/rx-consult.controller.ts:83` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:91` |
+| PUT | `/api/admin/admin/pharmacy/rx-consult-specialties` | OK | `backend/src/modules/medicines/rx-consult.controller.ts:105` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:99` |
+| PUT | `/api/admin/admin/config/app-versions` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:144` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:107` |
+| GET | `/api/admin/business-rules/config/pricing` | OK | `backend/src/modules/business-rules/business-rules.module.ts:317` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:121` |
+| POST | `/api/admin/business-rules/config/surge` | OK | `backend/src/modules/business-rules/business-rules.module.ts:309` | roles:ADMIN perms:finance.config.edit | `admin/src/pages/admin/config-portal.tsx:154` |
+| POST | `/api/admin/business-rules/config/fees` | OK | `backend/src/modules/business-rules/business-rules.module.ts:322` | roles:ADMIN perms:finance.config.edit | `admin/src/pages/admin/config-portal.tsx:157` |
+| GET | `/api/admin/admin/pharmacy/fulfillment-policies` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:379` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:169` |
+| PUT | `/api/admin/admin/pharmacy/fulfillment-policies/cod` | OK | `backend/src/modules/pharmacy/pharmacy.controllers.ts:381` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:178` |
+| GET | `/api/admin/admin/config/sla` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:26` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:186` |
+| GET | `/api/admin/admin/config/orders-console-config` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:96` | roles:ADMIN | `admin/src/pages/admin/config-portal.tsx:205` |
+| PUT | `/api/admin/admin/config/orders-console-config` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:104` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:211` |
+| PUT | `/api/admin/admin/config/sla` | OK | `backend/src/modules/admin/web-core/controllers/admin-config.controller.ts:35` | roles:ADMIN perms:settings.edit | `admin/src/pages/admin/config-portal.tsx:231` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |
