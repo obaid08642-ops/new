@@ -53,6 +53,7 @@ const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 
 import { nearestFirst } from '../provider/services/nearest-first';
 import { NAME_PROJECTION, withItemNames, withScanNames } from '../../common/booking-names';
+import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -1038,7 +1039,8 @@ export class RadiologyOpsService {
 
     if (!windows.length) return { date: dateStr, slots: [], reason: 'closed' };
 
-    const baseDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+    // the day starts at Riyadh midnight (UTC+3), see common/riyadh-slots.ts; `dow` above is the weekday of that same calendar day
+    const baseDate = riyadhDayStart(dateStr);
     const slots: { id: string; start: string; end: string; label: string; available: boolean }[] = [];
     const seen = new Set<string>();
     const now = Date.now();
@@ -1056,7 +1058,7 @@ export class RadiologyOpsService {
         const slotId = start.toISOString();
         if (seen.has(slotId)) continue;
         seen.add(slotId);
-        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: slotId.substring(11, 16), available: true });
+        slots.push({ id: slotId, start: slotId, end: end.toISOString(), label: riyadhClockLabel(start), available: true });
       }
     }
     slots.sort((x, y) => x.start.localeCompare(y.start));
