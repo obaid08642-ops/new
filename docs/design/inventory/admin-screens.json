@@ -3681,6 +3681,7 @@
    "unit": [
     "admin/src/pages/admin/content-growth.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -3700,7 +3701,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:40",
      "backendPath": "/support/admin/faqs",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 20,
+     "line": 21,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3725,7 +3726,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:42",
      "backendPath": "/support/admin/faqs",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 26,
+     "line": 27,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3750,7 +3751,7 @@
      "backend": "backend/src/modules/support/support.controller.ts:44",
      "backendPath": "/support/admin/faqs/:param",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 34,
+     "line": 35,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3775,7 +3776,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:33",
      "backendPath": "/admin/cms/articles",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3800,7 +3801,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86",
      "backendPath": "/admin/coupons",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3825,7 +3826,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:502",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3848,7 +3849,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:484",
      "backendPath": "/admin/notification-center/segments",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 37,
+     "line": 38,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -3871,7 +3872,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:54",
      "backendPath": "/admin/cms/articles",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 39,
+     "line": 40,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3896,7 +3897,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:115",
      "backendPath": "/admin/cms/:param/schedule",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 39,
+     "line": 40,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3921,7 +3922,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:94",
      "backendPath": "/admin/cms/:param/publish",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 39,
+     "line": 40,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3946,7 +3947,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:96",
      "backendPath": "/admin/coupons",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 40,
+     "line": 41,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3971,7 +3972,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-coupons.controller.ts:134",
      "backendPath": "/admin/coupons/:param",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 41,
+     "line": 48,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -3996,7 +3997,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:94",
      "backendPath": "/admin/cms/:param/publish",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 48,
+     "line": 54,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4021,7 +4022,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-cms.controller.ts:132",
      "backendPath": "/admin/cms/:param/unpublish",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 49,
+     "line": 55,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4046,7 +4047,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:498",
      "backendPath": "/admin/notification-center/campaigns",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 53,
+     "line": 60,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -4071,7 +4072,7 @@
      "backend": "backend/src/modules/admin/notification-center/admin-notification-center.module.ts:513",
      "backendPath": "/admin/notification-center/campaigns/:param/send",
      "file": "admin/src/pages/admin/content-growth.tsx",
-     "line": 54,
+     "line": 61,
      "fn": "adminMutation",
      "via": null,
      "guards": {

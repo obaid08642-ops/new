@@ -15,7 +15,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | catalogue | `/admin/shortage-reports` | `catalog.read` | yes | 7 / 0 | 14 / 0 | `admin/src/pages/admin/shortage-reports.tsx` |
 | customers-growth | `/admin/analytics` | `analytics.read` | yes | 2 / 0 | 2 / 0 | `admin/src/pages/admin/analytics.tsx` |
 | customers-growth | `/admin/analytics-suite` | `analytics.read` | yes | 6 / 0 | 5 / 0 | `admin/src/pages/admin/analytics-suite.tsx` |
-| customers-growth | `/admin/content-growth` | `cms.edit` | yes | 20 / 0 | 54 / 0 | `admin/src/pages/admin/content-growth.tsx` |
+| customers-growth | `/admin/content-growth` | `cms.edit` | yes | 20 / 0 | 61 / 0 | `admin/src/pages/admin/content-growth.tsx` |
 | customers-growth | `/admin/crm` | `crm.read` | yes | 7 / 0 | 13 / 0 | `admin/src/pages/admin/crm.tsx` |
 | customers-growth | `/admin/gdpr` | `gdpr.manage` | yes | 3 / 0 | 12 / 0 | `admin/src/pages/admin/gdpr.tsx` |
 | customers-growth | `/admin/home-curation` | `cms.edit` | yes | 2 / 0 | 16 / 0 | `admin/src/pages/admin/home-curation.tsx` |
@@ -272,22 +272,22 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/support/admin/faqs` | OK | `backend/src/modules/support/support.controller.ts:40` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:20` |
-| POST | `/support/admin/faqs` | OK | `backend/src/modules/support/support.controller.ts:42` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:26` |
-| DELETE | `/support/admin/faqs/:param` | OK | `backend/src/modules/support/support.controller.ts:44` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:34` |
-| GET | `/api/admin/admin/cms/articles` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:33` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:37` |
-| GET | `/api/admin/admin/coupons` | OK | `backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86` | roles:ADMIN perms:coupons.manage | `admin/src/pages/admin/content-growth.tsx:37` |
-| GET | `/api/admin/admin/notification-center/campaigns` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:502` | roles:ADMIN | `admin/src/pages/admin/content-growth.tsx:37` |
-| GET | `/api/admin/admin/notification-center/segments` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:484` | roles:ADMIN | `admin/src/pages/admin/content-growth.tsx:37` |
-| POST | `/api/admin/admin/cms/articles` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:54` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:39` |
-| POST | `/api/admin/admin/cms/:param/schedule` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:115` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:39` |
-| POST | `/api/admin/admin/cms/:param/publish` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:94` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:39` |
-| POST | `/api/admin/admin/coupons` | OK | `backend/src/modules/admin/enterprise/admin-coupons.controller.ts:96` | roles:ADMIN perms:coupons.manage | `admin/src/pages/admin/content-growth.tsx:40` |
-| PATCH | `/api/admin/admin/coupons/:param` | OK | `backend/src/modules/admin/enterprise/admin-coupons.controller.ts:134` | roles:ADMIN perms:coupons.manage | `admin/src/pages/admin/content-growth.tsx:41` |
-| POST | `/api/admin/admin/cms/:param/publish` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:94` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:48` |
-| PATCH | `/api/admin/admin/cms/:param/unpublish` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:132` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:49` |
-| POST | `/api/admin/admin/notification-center/campaigns` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:498` | roles:ADMIN perms:notifications.send | `admin/src/pages/admin/content-growth.tsx:53` |
-| POST | `/api/admin/admin/notification-center/campaigns/:param/send` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:513` | roles:ADMIN perms:notifications.send | `admin/src/pages/admin/content-growth.tsx:54` |
+| GET | `/support/admin/faqs` | OK | `backend/src/modules/support/support.controller.ts:40` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:21` |
+| POST | `/support/admin/faqs` | OK | `backend/src/modules/support/support.controller.ts:42` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:27` |
+| DELETE | `/support/admin/faqs/:param` | OK | `backend/src/modules/support/support.controller.ts:44` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:35` |
+| GET | `/api/admin/admin/cms/articles` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:33` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:38` |
+| GET | `/api/admin/admin/coupons` | OK | `backend/src/modules/admin/enterprise/admin-coupons.controller.ts:86` | roles:ADMIN perms:coupons.manage | `admin/src/pages/admin/content-growth.tsx:38` |
+| GET | `/api/admin/admin/notification-center/campaigns` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:502` | roles:ADMIN | `admin/src/pages/admin/content-growth.tsx:38` |
+| GET | `/api/admin/admin/notification-center/segments` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:484` | roles:ADMIN | `admin/src/pages/admin/content-growth.tsx:38` |
+| POST | `/api/admin/admin/cms/articles` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:54` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:40` |
+| POST | `/api/admin/admin/cms/:param/schedule` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:115` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:40` |
+| POST | `/api/admin/admin/cms/:param/publish` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:94` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:40` |
+| POST | `/api/admin/admin/coupons` | OK | `backend/src/modules/admin/enterprise/admin-coupons.controller.ts:96` | roles:ADMIN perms:coupons.manage | `admin/src/pages/admin/content-growth.tsx:41` |
+| PATCH | `/api/admin/admin/coupons/:param` | OK | `backend/src/modules/admin/enterprise/admin-coupons.controller.ts:134` | roles:ADMIN perms:coupons.manage | `admin/src/pages/admin/content-growth.tsx:48` |
+| POST | `/api/admin/admin/cms/:param/publish` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:94` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:54` |
+| PATCH | `/api/admin/admin/cms/:param/unpublish` | OK | `backend/src/modules/admin/enterprise/admin-cms.controller.ts:132` | roles:ADMIN perms:cms.edit | `admin/src/pages/admin/content-growth.tsx:55` |
+| POST | `/api/admin/admin/notification-center/campaigns` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:498` | roles:ADMIN perms:notifications.send | `admin/src/pages/admin/content-growth.tsx:60` |
+| POST | `/api/admin/admin/notification-center/campaigns/:param/send` | OK | `backend/src/modules/admin/notification-center/admin-notification-center.module.ts:513` | roles:ADMIN perms:notifications.send | `admin/src/pages/admin/content-growth.tsx:61` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |
