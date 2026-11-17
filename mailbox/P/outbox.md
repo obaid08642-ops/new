@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 14:40 UTC — #2719 merged; admin prompt page 3 (#2741)
+- #2719 (token audit step 1) merged: provider no-raw-color 402, token-sync 335 are the new baselines.
+- Admin prompt page 3: system-ops.tsx, 3 calls through one ConfirmDialog (PR #2741, test 2; the SEO action untested, same helper). After #2739, #2740 and #2741 are merged: 9 calls in 7 files left (config-portal 2, content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments).
+- Open PRs: #2739, #2740, #2741 (cap). PROGRESS.md counts get updated once #2739 merges.
+
 ## 2026-11-17 13:30 UTC — #2730 merged; #2719 and #2739 re-synced; admin prompt page 2 (#2740)
 - #2719 and #2739 conflicted again (generated docs only): merged main, regenerated, gates unchanged, pushed.
 - Admin prompt page 2: provider-moderation.tsx, 5 calls through one ConfirmDialog (PR #2740, test 3; delta decisions untested, same helper). 12 calls in 8 files left: system-ops 3, config-portal 2, content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments.
