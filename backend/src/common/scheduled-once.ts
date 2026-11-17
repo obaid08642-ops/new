@@ -6,7 +6,7 @@ import { registerGauge } from './metrics.service';
 /**
  * R3: `@ScheduledOnce()` under `@Cron`/`@Interval` makes a job run on ONE worker at a time, however many workers are started.
  *
- *   @Cron('*\/5 * * * *')
+ *   @Cron('*\/5 * * * *', { timeZone: 'UTC' })
  *   @ScheduledOnce()                       // lease name = ClassName.method
  *   async sweep() { ... }
  *

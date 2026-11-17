@@ -39,7 +39,7 @@ export class ConsistencyService {
   private reconcileRunning = false;
 
   /** R72: nightly scheduled settlement — birth-event backfill for the last 30d window. */
-  @Cron('40 2 * * *')   // 2026-11-14: spread out (serial group 'nightly-heavy'), before the 03:00 dump
+  @Cron('40 2 * * *', { timeZone: 'UTC' })   // 2026-11-14: spread out (serial group 'nightly-heavy'), before the 03:00 dump
   @ScheduledOnce({ serial: 'nightly-heavy' })
   async scheduledReconcile() {
     if (this.reconcileRunning || process.env.CONSISTENCY_CRON_DISABLED === '1') return;

@@ -17,7 +17,7 @@ export class DataRetentionService {
    * Saudi PDPL requirement: Personal data must be destroyed when no longer needed.
    * We hard-delete soft-deleted users and their associated PII after 30 days.
    */
-  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, { timeZone: 'UTC' })
   @ScheduledOnce({ serial: 'nightly-heavy' })
   async enforceDataRetention() {
     this.logger.log('Starting PDPL Data Retention cleanup...');

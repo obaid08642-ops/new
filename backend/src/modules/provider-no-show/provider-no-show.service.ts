@@ -179,7 +179,7 @@ export class ProviderNoShowService {
    * Clinic and home reports hold their refund until the provider's 24 hours are over. Then, for each one nobody disputed: if the provider turned up in the meantime (any activity on the visit)
    * the report is dismissed; otherwise the refund is released (one atomic claim per report, so two workers cannot both release). Disputed reports wait for the admin.
    */
-  @Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
   async releaseDueHeld(now: Date = new Date()): Promise<number> {
     const due: any[] = await this.reports.find({ status: 'held', refund_due_at: { $lte: now } }, { projection: { _id: 0 } }).limit(50).toArray();

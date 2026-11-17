@@ -145,7 +145,7 @@ export class LedgerService {
    * reader that sums the ledger directly (the withdrawal request, the admin statement, the finance reports) saw matured money as still pending until then, and a provider who asked to
    * withdraw without opening the balance screen first was refused "insufficient_available_balance". Idempotent and cheap (one indexed update).
    */
-  @Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ ttlMs: 5 * 60_000, holdMs: 60_000 })
   async matureAllDueEscrow(now: Date = new Date()): Promise<number> {
     // the ledger has no index for this filter: without one every run would read the whole collection. A small partial index (pending earnings only) makes it a look at the few rows that wait.

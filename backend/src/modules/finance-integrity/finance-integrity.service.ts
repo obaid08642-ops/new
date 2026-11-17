@@ -28,7 +28,7 @@ export class FinanceIntegrityService {
   private get runs() { return this.conn.collection(RUNS); }
   private get findings() { return this.conn.collection(FINDINGS); }
 
-  @Cron('10 1 * * *')   // 2026-11-14: 04:10 Riyadh; heavy nightly jobs run one at a time (serial group 'nightly-heavy') and 30 minutes apart, before the 03:00 UTC dump
+  @Cron('10 1 * * *', { timeZone: 'UTC' })   // 2026-11-14: 04:10 Riyadh; heavy nightly jobs run one at a time (serial group 'nightly-heavy') and 30 minutes apart, before the 03:00 UTC dump
   async daily() {
     await runSerialized('nightly-heavy', 'FinanceIntegrity.daily', () => this.dailyRun());
   }
