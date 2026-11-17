@@ -105,6 +105,7 @@ export class ProviderProfileController {
   @SelfService()
   @Post('kyc/documents') uploadDoc(@CurrentUser() u: any, @Body() body: UploadDocDto) { return this.svc.uploadDocument(u, body); }
   @Get('kyc/documents') listDocs(@CurrentUser() u: any) { return this.svc.listDocuments(u); }
+  @Get('kyc/replacements') listReplacements(@CurrentUser() u: any) { return this.svc.listReplacementDocuments(u); }
 
   @Get('directory') directory() { return this.svc.directory(); }
 
