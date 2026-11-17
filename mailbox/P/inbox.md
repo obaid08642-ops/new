@@ -73,3 +73,6 @@ Report each PR in the outbox; stop only when 1-3 are done or blocked.
 1. Slot times: B fixes the server to build lab/radiology/home-care slots in Riyadh time (UTC+3). You switch the web and app slot pickers/labels to show and send times as Asia/Riyadh in the SAME release (wait for B's PR to read how `start`/`label` change; prepare the client side with tests).
 2. Admin actions: 13 lines where the page permission != the endpoint permission: HIDE the action in the client when the admin lacks the endpoint permission (B hands you the list as a docs file).
 3. Continue provider-app literals (908 -> 0), parity audit follow-ups from #2723, then the token audit (#2719 fix).
+
+## 2026-11-17 00:20 UTC — lead
+MERGED: B's #2725 (slot times are Riyadh clock time: `start`/`id`/`end` real UTC instants, `label` = Riyadh "HH:mm" of `start`, request `date` = the Riyadh calendar day), #2727, #2728 (docs/admin hide list: read it and do the 13 client changes, one PR). Switch the web and app slot pickers to show Asia/Riyadh and send the Riyadh date, with tests, in one PR (same release as #2725, which is merged but not deployed yet: deploy goes together with your PR). #2719 still dirty + failing the Design tokens check: fix it or close it.
