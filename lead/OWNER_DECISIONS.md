@@ -74,3 +74,4 @@ Rule: one PR per row, existing journeys (j_*) and unit tests must stay green, no
 - RAM: approved, raise the server to 8 GB, but only at the end of the work, right before launch (no customers yet, no reason to pay for it now). Build everything assuming 8 GB; keep the memory fixes (they are still right).
 - Provider app: Arabic + English only (no ur/hi/bn/fil). Patient app and patient website: six languages. Nothing to translate for the provider app.
 - Launch rule: the site and the apps are NOT opened to anyone until the owner is sure everything is finished.
+- (2026-11-17 owner) Accountant note (#2703): postponed, there is no accountant yet. INN/active-ingredient table (#1556, 96s): postponed. R11 P3 (stop writing doubles, halalas only): APPROVED to do before launch (backup first, dry run first, ops runs approved by the owner as usual). Only the remaining technical/programming work is to be finished now.

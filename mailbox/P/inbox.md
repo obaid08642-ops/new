@@ -79,3 +79,7 @@ MERGED: B's #2725 (slot times are Riyadh clock time: `start`/`id`/`end` real UTC
 
 ## 2026-11-17 01:25 UTC — lead
 #2729 merged. #2730 (stacked on it) now CONFLICTS (squash): merge origin/main into it, regenerate inventories with the tools, push. From now on do NOT stack PRs on an unmerged PR: branch from main, one PR at a time. #2719 still dirty and failing: fix or close.
+
+## 2026-11-17 05:00 UTC — lead: OWNER DECISIONS + final reconciliation order
+Owner: provider app = Arabic + English ONLY (no ur/hi/bn/fil: stop that); patient app + website = six languages (done). Accountant note, INN table: postponed (not yours). RAM: 8 GB at the end.
+RECONCILIATION (finish this, then report): go through lead/LAUNCH_LIST.md (many unticked lines are already done: tick them with PR links), docs/design/PROGRESS.md "Next", WIRING_REPORT section 7 [client] needs-review lines, docs/review/*GAPS*, the owner decisions file, and every item you ever answered "waiting for". Check specifically: pharmacy return photo scan badge (web) + app photo step test; admin jobs board (list/moderate facility jobs); Android bundle margin; social login token verification in the app; web/app parity gaps from #2723; the 13 admin hide-actions (#2732). For each CLIENT item write DONE (PR) / OPEN (what exactly) / DEFERRED (owner's word); fix every OPEN technical one. Output docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md.
