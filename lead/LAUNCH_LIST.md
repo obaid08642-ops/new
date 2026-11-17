@@ -7,14 +7,14 @@ Tick [x] when merged. Counts are the owner progress number.
 - [x] PT-03 family: book a consultation for a dependant with `family_member_id` on web + app (lab/radiology/nursing family booking waits for Z's DTO field) (merged #2604)
 - [x] PT-30 location denied: app and web tests (message + manual entry) so the row can say COVERED (merged #2605)
 - [ ] Pharmacy return photo: scan state badge on the web return form, and a screen test for the app photo step
-- [ ] Refund policy hash echo: send back the shown hash so the server can refuse a changed table (needs Z's field on every create body; owner/lead to confirm)
+- [x] Refund policy hash echo: send back the shown hash so the server can refuse a changed table (merged #2620 backend, #2621 + #2677 clients)
 - [ ] Bundle margin: keep the Android bundle under budget on every app PR; one trim pass of dead strings when the margin falls under 30 KB
 - [ ] Patient literal UI strings: app search/tab bar/offline banner done in a PR; then the design-system a11y labels, guided tour, AdminGuard, legacy doctor card (about 50, needs a translation hook)
 
 ## Z
-- [ ] Invoices review (postponed): numbering, credit notes, VAT lines, ZATCA fields, one pass over every service with fixes
-- [ ] Payout and settlement pass: approval, execute, bank file, ledger totals against payouts, with a journey (PR #2599 has two fixes, PR #2611 the journey, both waiting for review)
-- [ ] PT-24 payment return from the gateway: journey for paid, failed and cancelled returns (link wiring is tested, the money side is not)
+- [x] Invoices review: numbering, credit notes, VAT lines, ZATCA fields (merged #2691, corrections #2703; the accountant questions are POSTPONED by the owner 2026-11-17)
+- [x] Payout and settlement pass: approval, execute, bank file, ledger totals against payouts, with a journey (merged #2599, #2611)
+- [x] PT-24 payment return from the gateway: journey for paid, failed and cancelled returns (merged #2647, #2648, #2633)
 - [x] PT-03 guardian books for a dependant: backend journey (booking subject, payment, refund to the payer) (PR #2598, waiting for CI) (merged #2598)
 - [x] PT-54 hide a visit from history: check the backend side and cover it (PR #2600, waiting for CI) (merged #2600)
 - [x] PT-08 row of SCENARIOS.md still says NOT COVERED: j_sick_leave covers it, update the row and counts (in PR #2598) (merged #2598)
@@ -24,7 +24,7 @@ Tick [x] when merged. Counts are the owner progress number.
 ## V
 - [ ] Provider/admin merge map rows 1, 2, 3 approved 2026-11-10 (one PR per row) + row 4 verification only
 - [ ] Verify the mongod OOM fix on the server after run 114 deploys: 96p (indexes), 96n (kills stopped), 96j (cache); fix any further slow query found
-- [ ] Admin jobs board: list and moderate (close/hide) jobs posted by facilities (POST recruitment/jobs), not only guest jobs
+- [x] Admin jobs board: list and moderate (close/hide) jobs posted by facilities (source filter + close on any published post, on main; spec guest-job-review.spec.ts)
 - [x] Radiology slot capacity: same seat rule as labs (asked, no answer; default same rule) (merged #2664)
 - [x] SCENARIOS.md PV/AD/SY rows not COVERED: AD-02 (reject/changes paths) and any PV row left PARTIAL, one journey each (100 COVERED, 1 PARTIAL (PT-24) per the 2026-11-13 recount)
 - [ ] Server gate keeping a REJECTED or pending provider off other provider routes (G6 rest, owner said sign-in shows only the reason)
