@@ -12876,6 +12876,7 @@
     "admin/src/pages/admin/system-ops.tsx",
     "admin/src/components/DataTable.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -12895,7 +12896,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:33",
      "backendPath": "/admin/ops/queues",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 20,
+     "line": 33,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12920,7 +12921,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:104",
      "backendPath": "/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 20,
+     "line": 33,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12945,7 +12946,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:149",
      "backendPath": "/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 20,
+     "line": 33,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12970,7 +12971,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:76",
      "backendPath": "/admin/governance-controls/feature-flags",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 20,
+     "line": 33,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12995,7 +12996,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:48",
      "backendPath": "/admin/ops/queues/:param/jobs",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 20,
+     "line": 33,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -13018,7 +13019,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:83",
      "backendPath": "/admin/ops/queues/:param/retry-failed",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 22,
+     "line": 35,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -13043,7 +13044,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:68",
      "backendPath": "/admin/ops/queues/:param/jobs/:param/retry",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 23,
+     "line": 36,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -13068,7 +13069,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:123",
      "backendPath": "/admin/ops/translations",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 24,
+     "line": 37,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -13093,7 +13094,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-ops.controller.ts:157",
      "backendPath": "/admin/ops/seo/controls",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 25,
+     "line": 38,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -13118,7 +13119,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:100",
      "backendPath": "/admin/governance-controls/feature-flags",
      "file": "admin/src/pages/admin/system-ops.tsx",
-     "line": 26,
+     "line": 39,
      "fn": "adminMutation",
      "via": null,
      "guards": {

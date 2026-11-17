@@ -76,7 +76,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | system | `/admin/seha-missing` | `appointment.read` | yes | 1 / 0 | 3 / 0 | `admin/src/pages/admin/seha-missing.tsx` |
 | system | `/admin/service-offers` | `facility.edit` | yes | 1 / 0 | 6 / 0 | `admin/src/pages/admin/service-offers.tsx` |
 | system | `/admin/service-proposals` | `catalog.read` | yes | 7 / 0 | 12 / 0 | `admin/src/pages/admin/service-proposals.tsx` |
-| system | `/admin/system-ops` | `ops.queues.manage` | yes | 14 / 0 | 24 / 0 | `admin/src/pages/admin/system-ops.tsx` |
+| system | `/admin/system-ops` | `ops.queues.manage` | yes | 14 / 0 | 31 / 0 | `admin/src/pages/admin/system-ops.tsx` |
 | system | `/admin/web-vitals` | `command.center.view` | yes | 1 / 0 | 2 / 0 | `admin/src/pages/admin/web-vitals.tsx` |
 | system | `/login` | — | — | 4 / 0 | 20 / 0 | `admin/src/pages/login.tsx` |
 
@@ -859,16 +859,16 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/ops/queues` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:33` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:20` |
-| GET | `/api/admin/admin/ops/translations` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:104` | roles:ADMIN perms:translations.edit | `admin/src/pages/admin/system-ops.tsx:20` |
-| GET | `/api/admin/admin/ops/seo/controls` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:149` | roles:ADMIN perms:seo.control | `admin/src/pages/admin/system-ops.tsx:20` |
-| GET | `/api/admin/admin/governance-controls/feature-flags` | OK | `backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:76` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:20` |
-| GET | `/api/admin/admin/ops/queues/:param/jobs` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:48` | roles:ADMIN | `admin/src/pages/admin/system-ops.tsx:20` |
-| POST | `/api/admin/admin/ops/queues/:param/retry-failed` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:83` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:22` |
-| POST | `/api/admin/admin/ops/queues/:param/jobs/:param/retry` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:68` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:23` |
-| POST | `/api/admin/admin/ops/translations` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:123` | roles:ADMIN perms:translations.edit | `admin/src/pages/admin/system-ops.tsx:24` |
-| POST | `/api/admin/admin/ops/seo/controls` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:157` | roles:ADMIN perms:seo.control | `admin/src/pages/admin/system-ops.tsx:25` |
-| POST | `/api/admin/admin/governance-controls/feature-flags` | OK | `backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:100` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:26` |
+| GET | `/api/admin/admin/ops/queues` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:33` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:33` |
+| GET | `/api/admin/admin/ops/translations` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:104` | roles:ADMIN perms:translations.edit | `admin/src/pages/admin/system-ops.tsx:33` |
+| GET | `/api/admin/admin/ops/seo/controls` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:149` | roles:ADMIN perms:seo.control | `admin/src/pages/admin/system-ops.tsx:33` |
+| GET | `/api/admin/admin/governance-controls/feature-flags` | OK | `backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:76` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:33` |
+| GET | `/api/admin/admin/ops/queues/:param/jobs` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:48` | roles:ADMIN | `admin/src/pages/admin/system-ops.tsx:33` |
+| POST | `/api/admin/admin/ops/queues/:param/retry-failed` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:83` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:35` |
+| POST | `/api/admin/admin/ops/queues/:param/jobs/:param/retry` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:68` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:36` |
+| POST | `/api/admin/admin/ops/translations` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:123` | roles:ADMIN perms:translations.edit | `admin/src/pages/admin/system-ops.tsx:37` |
+| POST | `/api/admin/admin/ops/seo/controls` | OK | `backend/src/modules/admin/enterprise/admin-ops.controller.ts:157` | roles:ADMIN perms:seo.control | `admin/src/pages/admin/system-ops.tsx:38` |
+| POST | `/api/admin/admin/governance-controls/feature-flags` | OK | `backend/src/modules/admin/enterprise/admin-governance-controls.controller.ts:100` | roles:ADMIN perms:ops.queues.manage | `admin/src/pages/admin/system-ops.tsx:39` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |

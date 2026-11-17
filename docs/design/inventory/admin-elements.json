@@ -9940,7 +9940,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 27
+    "line": 40
    },
    {
     "kind": "button",
@@ -9950,7 +9950,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 27
+    "line": 40
    },
    {
     "kind": "button",
@@ -9958,9 +9958,9 @@
     "src": "POST /api/admin/admin/ops/queues/:param/jobs/:param/retry; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api/",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 38
+    "line": 51
    },
    {
     "kind": "input",
@@ -9968,7 +9968,7 @@
     "src": "state lang used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 40
+    "line": 53
    },
    {
     "kind": "form",
@@ -9978,7 +9978,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 50
+    "line": 63
    },
    {
     "kind": "input",
@@ -9986,7 +9986,7 @@
     "src": "state translationKey used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 50
+    "line": 63
    },
    {
     "kind": "input",
@@ -9994,7 +9994,7 @@
     "src": "state translationValue used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 50
+    "line": 63
    },
    {
     "kind": "button",
@@ -10002,7 +10002,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 50,
+    "line": 63,
     "submit": true
    },
    {
@@ -10011,9 +10011,9 @@
     "src": "POST /api/admin/admin/ops/seo/controls; GET /api/admin/admin/ops/queues; GET /api/admin/admin/ops/translations; GET /api/admin/admin/ops/seo",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 59
+    "line": 72
    },
    {
     "kind": "link",
@@ -10022,7 +10022,7 @@
     "status": "ok",
     "link": "/admin/module-switches",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61
+    "line": 74
    },
    {
     "kind": "link",
@@ -10031,7 +10031,7 @@
     "status": "ok",
     "link": "/admin/kill-switches",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61
+    "line": 74
    },
    {
     "kind": "button",
@@ -10041,7 +10041,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61
+    "line": 74
    },
    {
     "kind": "form",
@@ -10052,7 +10052,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61
+    "line": 74
    },
    {
     "kind": "input",
@@ -10060,7 +10060,7 @@
     "src": "state flag used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61
+    "line": 74
    },
    {
     "kind": "button",
@@ -10068,7 +10068,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61,
+    "line": 74,
     "submit": true
    },
    {
@@ -10079,7 +10079,35 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/system-ops.tsx",
-    "line": 61
+    "line": 74
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onConfirm",
+    "src": "confirmReason; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 74
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onCancel",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 74
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reasonText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/system-ops.tsx",
+    "line": 74
    },
    {
     "kind": "action",
@@ -10156,6 +10184,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    },
    {
     "kind": "link",
