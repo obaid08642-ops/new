@@ -51,7 +51,21 @@ export default function ProviderModeration() {
       .finally(() => setDetailLoading(false));
   }, [selectedProvider?.id]);
 
-  // Approve form (replaces the three window.prompt dialogs): reason + commissions + summary + confirm.
+  // One reason dialog for the reactivate / reject / request-changes / delta decisions (the shared ConfirmDialog, not the browser prompt: no focus trap, no keyboard, unstyled).
+  // The handler opens it; the request runs with the reason once it has 5 characters (the server audits it).
+  const [reasonAsk, setReasonAsk] = useState<{ title: string; hint: string; run: (reason: string) => Promise<void> } | null>(null);
+  const [reasonText, setReasonText] = useState('');
+  const [reasonError, setReasonError] = useState('');
+  const askReason = (title: string, hint: string, run: (reason: string) => Promise<void>) => { setReasonText(''); setReasonError(''); setReasonAsk({ title, hint, run }); };
+  const confirmReason = () => {
+    if (!reasonAsk) return;
+    if (reasonText.trim().length < 5) { setReasonError('يرجى إدخال سبب لا يقل عن 5 أحرف'); return; }
+    const { run } = reasonAsk;
+    setReasonAsk(null);
+    void run(reasonText.trim());
+  };
+
+  // Approve form (replaces the three browser prompts): reason + commissions + summary + confirm.
   const [approveFor, setApproveFor] = useState<Provider | null>(null);
   const [approveReason, setApproveReason] = useState('');
   const [approveCash, setApproveCash] = useState('');
@@ -232,9 +246,7 @@ export default function ProviderModeration() {
   };
 
   // P6.x-8: reactivate a suspended provider (reason audited server-side).
-  const handleReactivate = async (id: string) => {
-    const reason = window.prompt('سبب إعادة التفعيل (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
-    if (!reason || reason.trim().length < 5) return;
+  const handleReactivate = (id: string) => askReason('سبب إعادة التفعيل', 'يُحفظ في سجل التدقيق — 5 أحرف على الأقل', async (reason) => {
     try {
       const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/reactivate`, {
         method: 'POST', body: JSON.stringify({ reason: reason.trim() }),
@@ -244,20 +256,16 @@ export default function ProviderModeration() {
     } catch (err: any) {
       alert('فشل التفعيل: ' + (err?.message || 'خطأ'));
     }
-  };
+  });
 
   // Reject (the reason is shown to the provider, who fixes and resubmits; the documents are kept, private) and request-changes (the same, for a specific change).
   // Both use the routes POST /admin/providers/:id/reject and :id/request-changes; the body field differs (reason / note).
-  const handleDecision = async (id: string, kind: 'reject' | 'request-changes') => {
+  const handleDecision = (id: string, kind: 'reject' | 'request-changes') => {
     const reject = kind === 'reject';
-    const reason = window.prompt(
-      reject
-        ? 'سبب رفض المزود (يراه المزود ويصحّح ما طُلب ثم يعيد التقديم؛ تبقى الوثائق محفوظة بشكل خاص ولا تُحذف، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل):'
-        : 'ما المطلوب تعديله؟ (يصل للمزود ويُحفظ في سجل التدقيق — 5 أحرف على الأقل):',
-      '',
-    );
-    if (reason === null) return;
-    if (reason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); return; }
+    askReason(
+      reject ? 'سبب رفض المزود' : 'ما المطلوب تعديله؟',
+      reject ? 'يراه المزود ويصحّح ما طُلب ثم يعيد التقديم؛ تبقى الوثائق محفوظة بشكل خاص ولا تُحذف، ويُحفظ السبب في سجل التدقيق، 5 أحرف على الأقل' : 'يصل للمزود ويُحفظ في سجل التدقيق — 5 أحرف على الأقل',
+      async (reason) => {
     try {
       const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${id}/${kind}`, {
         method: 'POST',
@@ -275,12 +283,11 @@ export default function ProviderModeration() {
       console.error(e);
       alert(reject ? 'خطأ في الرفض' : 'خطأ في طلب التعديلات');
     }
+      },
+    );
   };
 
-  const handleCommitDelta = async (id: string) => {
-    const reason = window.prompt('سبب اعتماد التعديلات (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
-    if (reason === null) return;
-    if (reason.trim().length < 5) { alert('يرجى إدخال سبب لا يقل عن 5 أحرف'); return; }
+  const handleCommitDelta = (id: string) => askReason('سبب اعتماد التعديلات', 'يُحفظ في سجل التدقيق — 5 أحرف على الأقل', async (reason) => {
     try {
         const res = await fetchWithAdminGuard(`/api/admin/admin/providers/provider-deltas/${id}/approve`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
@@ -295,12 +302,9 @@ export default function ProviderModeration() {
       console.error(e);
       alert('خطأ في ترحيل التعديلات');
     }
-  };
+  });
 
-  const handleRejectDelta = async (id: string) => {
-    const reason = window.prompt('سبب رفض التعديلات (يُحفظ في سجل التدقيق — 5 أحرف على الأقل):', '');
-    if (reason === null) return;
-    if (reason.trim().length < 5) { alert('يرجى إدخال سبب رفض لا يقل عن 5 أحرف'); return; }
+  const handleRejectDelta = (id: string) => askReason('سبب رفض التعديلات', 'يُحفظ في سجل التدقيق — 5 أحرف على الأقل', async (reason) => {
     try {
         const res = await fetchWithAdminGuard(`/api/admin/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason: reason.trim() }) });
       if (res.ok) {
@@ -315,7 +319,7 @@ export default function ProviderModeration() {
       console.error(e);
       alert('خطأ في رفض التعديلات');
     }
-  };
+  });
 
   return (
     <div className="p-8 h-full flex flex-col">
@@ -526,6 +530,12 @@ export default function ProviderModeration() {
             {approveError && <p role="alert" className="rounded bg-rose-50 p-2 text-sm text-rose-700">{approveError}</p>}
           </>
         )}
+      </ConfirmDialog>
+
+      <ConfirmDialog open={reasonAsk !== null} title={reasonAsk?.title ?? ''} confirmLabel="تأكيد" onConfirm={confirmReason} onCancel={() => { setReasonAsk(null); setReasonError(''); }}>
+        <p className="text-slate-600">{reasonAsk?.hint}</p>
+        <textarea value={reasonText} onChange={(e) => setReasonText(e.target.value)} rows={3} aria-label={reasonAsk?.title} className="w-full rounded-lg border p-2" />
+        {reasonError ? <p role="alert" className="text-sm text-rose-700">{reasonError}</p> : null}
       </ConfirmDialog>
     </div>
   );

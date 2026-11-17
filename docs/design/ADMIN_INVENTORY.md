@@ -52,7 +52,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | providers | `/admin/nursing-portal` | `appointment.read` | yes | 7 / 0 | 10 / 0 | `admin/src/pages/admin/nursing-portal.tsx` |
 | providers | `/admin/pharmacy-procurement` | `pharmacy.inventory.read` | yes | 6 / 0 | 14 / 0 | `admin/src/pages/admin/pharmacy-procurement.tsx` |
 | providers | `/admin/provider-audits` | `facility.edit` | yes | 3 / 0 | 2 / 0 | `admin/src/pages/admin/provider-audits.tsx` |
-| providers | `/admin/provider-moderation` | `facility.edit` | yes | 22 / 2 | 47 / 0 | `admin/src/pages/admin/provider-moderation.tsx` |
+| providers | `/admin/provider-moderation` | `facility.edit` | yes | 22 / 2 | 50 / 0 | `admin/src/pages/admin/provider-moderation.tsx` |
 | system | `/admin/ai-control` | `settings.edit` | yes | 5 / 0 | 6 / 0 | `admin/src/pages/admin/ai-control.tsx` |
 | system | `/admin/alerts` | `command.center.view` | yes | 10 / 0 | 18 / 0 | `admin/src/pages/admin/alerts.tsx` |
 | system | `/admin/article-review` | `cms.edit` | yes | 4 / 0 | 12 / 0 | `admin/src/pages/admin/article-review.tsx` |
@@ -677,15 +677,15 @@ _No API call in the page or its local components._
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
 | GET | `/api/admin/admin/providers/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:176` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:48` |
-| GET | `/api/admin/admin/providers` | OK | `backend/src/modules/provider/provider.controllers.ts:166` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:86` |
-| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:171` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:104` |
-| POST | `/api/admin/admin/providers/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:160` |
-| POST | `/api/admin/admin/providers/:param/reject-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:184` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:199` |
-| POST | `/api/admin/admin/providers/:param/approve-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:182` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:219` |
-| POST | `/api/admin/admin/providers/:param/reactivate` | OK | `backend/src/modules/provider/provider.controllers.ts:219` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:239` |
-| POST | `/api/admin/admin/providers/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:262` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:173` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:285` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:175` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:305` |
+| GET | `/api/admin/admin/providers` | OK | `backend/src/modules/provider/provider.controllers.ts:166` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:100` |
+| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:171` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:118` |
+| POST | `/api/admin/admin/providers/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:174` |
+| POST | `/api/admin/admin/providers/:param/reject-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:184` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:213` |
+| POST | `/api/admin/admin/providers/:param/approve-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:182` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:233` |
+| POST | `/api/admin/admin/providers/:param/reactivate` | OK | `backend/src/modules/provider/provider.controllers.ts:219` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:251` |
+| POST | `/api/admin/admin/providers/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:270` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:173` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:292` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:175` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:309` |
 | GET | `/api/admin/storage/:param/signed-url` | OK | `backend/src/modules/storage/storage.module.ts:572` | NONE | `admin/src/components/ProviderFullDetail.tsx:21` |
 | GET | `/api/admin/storage/:param` | OK | `backend/src/modules/storage/storage.module.ts:562` | NONE | `admin/src/components/ProviderFullDetail.tsx:26` |
 | POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:188` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:184` |

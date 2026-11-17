@@ -7854,7 +7854,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 328
+    "line": 332
    },
    {
     "kind": "button",
@@ -7864,7 +7864,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 331
+    "line": 335
    },
    {
     "kind": "button",
@@ -7874,7 +7874,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 352
+    "line": 356
    },
    {
     "kind": "action",
@@ -7884,7 +7884,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 356
+    "line": 360
    },
    {
     "kind": "action",
@@ -7894,7 +7894,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 362
+    "line": 366
    },
    {
     "kind": "button",
@@ -7904,37 +7904,39 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 395
+    "line": 399
    },
    {
     "kind": "button",
     "label": "Request changes (طلب تعديلات)",
-    "src": "POST /api/admin/admin/providers/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 398
+    "line": 402
    },
    {
     "kind": "button",
     "label": "Reject (رفض)",
-    "src": "POST /api/admin/admin/providers/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/:param",
     "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/providers/:param/:param) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 401
+    "line": 405
    },
    {
     "kind": "button",
     "label": "Reactivate (إعادة تفعيل)",
-    "src": "POST /api/admin/admin/providers/:param/reactivate; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/reactivate",
     "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/providers/:param/reactivate) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 404
+    "line": 408
    },
    {
     "kind": "button",
@@ -7945,7 +7947,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 408
+    "line": 412
    },
    {
     "kind": "button",
@@ -7955,7 +7957,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 413
+    "line": 417
    },
    {
     "kind": "input",
@@ -7963,7 +7965,7 @@
     "src": "state bankReason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 419
+    "line": 423
    },
    {
     "kind": "button",
@@ -7974,27 +7976,29 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 420
+    "line": 424
    },
    {
     "kind": "button",
     "label": "تأكيد واعتماد التعديلات",
-    "src": "POST /api/admin/admin/providers/provider-deltas/:param/approve; prompt()",
+    "src": "POST /api/admin/admin/providers/provider-deltas/:param/approve",
     "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/providers/provider-deltas/:param/approve) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 472
+    "line": 476
    },
    {
     "kind": "button",
     "label": "رفض التعديلات",
-    "src": "POST /api/admin/admin/providers/provider-deltas/:param/reject; prompt()",
+    "src": "POST /api/admin/admin/providers/provider-deltas/:param/reject",
     "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/providers/provider-deltas/:param/reject) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 475
+    "line": 479
    },
    {
     "kind": "action",
@@ -8005,7 +8009,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 489
+    "line": 493
    },
    {
     "kind": "action",
@@ -8015,7 +8019,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 489
+    "line": 493
    },
    {
     "kind": "input",
@@ -8023,7 +8027,7 @@
     "src": "state approveReason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 506
+    "line": 510
    },
    {
     "kind": "input",
@@ -8031,7 +8035,7 @@
     "src": "state approveCash used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 510
+    "line": 514
    },
    {
     "kind": "input",
@@ -8039,7 +8043,7 @@
     "src": "state approveIns used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 513
+    "line": 517
    },
    {
     "kind": "input",
@@ -8047,7 +8051,7 @@
     "src": "state licenseRef used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 519
+    "line": 523
    },
    {
     "kind": "input",
@@ -8055,7 +8059,35 @@
     "src": "state licenseExpiry used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/provider-moderation.tsx",
-    "line": 522
+    "line": 526
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onConfirm",
+    "src": "confirmReason; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 535
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onCancel",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 535
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reasonText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/provider-moderation.tsx",
+    "line": 537
    },
    {
     "kind": "button",
