@@ -2203,27 +2203,29 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
     "label": "اعتماد ونشر",
     "src": "POST /api/admin/admin/cms/:param/publish; PATCH /api/admin/admin/cms/:param/unpublish; GET /api/admin/admin/cms/articles; GET /api/admin/adm",
     "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
     "label": "سحب",
     "src": "POST /api/admin/admin/cms/:param/publish; PATCH /api/admin/admin/cms/:param/unpublish; GET /api/admin/admin/cms/articles; GET /api/admin/adm",
     "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "form",
@@ -2234,7 +2236,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2242,7 +2244,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2250,7 +2252,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2258,7 +2260,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2266,7 +2268,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2274,7 +2276,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2282,7 +2284,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2290,7 +2292,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2298,7 +2300,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2306,7 +2308,7 @@
     "src": "state article used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
@@ -2314,7 +2316,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55,
+    "line": 62,
     "submit": true
    },
    {
@@ -2323,9 +2325,9 @@
     "src": "PATCH /api/admin/admin/coupons/:param; GET /api/admin/admin/cms/articles; GET /api/admin/admin/coupons; GET /api/admin/admin/notification-ce",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "form",
@@ -2335,7 +2337,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2343,7 +2345,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2351,7 +2353,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2359,7 +2361,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2367,7 +2369,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2375,7 +2377,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2383,7 +2385,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2391,7 +2393,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2399,7 +2401,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2407,7 +2409,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2415,7 +2417,7 @@
     "src": "state coupon used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
@@ -2423,7 +2425,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55,
+    "line": 62,
     "submit": true
    },
    {
@@ -2434,7 +2436,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
@@ -2444,7 +2446,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "form",
@@ -2454,7 +2456,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2462,7 +2464,7 @@
     "src": "state faq used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2470,7 +2472,7 @@
     "src": "state faq used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2478,7 +2480,7 @@
     "src": "state faq used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2486,7 +2488,7 @@
     "src": "state faq used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
@@ -2494,7 +2496,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55,
+    "line": 62,
     "submit": true
    },
    {
@@ -2505,7 +2507,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "form",
@@ -2515,7 +2517,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2523,7 +2525,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2531,7 +2533,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2539,7 +2541,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2547,7 +2549,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2555,7 +2557,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2563,7 +2565,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2571,7 +2573,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2579,7 +2581,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "input",
@@ -2587,7 +2589,7 @@
     "src": "state campaign used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55
+    "line": 62
    },
    {
     "kind": "button",
@@ -2595,8 +2597,36 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/content-growth.tsx",
-    "line": 55,
+    "line": 62,
     "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onConfirm",
+    "src": "confirmReason; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 62
+   },
+   {
+    "kind": "action",
+    "label": "<ConfirmDialog> onCancel",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 62
+   },
+   {
+    "kind": "input",
+    "label": "textarea",
+    "src": "state reasonText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/content-growth.tsx",
+    "line": 62
    },
    {
     "kind": "link",
@@ -2662,6 +2692,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    },
    {
     "kind": "link",
