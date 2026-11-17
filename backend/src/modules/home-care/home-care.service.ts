@@ -34,6 +34,7 @@ import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-revie
 import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
+import { assertProviderLicenceCurrent } from '../../common/provider-licence';
 
 /**
  * The catalogue rows as the apps see them: `booking_options` is what the service really offers (booking-mode.ts: the admin's own lists, else the current defaults), so the booking
@@ -142,6 +143,7 @@ export class HomeCareSvc {
     const providerId = typeof data.provider_id === 'string' ? data.provider_id : '';
     if (!providerId && !isAdmin) throw new BadRequestException('provider_id_required');
     if (providerId) {
+      await assertProviderLicenceCurrent(this.svcModel.db, providerId);   // A2: no new booking for a lapsed licence (all provider types)
       const nurse = await this.svcModel.db.collection('provider_profiles').findOne({
         account_id: providerId, type: { $in: ['home_care', 'nursing', 'nurse'] }, status: 'active', public_eligibility: true, medical_review_status: 'approved',
         'nursing_services.key': svc.id,

@@ -54,6 +54,7 @@ import { publicLabFilter } from './labs-public';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
 import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
+import { assertProviderLicenceCurrent } from '../../common/provider-licence';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -334,6 +335,7 @@ export class LabsService {
     if (!data.provider_account_id && user.role !== 'admin' && user.role !== 'system') {
       throw new BadRequestException('provider_account_id_required');
     }
+    await assertProviderLicenceCurrent(this.bkgModel.db, data.provider_account_id);   // A2: no new booking for a lapsed licence (all provider types)
     const documents: any[] = Array.isArray(data.documents) ? data.documents.map((d: any) => ({ ...d, uploaded_at: new Date() })) : [];
     // Home rule: insurance + home requires uploaded doctor_request OR preauth
     if (data.location_type === 'home' && paymentMethod === 'insurance') {

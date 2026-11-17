@@ -54,6 +54,7 @@ const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 import { nearestFirst } from '../provider/services/nearest-first';
 import { NAME_PROJECTION, withItemNames, withScanNames } from '../../common/booking-names';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
+import { assertProviderLicenceCurrent } from '../../common/provider-licence';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -695,6 +696,7 @@ export class RadiologyOpsService {
       if (!providerId) throw new BadRequestException('provider_not_found');
     }
     if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
+    await assertProviderLicenceCurrent(this.svcModel.db, providerId);   // A2: no new booking for a lapsed licence (all provider types)
     if (providerId && !isAdmin) {
       // a centre may perform the scan by its equipment, or by having declared it in its ordering catalogue (what a quote lists)
       const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId)
