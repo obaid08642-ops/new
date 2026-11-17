@@ -171,7 +171,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.md }}>
               <I name={mode === 'dark' ? 'moon' : 'sun'} size={20} color={theme.primary} />
               <Text style={{ fontSize: FS.md, color: theme.text }}>
-                {AR ? (mode === 'dark' ? 'الوضع الليلي' : 'الوضع النهاري') : (mode === 'dark' ? 'Dark Mode' : 'Light Mode')}
+                {(mode === 'dark' ? tt('nna.7c667c79') : tt('nna.42addd35'))}
               </Text>
             </View>
             <Switch value={mode === 'dark'} onValueChange={toggleTheme} trackColor={{ true: theme.primary }} />

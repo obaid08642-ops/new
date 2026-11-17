@@ -350,7 +350,7 @@ function LStep1({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
       <NInput
         innerRef={nameEnRef}
         label={tt('labreg.4a581750')}
-        placeholder="Nabdah Medical Lab"
+        placeholder={tt('phx.793563d1')}
         value={data.nameEn} onChange={v => update({ nameEn: v })}
         caps="words"
         returnKey="next" onSubmit={() => mgrNameRef.current?.focus()}
@@ -527,7 +527,7 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
         hint={tt('labreg.0c3e5bc8')} />
 
       <NInput label={tt('labreg.a80db342')}
-        placeholder="MOH-LAB-XXXXX" value={data.mohLicense}
+        placeholder={tt('phx.b1683b8a')} value={data.mohLicense}
         onChange={v => update({ mohLicense: v })}
         required error={errs.moh}
         hint={tt('labreg.15394017')} />
@@ -545,7 +545,7 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
             error={errs.labCategory}
             hint={tt('labreg.03da1524')} />
           <NInput label={tt('labreg.3c328d53')}
-            placeholder={AR ? 'CBAHI, CAP, ISO 15189' : 'CBAHI, CAP, ISO 15189'}
+            placeholder={tt('phx.ca05684a')}
             value={(data as any).labAccreditation || ''}
             onChange={v => update({ labAccreditation: v } as any)}
             hint={tt('labreg.70da51df')} />
@@ -556,7 +556,7 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
       {(data.centerType === 'radiology' || data.centerType === 'both') && (
         <>
           <NInput label={tt('labreg.1c1bfdea')}
-            placeholder="RSO-RAD-XXXXX"
+            placeholder={tt('phx.ce1cb63a')}
             value={(data as any).radSafetyLicense || ''}
             onChange={v => update({ radSafetyLicense: v } as any)}
             required
@@ -573,13 +573,13 @@ function LStep2({ data, update, submitRef, uploads }: StepProps<DiagnosticsRegDa
       )}
 
       <NInput label={tt('labreg.730b8353')}
-        placeholder="SA0000000000000000000000" value={data.iban}
+        placeholder={tt('phx.8b707323')} value={data.iban}
         onChange={v => update({ iban: v.toUpperCase().replace(/\s/g, '') })}
         required error={errs.iban} maxLen={24}
         hint={tt('labreg.f8a55b7b')} />
 
       <NInput label={tt('labreg.3c637c3b')}
-        placeholder="300XXXXXXXXX003" value={data.taxNumber}
+        placeholder={tt('phx.5dad8b41')} value={data.taxNumber}
         onChange={v => update({ taxNumber: v })} maxLen={15} />
 
       {/* Document upload */}
@@ -718,7 +718,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
             </View>
 
             <NInput
-              label={AR ? (data.centerType === 'radiology' ? 'رسوم النقل والتصوير (ريال)' : 'رسوم السحب المنزلي (ريال)') : (data.centerType === 'radiology' ? 'Home Scan Fee (SAR)' : 'Home Collection Fee (SAR)')}
+              label={(data.centerType === 'radiology' ? tt('nnc.4cc33a33') : tt('nnc.cac149b0'))}
               placeholder="0"
               value={data.homeCollectionFee || ''}
               onChange={v => update({ homeCollectionFee: v.replace(/\D/g, '') })}
@@ -736,7 +736,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               ))}
             </View>
             <NInput
-              label={AR ? (data.centerType === 'radiology' ? 'عدد أجهزة/فنيي التصوير المنزلي' : 'عدد مندوبي السحب المتاحين') : (data.centerType === 'radiology' ? 'Available Techs/Machines' : 'Available Phlebotomists')}
+              label={(data.centerType === 'radiology' ? tt('nnc.b161a0c5') : tt('nnc.5ba6c99f'))}
               placeholder="2"
               value={data.homeCollectorCount}
               onChange={v => update({ homeCollectorCount: v.replace(/\D/g, '') })}
