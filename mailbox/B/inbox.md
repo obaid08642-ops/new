@@ -154,3 +154,13 @@ ORDER: (1) prove which API endpoint runs each of these three shapes (grep distin
 
 ## 2026-11-17 10:30 UTC — lead: #2735 is red ONLY because of an old spec
 `src/common/nightly-heavy-schedule.spec.ts` (the #2680 spec) parses `@Cron('<expr>')` with a regex that no longer matches once `{ timeZone: 'UTC' }` is added (all = 0: "the heavy jobs start at least 30 minutes apart" / "none inside the dump window" fail with Expected >0, Received 0). Update ITS regex to accept the options argument (do not weaken the assertions: the spec must still find the cron expressions and check the 30-minute spacing and the 02:45-04:15 UTC window), push to b2/container-timezone; I merge when green. Also merged today: #2738 (deployed in 136, main@d5cd9077), #2733, #2734, #2736.
+
+## 2026-11-17 11:00 UTC — lead: owner decisions (see lead/OWNER_DECISIONS.md, block 2026-11-17) -> your queue, in order, one PR each
+1. #2735: fix the old nightly-heavy-schedule spec regex (see 10:30 block), CI green.
+2. Licence expiry: implement A2 + B2 + C2 + D2 exactly as written in OWNER_DECISIONS (2026-11-17). Tests for each rule. D2 uses the existing refund path (provider cancels = 100%), no new money logic.
+3. KYC for rejected/restricted providers: allow them to read the LIST of documents flagged for replacement (type, reason, status; no file URL of the old file) and to upload replacements; keep every other provider route behind the G6 gate; update the #2690 spec that pins today's 403.
+4. SCFHS: no integration (owner). Make sure nothing in launch checks/alerts expects SCFHS; docs say admin verification.
+5. Missing migration 20260827 indexes (96u: 4 MISSING): write an ops task that creates them safely (preflight duplicates first, report counts, create in background), dry run by default.
+6. R11 P3 runs: I schedule them (96i shows only wallets.balance 8 and orders.* 10-20 rows missing shadows; everything else 0).
+7. Then: drop-candidate list of the old public_* indexes (needs a 96r/index-usage task: $indexStats read-only) and the rare-category sort question.
+When 1-7 are done or blocked: QUEUE EMPTY. Do NOT start multi-country code before I send the plan.

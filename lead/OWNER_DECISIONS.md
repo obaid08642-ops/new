@@ -75,3 +75,10 @@ Rule: one PR per row, existing journeys (j_*) and unit tests must stay green, no
 - Provider app: Arabic + English only (no ur/hi/bn/fil). Patient app and patient website: six languages. Nothing to translate for the provider app.
 - Launch rule: the site and the apps are NOT opened to anyone until the owner is sure everything is finished.
 - (2026-11-17 owner) Accountant note (#2703): postponed, there is no accountant yet. INN/active-ingredient table (#1556, 96s): postponed. R11 P3 (stop writing doubles, halalas only): APPROVED to do before launch (backup first, dry run first, ops runs approved by the owner as usual). Only the remaining technical/programming work is to be finished now.
+
+## 2026-11-17 (owner, + lead decisions he delegated)
+- SCFHS: NO integration with the Saudi Commission. Providers upload their licences, numbers and papers; an admin verifies them at approval and at renewal. The SCFHS re-check code stays inert (not configured) and is not a launch item.
+- RAM: later (end of work). Accountant: postponed. INN table: postponed.
+- Launch only after everything is finished; then the next big piece is MULTI-COUNTRY (foundation for many countries, start with Saudi Arabia + maybe one more).
+- Lead decisions (delegated, licence-expiry options in docs/platform/LICENCE-EXPIRY-OPTIONS.md): A2 (valid through the end of the expiry day, Riyadh time; then blocked for ALL five types at once, not only doctors), B2 ("restricted": hidden, not bookable, login works to finish existing work and upload the renewed licence), C2 (provider-typed date + admin checks the document at approval and at renewal; admin list of expiries), D2 (on suspension: future confirmed visits/orders are cancelled with a 100% refund and the patient is told and offered a rebook; anything starting within the next 24 h is kept only if the licence lapsed less than 24 h ago).
+- Lead decision: a rejected / restricted provider may see WHICH documents must be replaced (type + reason) and upload new ones; no download of the old rejected files is needed.
