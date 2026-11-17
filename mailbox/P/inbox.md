@@ -76,3 +76,6 @@ Report each PR in the outbox; stop only when 1-3 are done or blocked.
 
 ## 2026-11-17 00:20 UTC — lead
 MERGED: B's #2725 (slot times are Riyadh clock time: `start`/`id`/`end` real UTC instants, `label` = Riyadh "HH:mm" of `start`, request `date` = the Riyadh calendar day), #2727, #2728 (docs/admin hide list: read it and do the 13 client changes, one PR). Switch the web and app slot pickers to show Asia/Riyadh and send the Riyadh date, with tests, in one PR (same release as #2725, which is merged but not deployed yet: deploy goes together with your PR). #2719 still dirty + failing the Design tokens check: fix it or close it.
+
+## 2026-11-17 01:25 UTC — lead
+#2729 merged. #2730 (stacked on it) now CONFLICTS (squash): merge origin/main into it, regenerate inventories with the tools, push. From now on do NOT stack PRs on an unmerged PR: branch from main, one PR at a time. #2719 still dirty and failing: fix or close.
