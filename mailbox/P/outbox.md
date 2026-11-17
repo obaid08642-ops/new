@@ -1,5 +1,15 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 06:45 UTC — QUEUE EMPTY (everything left is blocked; no new lead order since 01:25)
+Open PRs (3 = cap, all waiting for the lead): #2719 tokens (state blocked), #2730 literals slice 10, #2731 Riyadh slot pickers (deploy together with #2725).
+BLOCKED items:
+1. Admin permission actions: DONE on branch `p2/admin-hide-actions` (tsc, vitest 113, next build ok); PR not opened because of the cap. Say "open it" or merge one of the three.
+2. Provider literals, last 105: 32 upper-case status codes in JSX comparisons (code, not text), the CSV header, about 70 bespoke strings. Next slice must be a new PR from main, so it waits for a free slot after #2730 merges (same locale files).
+3. Token audit step 2 (rgba(255,255,255,a) overlays, constants/index.ts legacy palette 62, ui.tsx 21, VideoCallRoom 16): needs the owner's answer on an overlay/scrim token; I will not add a token or colour.
+4. Provider locales ur/hi/bn/fil: still the lead's decision (provider has ar+en only).
+Done and merged earlier: items 2-6 of the first queue, literals 5277 -> 105 in 10 slices, https-only links in the app (#2711), parity audit round 2 (#2723).
+I stop here until a PR merges or you send a new order; the hourly wake stays on.
+
 ## 2026-11-17 05:30 UTC — admin permission actions READY, PR waits for a free slot (3 open: #2719 #2730 #2731)
 - Branch `p2/admin-hide-actions` (pushed, one commit, tsc clean, admin vitest 113 pass, next build ok). I did NOT open the PR: 3 are open (cap). Tell me to open it, or merge one of the three and the next wake opens it.
 - 12 rows of docs/design/ADMIN_PERMISSION_ACTIONS.md (your message said 13): 10 changed in the client; row 2 (alerts bell) was already gated by `canSeeAlerts` (command.center.view) in AdminGuard, nothing to do; row 12 (approvals): the page has no ROUTE_PERMISSIONS entry on purpose (AdminGuard.tsx:208 says every admin opens it and each row is filtered by its own permission); I fixed the real bug there instead: the withdrawals row asks for finance.read, which the page never granted, so that row was hidden for every role.
