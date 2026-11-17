@@ -154,7 +154,7 @@ function JoinTab() {
       const stored = relation ? message('ar', `family.relation.${relation}`) : '';
       const res = (await apiFetch('/family/join', {
         method: 'POST',
-        body: JSON.stringify({ invite_code: code.trim(), display_name: message('ar', 'family.join.defaultName'), ...(stored ? { relation: stored } : {}) }),
+        body: JSON.stringify({ invite_code: code.trim(), display_name: message('ar', 'family.join.defaultName'), ...(stored ? { relation: stored, relation_code: relation } : {}) }),
       })) as { ok?: boolean };
       if (res.ok) setJoined(true);
     } catch (e) {

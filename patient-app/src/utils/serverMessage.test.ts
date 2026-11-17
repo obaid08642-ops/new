@@ -27,6 +27,7 @@ describe('serverMessage: what the backend and the api helpers say, as a translat
     ['محاولات كثيرة — انتظر قليلًا ثم أعد المحاولة', 'errors.tooManyRequests'],
     ['خطأ في الخادم — حاول مرة أخرى لاحقًا', 'errors.server'],
     ['العنصر المطلوب غير موجود', 'errors.notFound'],
+    ['reset_token_invalid', 'errors.resetLinkInvalid'],   // an expired or used password-reset link
   ])('%s -> %s', (message, key) => {
     expect(serverMessage(new Error(message), FALLBACK)).toBe(key);
     expect(serverMessage(message, FALLBACK)).toBe(key);

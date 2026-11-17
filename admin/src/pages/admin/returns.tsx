@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { useCan } from '@/components/AdminGuard';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 type ReturnRow = {
   id: string;
@@ -31,6 +32,9 @@ export default function ReturnsAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [workingId, setWorkingId] = useState('');
+  // the decision note is asked in the shared confirm dialog (not window.prompt: no focus trap, no keyboard, unstyled)
+  const [pending, setPending] = useState<{ row: ReturnRow; decision: 'approved' | 'rejected' } | null>(null);
+  const [note, setNote] = useState('');
   const canDecide = useCan('finance.payout.approve');   // POST returns/:id/decide needs FINANCE_PAYOUT_APPROVE
 
   async function load() {
@@ -48,9 +52,15 @@ export default function ReturnsAdminPage() {
 
   useEffect(() => { void load(); }, [status]);
 
-  async function decide(row: ReturnRow, decision: 'approved' | 'rejected') {
-    const note = window.prompt(decision === 'approved' ? 'ملاحظة اعتماد الإرجاع' : 'سبب رفض الإرجاع');
-    if (note === null) return;
+  function decide(row: ReturnRow, decision: 'approved' | 'rejected') {
+    setError('');
+    setNote('');
+    setPending({ row, decision });
+  }
+
+  async function submitDecision() {
+    if (!pending) return;
+    const { row, decision } = pending;
     if (decision === 'rejected' && note.trim().length < 5) { setError('سبب الرفض 5 أحرف على الأقل.'); return; }
     setWorkingId(row.id);
     setError('');
@@ -59,6 +69,7 @@ export default function ReturnsAdminPage() {
         method: 'POST',
         body: JSON.stringify({ decision, note: note.trim() }),
       });
+      setPending(null);
       await load();
     } catch (cause: any) {
       setError(cause?.message || 'تعذر حفظ القرار');
@@ -120,6 +131,17 @@ export default function ReturnsAdminPage() {
                 </article>
               ))}
             </div>}
+        <ConfirmDialog
+          open={pending !== null}
+          title={pending?.decision === 'approved' ? 'ملاحظة اعتماد الإرجاع' : 'سبب رفض الإرجاع'}
+          confirmLabel={pending?.decision === 'approved' ? 'اعتماد' : 'رفض'}
+          busy={workingId !== ''}
+          onConfirm={() => void submitDecision()}
+          onCancel={() => { setPending(null); setError(''); }}
+        >
+          <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={3} className="w-full rounded-lg border p-2" aria-label={pending?.decision === 'approved' ? 'ملاحظة اعتماد الإرجاع' : 'سبب رفض الإرجاع'} />
+          {error ? <p role="alert" className="text-sm text-red-700">{error}</p> : null}
+        </ConfirmDialog>
       </main>
     </>
   );
