@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-17 16:20 UTC — #2743 merged; admin prompt page 5 (#2748)
+- Admin prompt page 5: content-growth.tsx, 2 calls (coupon on/off, article publish/unpublish) through one ConfirmDialog (PR #2748, test 2; coupon toggle untested, same helper). 5 calls in 5 files left after #2739, #2740, #2748: ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments.
+- Open PRs: #2739, #2740, #2748 (cap). The worker restarted once; nothing was lost (tree clean, last PR pushed).
+
 ## 2026-11-17 15:30 UTC — #2741 merged; admin prompt page 4 (#2743)
 - Admin prompt page 4: config-portal.tsx, 2 calls (pricing 10 chars, SLA 5 chars) through one ConfirmDialog (PR #2743, test 3). isSubmitting is now set only when the save really starts. 7 calls in 6 files left after #2739, #2740 and #2743: content-growth 2, ProviderFullDetail, appointments-oversight, provider-audits, scheduled-reports, segments.
 - Open PRs: #2739, #2740, #2743 (cap). Your 12:00 block (multi-country audit, read-only) comes after my current queue: admin prompts, 37 client lines, 13 design lines.
