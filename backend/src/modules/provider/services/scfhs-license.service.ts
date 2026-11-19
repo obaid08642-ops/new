@@ -7,7 +7,7 @@
  * and answers JSON `{ "found": boolean, "status": "active"|"expired"|"suspended"|"revoked", "expiry_date": "YYYY-MM-DD", "holder_name"?: string }`.
  * With no URL configured, or on any error, timeout or unreadable answer, the lookup is `unavailable`, which never verifies a provider.
  */
-import { suspendAccountForLicense } from '../../provider-onboarding/facility-license';
+import { restrictAccountForLicense } from '../../provider-onboarding/facility-license';
 import { Injectable, Logger, Module } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -19,7 +19,7 @@ import { ScheduledOnce } from '../../../common/scheduled-once';
 
 const LOOKUP_TIMEOUT_MS = 5000;
 
-/** The fields dailyRecheck reads from a profile (see scfhsNumberOf / recheckVerdict / hide / suspendAccountForLicense). */
+/** The fields dailyRecheck reads from a profile (see scfhsNumberOf / recheckVerdict / hide / restrictAccountForLicense). */
 export const SCFHS_RECHECK_PROJECTION = { _id: 1, id: 1, type: 1, account_id: 1, user_id: 1, scfhs_license_number: 1, license_number: 1, scfhs_last_good_at: 1 } as const;
 
 @Injectable()
@@ -93,7 +93,7 @@ export class ScfhsLicenseService {
   async dailyRecheck(): Promise<{ checked: number; hidden: number }> {
     if (!this.configured()) return { checked: 0, hidden: 0 };
     const graceDays = Number(process.env.SCFHS_RECHECK_GRACE_DAYS) || 14;
-    // A cursor with a projection of the fields this job reads (scfhsNumberOf, recheckVerdict, hide, suspendAccountForLicense): it used to load up to 5,000 whole profiles into memory.
+    // A cursor with a projection of the fields this job reads (scfhsNumberOf, recheckVerdict, hide, restrictAccountForLicense): it used to load up to 5,000 whole profiles into memory.
     const profiles = this.conn.collection('provider_profiles').find({
       status: 'active', public_eligibility: true, scfhs_check_source: 'scfhs_api',
     }, { projection: SCFHS_RECHECK_PROJECTION, batchSize: 200 }).limit(5000);
@@ -125,7 +125,7 @@ export class ScfhsLicenseService {
         scfhs_checked_at: result.checked_at, scfhs_check_outcome: result.outcome,
       },
     });
-    await suspendAccountForLicense(this.conn, profile, `scfhs_license_${result.outcome}`).catch((e: any) => this.logger.error(`licence account suspend failed ${profile.id}: ${e?.message || e}`));   // the login follows the profile
+    await restrictAccountForLicense(this.conn, profile, `scfhs_license_${result.outcome}`).catch((e: any) => this.logger.error(`licence account suspend failed ${profile.id}: ${e?.message || e}`));   // the login follows the profile
     this.events.emit('provider.license_lapsed', { provider_id: profile.account_id || profile.user_id, profile_id: profile.id, outcome: result.outcome });
     this.logger.warn(`Provider ${profile.id} hidden: SCFHS licence ${result.outcome}`);
   }

@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { ProviderAccount, ProviderProfile, ProviderDocument, ProviderBankAccount, ProviderAuditLog, DocumentReviewStatus, BankReviewStatus } from '../schemas';
 import { ProviderAccountStatus, PROVIDER_STATUS_TRANSITIONS } from '../provider.enums';
 import { UserRole } from '../../../common/enums';
+import { isLicenceLapsed, licenceDaysLeft } from '../../../common/provider-licence';
 import { ManualLicenseCheck, requiresScfhs } from '../../../common/scfhs-license';
 import { ScfhsLicenseService } from './scfhs-license.service';
 import { ProviderAccountRepository } from "./repositories/provideraccount.repository";
@@ -314,10 +315,8 @@ export class ProviderAdminService {
     if (q?.type) filter.type = { $eq: String(q.type) };
     const rows: any[] = await this.accounts.model.db.collection('provider_profiles').find(filter, { projection: { _id: 0, id: 1, account_id: 1, user_id: 1, type: 1, display_name_ar: 1, display_name_en: 1, status: 1, license_status: 1, license_expiry_date: 1, suspended_reason: 1 } }).sort({ license_expiry_date: 1 }).limit(500).toArray();
     const now = Date.now();
-    return rows.map((r) => {
-      const expiry = new Date(r.license_expiry_date);
-      return { ...r, days_left: Math.ceil((expiry.getTime() - now) / (24 * 3600 * 1000)), expired: expiry.getTime() <= now };
-    });
+    // A2 (owner 2026-11-17): a licence is valid through the end of its expiry day in Riyadh time, so the list uses the same lapse rule as the monitor and the booking check (a licence expiring today is not yet expired, with 1 day left).
+    return rows.map((r) => ({ ...r, days_left: licenceDaysLeft(r.license_expiry_date, now), expired: isLicenceLapsed(r.license_expiry_date, now) }));
   }
 
   /**
