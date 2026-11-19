@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 19:10 UTC — lead order: #2759 and #2740 merged with main; last admin prompt page (#2760)
+- Lead order of 18:32 UTC done: merged main into #2759 (p2/admin-prompt-scheduled-reports) and #2740 (p2/admin-prompt-provider-moderation), no rebase or force. Conflicts were only generated docs (ADMIN_INVENTORY, ADMIN_WIRING_REPORT): took main's, regenerated with the inventory tools. Admin `tsc --noEmit` clean, admin vitest 34 files / 132-133 tests passed on both. Both show mergeable_state "blocked" (waiting for review), no conflicts. #2759 also fixes the PROGRESS row (provider-audits #2758 merged).
+- #2758 merged. Last admin prompt page: segments.tsx delete reason through the ConfirmDialog (PR #2760, test 2, admin suite green, tsc clean). After #2740, #2759, #2760 merge no `window.prompt` is left in the admin pages (returns.tsx only has a comment).
+- Open PRs: #2740, #2759, #2760. Next, when a slot frees: the 37 OPEN [client] lines of CLIENT_FINAL_RECONCILIATION section 7, then the 13 design lines, then the Phase 1 multi-country audit.
+
 ## 2026-11-19 16:10 UTC — #2739 and #2753 merged; admin prompt pages 8 and 9 (#2758, #2759)
 - #2739 (impersonation + PROGRESS row) and #2753 (appointments-oversight) merged. #2740 re-synced with main again (generated docs only).
 - Admin prompt page 8: provider-audits.tsx rejection reason through the ConfirmDialog (PR #2758, test 2, tsc clean).
