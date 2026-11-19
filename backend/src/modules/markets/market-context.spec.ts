@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
-import { MarketContextMiddleware } from './market-context.middleware';
+import { MarketContextMiddleware, skipsMarketContext } from './market-context.middleware';
+import { MarketsService } from './markets.service';
 import { currentMarketContext, requireMarketContext, runWithMarketContext } from './market-context';
 import { marketScopeHook, MarketScopeError, ALL_MARKETS_OPTION } from './market-scope';
 import { SA_CONFIG_V1 } from './sa-market.seed';
@@ -75,5 +76,50 @@ describe('marketScopeHook', () => {
   });
   it('the explicit all-markets option skips the guard', () => {
     expect(() => marketScopeHook.call(q({}, { [ALL_MARKETS_OPTION]: true }) as never)).not.toThrow();
+  });
+});
+
+describe('market context is skipped for probes', () => {
+  it.each([['/api/v1/health/liveness'], ['/api/v1/health/readiness?x=1'], ['/health/liveness'], ['/api/v1'], ['/api/v1/'], ['/.well-known/oauth-authorization-server']])('skips %s', (p) => {
+    expect(skipsMarketContext(p)).toBe(true);
+  });
+  it.each([['/api/v1/orders'], ['/api/v1/healthcare'], ['/api/v1/users/me'], [undefined]])('does not skip %s', (p) => {
+    expect(skipsMarketContext(p as string | undefined)).toBe(false);
+  });
+  it('does not read the database or set a context for a probe', async () => {
+    const svc = { getMarket: jest.fn(), getConfig: jest.fn() };
+    const m = new MarketContextMiddleware(svc as never);
+    const out = await new Promise<{ ctx: unknown }>((resolve) => { void m.use({ headers: {}, originalUrl: '/api/v1/health/liveness' }, {}, () => resolve({ ctx: currentMarketContext() })); });
+    expect(out.ctx).toBeUndefined();
+    expect(svc.getMarket).not.toHaveBeenCalled();
+  });
+});
+
+describe('MarketsService.getMarket cache (hot path)', () => {
+  const mk = (found: unknown) => {
+    const findOne = jest.fn(() => ({ lean: async () => found }));
+    return { svc: new MarketsService({ findOne } as never, {} as never, {} as never), findOne };
+  };
+  it('two requests = one database read (positive)', async () => {
+    const { svc, findOne } = mk({ id: 'SA', country: 'SA', operator_id: 'o', status: 'live' });
+    await svc.getMarket('SA');
+    await svc.getMarket('SA');
+    expect(findOne).toHaveBeenCalledTimes(1);
+  });
+  it('two requests for an unknown market = one database read (not-found is cached too)', async () => {
+    const { svc, findOne } = mk(null);
+    await expect(svc.getMarket('EG')).rejects.toThrow('market_not_found');
+    await expect(svc.getMarket('EG')).rejects.toThrow('market_not_found');
+    expect(findOne).toHaveBeenCalledTimes(1);
+  });
+  it('the cache expires after 60 s', async () => {
+    const { svc, findOne } = mk({ id: 'SA', country: 'SA', operator_id: 'o', status: 'live' });
+    const now = Date.now();
+    const spy = jest.spyOn(Date, 'now').mockReturnValue(now);
+    await svc.getMarket('SA');
+    spy.mockReturnValue(now + 61_000);
+    await svc.getMarket('SA');
+    expect(findOne).toHaveBeenCalledTimes(2);
+    spy.mockRestore();
   });
 });

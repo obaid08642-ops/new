@@ -6,7 +6,13 @@ import { SA_CONFIG_V1, SA_MARKET, SA_MARKET_ID } from './sa-market.seed';
 export const MARKET_HEADER = 'x-market';
 const SERVED: ReadonlySet<string> = new Set(['pilot', 'live', 'internal_test']);
 
-interface Req { headers: Record<string, string | string[] | undefined> }
+interface Req { headers: Record<string, string | string[] | undefined>; path?: string; originalUrl?: string }
+
+/** Probes and discovery documents need no market (and must not touch the database): /health/*, the API root probe, /.well-known/*. The backend serves no static files. */
+const NO_MARKET_PATH = /^\/(?:api\/?(?:v\d+\/?)?$|(?:api\/)?(?:v\d+\/)?health(?:\/|$)|\.well-known(?:\/|$))/;
+export function skipsMarketContext(path: string | undefined): boolean {
+  return typeof path === 'string' && NO_MARKET_PATH.test(path.split('?')[0]);
+}
 
 /**
  * Puts a MarketContext on every request. Resolution: a client hint (`X-Market`, ISO alpha-2) is only a hint: it must be a
@@ -19,6 +25,7 @@ export class MarketContextMiddleware implements NestMiddleware {
   constructor(private readonly markets: MarketsService) {}
 
   async use(req: Req, _res: unknown, next: (err?: unknown) => void): Promise<void> {
+    if (skipsMarketContext(req.originalUrl ?? req.path)) return next();
     let ctx: MarketContext;
     try {
       ctx = await this.resolve(req);
