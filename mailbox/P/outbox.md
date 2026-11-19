@@ -1,5 +1,12 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 16:10 UTC — #2739 and #2753 merged; admin prompt pages 8 and 9 (#2758, #2759)
+- #2739 (impersonation + PROGRESS row) and #2753 (appointments-oversight) merged. #2740 re-synced with main again (generated docs only).
+- Admin prompt page 8: provider-audits.tsx rejection reason through the ConfirmDialog (PR #2758, test 2, tsc clean).
+- Admin prompt page 9: scheduled-reports.tsx delete reason through one ConfirmDialog instead of prompt + confirm (PR #2759, test 2, tsc clean). Also updates the lane-P row of docs/design/PROGRESS.md (7.9 KB).
+- Left in this item: segments.tsx (1 call), next slot. Then the 37 OPEN [client] lines, the 13 design lines, then the Phase 1 multi-country audit.
+- Open PRs: #2740, #2758, #2759.
+
 ## 2026-11-19 12:50 UTC — #2750 merged; resynced #2739/#2740; admin prompt page 7 (#2753)
 - #2750 merged. #2739 and #2740 had gone conflicted (generated docs only): re-synced with main, both conflict-free again (blocked = waiting for review).
 - Admin prompt page 7: appointments-oversight.tsx cancel reason through the ConfirmDialog (PR #2753, test 2, tsc clean). 3 calls in 3 files left: provider-audits, scheduled-reports, segments.
