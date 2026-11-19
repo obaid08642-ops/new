@@ -1,3 +1,6 @@
+## 2026-11-19 — MC.1 markets/operators/market_configs + one reader + SA row
+Status: done, PR #2761 (CI: pending). tsc, build, full jest (39/39 chunks), dtolint, dtocheck green; golden spec compares SA row to live constants. Boot gate: 3 failures in provider-onboarding + p3-provider-credential e2e, identical on clean main (not from this PR). Step 2 needs #2761 merged first (no stacking); waiting.
+
 ## 2026-11-19 11:30 UTC — Multi-country Phase 1 (audit + blueprint)
 Status: done (docs only, waiting for lead review)
 PR: #2751 audit (six files), #2752 blueprint (CI: docs only, not checked)
