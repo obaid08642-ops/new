@@ -1035,6 +1035,7 @@
    "unit": [
     "admin/src/pages/admin/appointments-oversight.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -1054,7 +1055,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:154",
      "backendPath": "/admin/appointments",
      "file": "admin/src/pages/admin/appointments-oversight.tsx",
-     "line": 14,
+     "line": 15,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -1077,7 +1078,7 @@
      "backend": "backend/src/modules/care/appointments.controller.ts:160",
      "backendPath": "/admin/appointments/:param/cancel",
      "file": "admin/src/pages/admin/appointments-oversight.tsx",
-     "line": 23,
+     "line": 30,
      "fn": "apiFetch",
      "via": null,
      "guards": {

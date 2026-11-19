@@ -34,7 +34,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | finance | `/admin/financial-ledger` | `finance.read` | yes | 9 / 0 | 13 / 0 | `admin/src/pages/admin/financial-ledger.tsx` |
 | finance | `/admin/payouts` | `finance.read` | yes | 6 / 0 | 20 / 0 | `admin/src/pages/admin/payouts.tsx` |
 | finance | `/admin/returns` | `finance.payout.approve` | yes | 6 / 0 | 17 / 0 | `admin/src/pages/admin/returns.tsx` |
-| ops-monitoring | `/admin/appointments-oversight` | `appointment.read` | yes | 6 / 0 | 10 / 0 | `admin/src/pages/admin/appointments-oversight.tsx` |
+| ops-monitoring | `/admin/appointments-oversight` | `appointment.read` | yes | 6 / 0 | 17 / 0 | `admin/src/pages/admin/appointments-oversight.tsx` |
 | ops-monitoring | `/admin/approvals` | **none** | yes | 15 / 0 | 9 / 0 | `admin/src/pages/admin/approvals.tsx` |
 | ops-monitoring | `/admin/broadcast-monitor` | `order.read` | yes | 1 / 0 | 1 / 0 | `admin/src/pages/admin/broadcast-monitor.tsx` |
 | ops-monitoring | `/admin/command-center` | `command.center.view` | yes | 10 / 0 | 15 / 0 | `admin/src/pages/admin/command-center.tsx` |
@@ -129,8 +129,8 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/appointments` | OK | `backend/src/modules/care/appointments.controller.ts:154` | roles:ADMIN | `admin/src/pages/admin/appointments-oversight.tsx:14` |
-| POST | `/api/admin/admin/appointments/:param/cancel` | OK | `backend/src/modules/care/appointments.controller.ts:160` | roles:ADMIN perms:order.cancel | `admin/src/pages/admin/appointments-oversight.tsx:23` |
+| GET | `/api/admin/admin/appointments` | OK | `backend/src/modules/care/appointments.controller.ts:154` | roles:ADMIN | `admin/src/pages/admin/appointments-oversight.tsx:15` |
+| POST | `/api/admin/admin/appointments/:param/cancel` | OK | `backend/src/modules/care/appointments.controller.ts:160` | roles:ADMIN perms:order.cancel | `admin/src/pages/admin/appointments-oversight.tsx:30` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |
