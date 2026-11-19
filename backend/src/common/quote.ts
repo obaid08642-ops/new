@@ -1,5 +1,6 @@
 import { isTaxRegistered, platformVatOf } from './tax-registration';
 import { roundSar } from './money';
+import { DEFAULT_CURRENCY } from './market-defaults';
 
 /**
  * One quote shape for every booking kind. The server states every amount (lines, VAT, discount, total); the clients only display it.
@@ -17,7 +18,7 @@ export interface QuoteLine {
 
 export interface Quote {
   kind: string;
-  currency: 'SAR';
+  currency: string;
   lines: QuoteLine[];
   discount: number;
   subtotal: number;
@@ -53,7 +54,7 @@ export function buildQuote(input: { kind: string; lines: QuoteLine[]; vat_rate: 
   const registered = input.vat_rate !== null;
   const vat = registered ? platformVatOf(lines, input.vat_rate as number, total) : null;
   return {
-    kind: input.kind, currency: 'SAR', lines, discount,
+    kind: input.kind, currency: DEFAULT_CURRENCY, lines, discount,
     subtotal: vat === null ? total : round2(total - vat), vat_rate: input.vat_rate, vat, total, tax_registered: registered,
     allowed_methods: [...input.allowed_methods],
   };

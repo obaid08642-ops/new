@@ -25,6 +25,7 @@ import { Appointment, AppointmentSchema } from '../../schemas/appointment.schema
 import { ProviderProfile, ProviderProfileSchema } from '../../schemas/provider-profile.schema';
 import { ServiceDomain } from '../../common/enums';
 import { MarkDto, AddAttDto } from './booking-ops.dto';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 @Schema({ collection: 'booking_attachments', timestamps: true })
 export class BookingAttachment extends Document {
@@ -106,7 +107,7 @@ export class BookingOpsService {
       insurance_provider: e.insurance_provider,
       breakdown: { subtotal, tax, insurance_discount: insuranceDiscount, delivery_fee: e.delivery_fee || 0, total },
       issued_at: e.createdAt,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
     };
   }
 

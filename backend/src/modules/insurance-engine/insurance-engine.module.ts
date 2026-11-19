@@ -39,6 +39,7 @@ import { SavePolicyDto, CreateRequestDto, PayCopayDto, ResubmitDto, AppealDto, D
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { ScheduledOnce } from '../../common/scheduled-once';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 // ============================================================================
 // Schemas
@@ -368,7 +369,7 @@ export class InsuranceFlowService {
       patientShare += share;
     }
     const round = (n: number) => Math.round(n * 100) / 100;
-    return { requests: rows.length, approved, rejected: rows.length - approved, insurer_covered: round(covered), patient_share: round(patientShare), currency: 'SAR' };
+    return { requests: rows.length, approved, rejected: rows.length - approved, insurer_covered: round(covered), patient_share: round(patientShare), currency: DEFAULT_CURRENCY };
   }
 
   private bookingModel(kind: string): { kind: string; model: Model<any> } {
@@ -713,7 +714,7 @@ export class InsuranceFlowService {
     return {
       booking_id: req.booking_id,
       amount: mode === 'copay' ? Number(req.copay_amount || 0) : Number(req.total_amount || req.price || 0),
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
       purpose: mode === 'copay' ? 'insurance_copay' : 'insurance_self_pay',
       methods,
     };

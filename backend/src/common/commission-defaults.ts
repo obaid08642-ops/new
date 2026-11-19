@@ -1,3 +1,4 @@
+import { DEFAULT_VAT_PERCENT_VALUE } from './market-defaults';
 /**
  * The commission config (`finance_config` { key: 'commissions' }) seeded when none exists. One copy for the legal
  * service and the admin finance suite, so both seed the same values that CommissionResolver and readVatRate read:
@@ -25,7 +26,7 @@ export const payoutMinimumDefault = (): number => envNumber('PAYOUT_MINIMUM_SAR'
  *  - DEFAULT_VAT_PERCENT: VAT on the commission when finance_config has no `tax.vat_percent`.
  */
 export const DEFAULT_COMMISSION_PERCENT = 10;
-export const DEFAULT_VAT_PERCENT = 15;
+export const DEFAULT_VAT_PERCENT = DEFAULT_VAT_PERCENT_VALUE;
 
 export const DEFAULT_COMMISSIONS = {
   service_types: {

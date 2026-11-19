@@ -28,6 +28,7 @@ import { ensureEarningUniqueIndex } from '../finance-engine/earning-key';
 import { CommissionResolver, LedgerService } from '../finance-engine/finance-engine.module';
 import { settlementDelayDefault, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { roundSar } from '../../common/money';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 /** Provider withdrawal requests (consumed by admin-web-core finance controller). */
 export const ProviderWithdrawalSchema = new Schema(
@@ -569,7 +570,7 @@ export class ProviderOpsService {
       new_patients: newPatients,
       top_service: topService && topService[1] > 0 ? topService[0] : null,
       series,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
     };
   }
 

@@ -22,6 +22,7 @@ import { escapeRegex } from '../../common/slug.util';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { AiGatewayService } from './ai-gateway.service';
 import { hasDose, SAFE_TEXT, scan } from './assistant-output-filter';
+import { DEFAULT_EMERGENCY_NUMBER } from '../../common/market-defaults';
 
 export const ASSISTANT_LOCALES = ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] as const;
 export type AssistantLocale = (typeof ASSISTANT_LOCALES)[number];
@@ -271,7 +272,7 @@ export class AssistantService {
         kind: 'red_flag',
         text: RED_FLAG_TEXT[locale],
         disclaimer: DISCLAIMER[locale],
-        actions: [{ type: 'emergency_call', tel: '997' }, ...(flagSpecialty ? [{ type: 'book_consultation', specialty: flagSpecialty }] : [])],
+        actions: [{ type: 'emergency_call', tel: DEFAULT_EMERGENCY_NUMBER }, ...(flagSpecialty ? [{ type: 'book_consultation', specialty: flagSpecialty }] : [])],
       };
     }
 

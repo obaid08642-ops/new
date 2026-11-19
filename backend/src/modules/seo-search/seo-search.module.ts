@@ -189,6 +189,7 @@ import { ArticleRepository } from './seo-repositories/article.repository';
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { timedFetch } from '../../common/external-call';
 import { NOT_PROMOTABLE_FILTER } from '../medicines/promotion-rules';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 /** Orders of the public catalogue (#816); anything else is the default popularity order. */
 export const CATALOGUE_SORTS = ['popular', 'most_ordered', 'price_asc', 'price_desc', 'newest'] as const;
 export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
@@ -397,7 +398,7 @@ export class SeoSearchService {
         const product = (url: string, img: string) => ({
           '@context': 'https://schema.org', '@type': 'Product', name: title, description: desc, image: img, url,
           brand: e.manufacturer ? { '@type': 'Brand', name: e.manufacturer } : undefined,
-          offers: e.price ? { '@type': 'Offer', price: e.price, priceCurrency: 'SAR', availability: e.availability_status === 'none' || !e.availability_status ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability' } : undefined,
+          offers: e.price ? { '@type': 'Offer', price: e.price, priceCurrency: DEFAULT_CURRENCY, availability: e.availability_status === 'none' || !e.availability_status ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability' } : undefined,
         });
         const drug = (url: string) => ({
           '@context': 'https://schema.org', '@type': 'Drug', name: title, description: desc, url,
@@ -733,7 +734,7 @@ export class SeoSearchService {
         title: d.name,
         description: d.description || null,
         price: d.price,
-        currency: d.currency || 'SAR',
+        currency: d.currency || DEFAULT_CURRENCY,
         available: d.available === true && d.available_online !== false,
         image: d.image || (Array.isArray(d.images) ? d.images[0] : null) || null,
         brand: d.manufacturer || null,

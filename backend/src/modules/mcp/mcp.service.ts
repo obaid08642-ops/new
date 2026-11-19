@@ -6,6 +6,7 @@ import { EntityGraphService } from '../entity-graph/entity-graph.service';
 import { LocationService } from '../location/location.service';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { AGENT_TOOL_SCOPES, issuer, mcpHost } from '../agent-oauth/agent-oauth.constants';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 export interface McpToolDefinition {
   name: string;
@@ -548,7 +549,7 @@ export class McpService {
         id: m.id,
         name: m.name_ar || m.name_en,
         price: m.price,
-        currency: 'SAR',
+        currency: DEFAULT_CURRENCY,
         requires_prescription: !!m.requires_prescription,
         active_ingredient: m.active_ingredient,
         canonical_url: `https://nabd.plus/ar/p/${m.slug || m.id}`,
@@ -661,7 +662,7 @@ export class McpService {
         id: r.id,
         name: locale === 'ar' ? (r.name_ar || r.name_en) : (r.name_en || r.name_ar),
         price: typeof r.price === 'number' ? r.price : undefined,
-        currency: typeof r.price === 'number' ? 'SAR' : undefined,
+        currency: typeof r.price === 'number' ? DEFAULT_CURRENCY : undefined,
         canonical_url: `${origin}/${locale}${path}`,
         deep_link: `nabdplus://${path.replace(/^\//, '')}`,
       };
@@ -883,7 +884,7 @@ export class McpService {
         can_checkout: true,
         quantity,
         pricing: {
-          currency: 'SAR',
+          currency: DEFAULT_CURRENCY,
           catalog_unit_price: unitPrice,
           pricing_note: unitPrice === null
             ? 'No catalog price on file — the pharmacy offer sets the binding price.'
@@ -925,7 +926,7 @@ export class McpService {
         insurance_policy_id: insurance_policy_id || null,
         can_checkout: true,
         pricing: {
-          currency: 'SAR',
+          currency: DEFAULT_CURRENCY,
           price_clinic: num(doc.price_clinic),
           price_online: num(doc.price_online),
           price_home: num(doc.price_home),

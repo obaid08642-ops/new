@@ -6,6 +6,7 @@ import { CATALOG_COLLECTIONS } from '../../catalogs/catalog-collections';
 import { PROVIDER_OFFERS_COLLECTION, PROVIDER_TYPES, type OfferWhere, type Vertical } from '../../../common/service-offers';
 import { ProviderAuditLogRepository } from './repositories/providerauditlog.repository';
 import type { ProviderServiceOfferDto } from '../provider-service-offers.dto';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 export const OFFER_VERTICALS: readonly Vertical[] = ['lab', 'radiology', 'nursing'];
 
@@ -70,7 +71,7 @@ export class ProviderServiceOffersService {
       return {
         service_id: s.id, code: spec.code(s), name_ar: s.name_ar ?? null, name_en: s.name_en ?? null, category: s.category ?? s.modality ?? null, image_url: s.image_url ?? null,
         catalogue_price: typeof s.price === 'number' && s.price > 0 ? s.price : null, home_visit_supported: s.home_visit_supported === true || s.home_collection_availability === true,
-        offered: o?.offered === true, where: o?.offered === true ? (o.where as OfferWhere) : null, insurance: o?.insurance === true, price: typeof o?.price === 'number' ? o.price : null, currency: o?.currency || 'SAR',
+        offered: o?.offered === true, where: o?.offered === true ? (o.where as OfferWhere) : null, insurance: o?.insurance === true, price: typeof o?.price === 'number' ? o.price : null, currency: o?.currency || DEFAULT_CURRENCY,
       };
     });
     return opts.offered === undefined ? rows : rows.filter((r) => r.offered === opts.offered);
@@ -86,7 +87,7 @@ export class ProviderServiceOffersService {
     const before: any = await coll.findOne({ provider_account_id: user.id, vertical, service_id: serviceId }, { projection: { _id: 0 } });
     const where: OfferWhere = body.offered ? (body.where ?? (vertical === 'nursing' ? 'home' : 'premises')) : (before?.where ?? 'premises');
     const price = body.offered && typeof body.price === 'number' && body.price > 0 ? Math.round(body.price * 100) / 100 : null;
-    const next = { provider_account_id: user.id, vertical, service_id: serviceId, offered: body.offered, where, insurance: body.insurance === true, price, currency: 'SAR' };
+    const next = { provider_account_id: user.id, vertical, service_id: serviceId, offered: body.offered, where, insurance: body.insurance === true, price, currency: DEFAULT_CURRENCY };
     await coll.updateOne({ provider_account_id: user.id, vertical, service_id: serviceId }, { $set: { ...next, updatedAt: new Date() }, $setOnInsert: { id: uuid(), createdAt: new Date() } }, { upsert: true });
     await this.mirrorToProfile(user.id, vertical, svc, next);
     await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'service_offer.changed', target: { collection: PROVIDER_OFFERS_COLLECTION, id: `${vertical}:${serviceId}` }, before: before ? { offered: before.offered, where: before.where, insurance: before.insurance, price: before.price } : null, after: { offered: next.offered, where: next.where, insurance: next.insurance, price: next.price } }).catch(() => undefined);
