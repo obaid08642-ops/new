@@ -7,6 +7,7 @@ import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
 import { publicMedicineFilter } from '../medicines/public-medicine-filter';
 import { readQuoteVatRate } from '../../common/quote';
 import { platformVatOf } from '../../common/tax-registration';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 export interface ProductFeedQuery {
   page?: number;
@@ -92,7 +93,7 @@ export class AiCommerceService {
         offers: {
           '@type': 'Offer',
           price,
-          priceCurrency: 'SAR',
+          priceCurrency: DEFAULT_CURRENCY,
           availability: 'https://schema.org/InStock',
           priceValidUntil: new Date(Date.now() + 86400000 * 30).toISOString().split('T')[0],
           seller: {
@@ -289,7 +290,7 @@ export class AiCommerceService {
       patient_phone: dto.patient_phone || null,
       items: validatedItems,
       pricing: {
-        currency: 'SAR',
+        currency: DEFAULT_CURRENCY,
         subtotal: subtotalFormatted,
         vat_amount: vatAmount,
         vat_rate: vatRate,
@@ -314,7 +315,7 @@ export class AiCommerceService {
         ? 'One or more items require an SFDA-verified prescription. The patient must upload a valid prescription before order dispatch.'
         : null,
       pricing: {
-        currency: 'SAR',
+        currency: DEFAULT_CURRENCY,
         subtotal: subtotalFormatted,
         vat_amount: vatAmount,
         vat_rate: vatRate,

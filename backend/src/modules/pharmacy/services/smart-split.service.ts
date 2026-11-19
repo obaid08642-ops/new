@@ -19,6 +19,7 @@ import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventor
 import { ProviderAccountProfileRepository } from "./repositories/provideraccountprofile.repository";
 import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
 import { ProviderScoreSnapshotRepository } from "./repositories/providerscoresnapshot.repository";
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 const MAX_SPLITS = 4;
 const REVIEW_TIMEOUT_MINUTES = 12;
@@ -118,7 +119,7 @@ export class SmartSplitService {
         pharmacy_account_id: plan.pharmacy_account_id,
         status: PharmacyAllocationState.PENDING_REVIEW,
         items: allocItems,
-        totals: { subtotal, delivery_fee: 0, total: subtotal, currency: 'SAR' },
+        totals: { subtotal, delivery_fee: 0, total: subtotal, currency: DEFAULT_CURRENCY },
         distance_km: plan.distance_km,
         estimated_preparation_minutes: prepMin,
         review_expires_at: reviewExp,

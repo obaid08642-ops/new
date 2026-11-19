@@ -14,6 +14,7 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { ProviderDocumentRepository } from "./repositories/providerdocument.repository";
 import { ProviderBankAccountRepository } from "./repositories/providerbankaccount.repository";
 import { ProviderAuditLogRepository } from "./repositories/providerauditlog.repository";
+import { DEFAULT_PHONE_DIAL } from '../../../common/market-defaults';
 
 function validateIban(iban: string) {
   if (!iban) return false;
@@ -124,7 +125,7 @@ export class ProviderProfileService {
     const id = require('uuid').v4();
     const isPrimary = !(p.phones || []).length || !!phone.is_primary;
     if (isPrimary) for (const ph of (p.phones || [])) (ph as any).is_primary = false;
-    p.phones.push({ id, type: phone.type, country_code: phone.country_code || '+966', number: phone.number, is_primary: isPrimary, verified: false });
+    p.phones.push({ id, type: phone.type, country_code: phone.country_code || DEFAULT_PHONE_DIAL, number: phone.number, is_primary: isPrimary, verified: false });
     await p.save();
     await this.audit.create({ provider_account_id: user.id, actor_id: user.id, actor_role: 'provider', action: 'profile.phone_added', after: { id, type: phone.type } });
     return p;

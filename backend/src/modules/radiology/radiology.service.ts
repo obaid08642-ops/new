@@ -54,6 +54,7 @@ const ALLOWED_ROLES_PROVIDER = ['radiology', 'admin', 'hospital'];
 import { nearestFirst } from '../provider/services/nearest-first';
 import { NAME_PROJECTION, withItemNames, withScanNames } from '../../common/booking-names';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -629,7 +630,7 @@ export class RadiologyOpsService {
         id: profile.account_id, facility_id: profile.id, name: profile.name_ar || profile.name_en,
         homeVisitAvailable: Boolean(profile.home_visit_supported),
         rating: profile.rating_count > 0 ? profile.rating_avg : null, logo: profile.logo || null,
-        price, currency: 'SAR',
+        price, currency: DEFAULT_CURRENCY,
       };
     });
   }

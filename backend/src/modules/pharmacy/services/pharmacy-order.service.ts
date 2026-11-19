@@ -19,6 +19,7 @@ import { WorkflowEngineService } from '../../workflow-engine/workflow-engine.mod
 import { PharmacyAllocationState } from '../schemas/pharmacy.schema';
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
 
@@ -200,7 +201,7 @@ export class PharmacyOrderService {
       insurance_policy_id: typeof body.insurance_policy_id === 'string' ? body.insurance_policy_id : undefined,
       delivery_address_id: typeof body.delivery_address_id === 'string' ? body.delivery_address_id : undefined,
       prescription_attachments: attachments.files,
-      totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' },
+      totals: { subtotal: 0, delivery_fee: 0, total: 0, currency: DEFAULT_CURRENCY },
       // P17-17.5: campaign attribution for the campaign report.
       attribution: pickAttribution(body) ?? undefined,
       timeline: [{ ts: new Date(), event: 'created' }],
@@ -554,7 +555,7 @@ export class PharmacyOrderService {
         decision: decision.outcome === 'full' ? 'APPROVED_FULL' : decision.outcome === 'partial' ? 'APPROVED_PARTIAL' : 'REJECTED',
         co_pay_amount: Number(decision.patient_share || 0),
         insurer_share: Number(decision.insurer_share || 0),
-        currency: decision.currency || snapshot?.totals?.currency || 'SAR',
+        currency: decision.currency || snapshot?.totals?.currency || DEFAULT_CURRENCY,
         // #523: what the patient already accepted, so a screen reopened after a reload says so instead of offering it again
         patient_acceptance: decision.patient_acceptance
           ? { kind: decision.patient_acceptance.kind, accepted_at: decision.patient_acceptance.accepted_at ?? null }
@@ -724,7 +725,7 @@ export class PharmacyOrderService {
       payment_status: order.payment_status || null,
       governed_state: governed.governed_state || null,
       amount: order.pricing_snapshot?.totals?.total ?? null,
-      currency: order.pricing_snapshot?.totals?.currency || 'SAR',
+      currency: order.pricing_snapshot?.totals?.currency || DEFAULT_CURRENCY,
       co_pay_amount: decision?.patient_share ?? null,
       insurer_share: decision?.insurer_share ?? null,
       active_intent: activeIntent ? { intent_id: activeIntent.intent_id, status: activeIntent.status, amount: activeIntent.amount, currency: activeIntent.currency, created_at: activeIntent.createdAt } : null,

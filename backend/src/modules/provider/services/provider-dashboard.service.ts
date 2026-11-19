@@ -9,6 +9,7 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { isProviderRole } from '../../../common/enums';
 import { hasEffectiveRole } from '../../../common/auth.guard';
 import { PROVIDER_WORK_SOURCES, ProviderWorkSource } from '../../../common/provider-work-sources';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
@@ -58,7 +59,7 @@ export class ProviderDashboardService {
       in_progress,
       accepted_total: accepted_all,
       today_revenue,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
     };
   }
 
@@ -77,7 +78,7 @@ export class ProviderDashboardService {
     ]);
     return {
       today_requests: today_total, pending_requests: pending, completed_today, in_progress,
-      accepted_total: accepted_all, today_revenue: Math.round(((revenue[0] as any)?.total || 0) * 100) / 100, currency: 'SAR',
+      accepted_total: accepted_all, today_revenue: Math.round(((revenue[0] as any)?.total || 0) * 100) / 100, currency: DEFAULT_CURRENCY,
     };
   }
 
@@ -97,7 +98,7 @@ export class ProviderDashboardService {
     ]);
     return {
       today_requests: today_total, pending_requests: pending, completed_today, in_progress,
-      accepted_total: accepted_all, today_revenue: Math.round(((revenue[0] as any)?.total || 0) * 100) / 100, currency: 'SAR',
+      accepted_total: accepted_all, today_revenue: Math.round(((revenue[0] as any)?.total || 0) * 100) / 100, currency: DEFAULT_CURRENCY,
     };
   }
 

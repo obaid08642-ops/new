@@ -12,6 +12,7 @@ import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 import { syncLineReviews } from '../price-review';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -171,7 +172,7 @@ export class PharmacyOfferService {
       name_ar: inventoryItem.name_ar,
       name_en: inventoryItem.name_en,
       unit_price: Number(inventoryItem.price),
-      currency: inventoryItem.currency || 'SAR',
+      currency: inventoryItem.currency || DEFAULT_CURRENCY,
       inventory_price_updated_at: inventoryItem.updatedAt || null,
     };
     // Master spec: provider may override the item price; the catalog price is preserved for admin audit.
@@ -248,7 +249,7 @@ export class PharmacyOfferService {
       pack_size: medicine.package_size,
       stock: qty,
       price,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
       available: true,
       notes: 'added from the catalogue when pricing an order line',
     });
@@ -353,7 +354,7 @@ export class PharmacyOfferService {
     if (etaMinutes != null && etaValue === null) throw new BadRequestException('eta_minutes_out_of_range');
     return {
       items,
-      totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: 'SAR' },
+      totals: { subtotal: Math.round(subtotal * 100) / 100, delivery_fee: deliveryFee, total: Math.round((subtotal + deliveryFee) * 100) / 100, currency: DEFAULT_CURRENCY },
       estimated_preparation_minutes: estimatedPreparationMinutes,
       fulfillment: {
         policy_status: 'unavailable_read_only',
@@ -433,7 +434,7 @@ export class PharmacyOfferService {
         name_en: item.name_en || null,
         catalog_price: item.catalog_price ?? null,
         override_price: item.unit_price,
-        currency: item.currency || 'SAR',
+        currency: item.currency || DEFAULT_CURRENCY,
         reason: item.price_override_reason || '',
         changed_by: user.id,
         changed_at: now,

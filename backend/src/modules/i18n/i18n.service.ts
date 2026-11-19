@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 type Lang = 'ar' | 'en' | 'ur';
 
@@ -55,7 +56,7 @@ export const DICTIONARY: Record<string, Record<Lang, string>> = {
   'common.empty': { ar: 'لا توجد بيانات', en: 'No data', ur: 'کوئی ڈیٹا نہیں' },
   'common.error': { ar: 'حدث خطأ', en: 'An error occurred', ur: 'خرابی ہوئی' },
   'common.error_network': { ar: 'تعذّر الاتصال بالخادم', en: 'Cannot reach server', ur: 'سرور سے رابطہ نہیں' },
-  'common.currency': { ar: 'ر.س', en: 'SAR', ur: 'ر.س' },
+  'common.currency': { ar: 'ر.س', en: DEFAULT_CURRENCY, ur: 'ر.س' },
   'common.total': { ar: 'الإجمالي', en: 'Total', ur: 'ٹوٹل' },
   'common.subtotal': { ar: 'المجموع', en: 'Subtotal', ur: 'سب ٹوٹل' },
   'common.delivery_fee': { ar: 'رسوم التوصيل', en: 'Delivery fee', ur: 'ڈلیوری فیس' },

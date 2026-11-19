@@ -13,6 +13,7 @@ import { ProviderAccountProfileRepository } from "./repositories/provideraccount
 import { ProviderAvailabilityRepository } from "./repositories/provideravailability.repository";
 import { ProviderType, ProviderAccountStatus } from '../../provider/provider.enums';
 import { UserRole } from '../../../common/enums';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 function assertAdmin(u: any) {
   if (!u || (u.role !== 'admin' && u.role !== 'super_admin')) {
@@ -114,7 +115,7 @@ export class PharmacySeedService {
       for (const item of p.inventory) {
         await this.inv.findOneAndUpdate(
           { provider_account_id: acc.id, sku: item.sku },
-          { ...item, provider_account_id: acc.id, available: true, currency: 'SAR', min_stock_alert: 10 },
+          { ...item, provider_account_id: acc.id, available: true, currency: DEFAULT_CURRENCY, min_stock_alert: 10 },
           { upsert: true, setDefaultsOnInsert: true },
         );
       }

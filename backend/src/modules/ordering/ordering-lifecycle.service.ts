@@ -12,6 +12,7 @@ import { rank, mergeWeights, reliabilityRates, round2 } from './ordering-engine'
 import { KIND_CATALOG, LIFECYCLE, OrderingService } from './ordering.service';
 import { ScheduledOnce } from '../../common/scheduled-once';
 import { cancelReasonOf } from './cancel-reason';
+import { DEFAULT_EMERGENCY_NUMBER } from '../../common/market-defaults';
 
 // M7: after the booking and the safeguards. The provider confirms in time (else auto-cancel, refund started, next best offered),
 // the visit (staff, 4-digit arrival code that locks after 3 wrong tries), preparation reminders, results with trends,
@@ -356,7 +357,7 @@ export class OrderingLifecycleService implements OnModuleInit {
     const { b } = await this.ownedByPatient(user.id, id);
     if (['CANCELLED', 'REPORTED'].includes(b.state)) throw new ConflictException('booking_closed');
     const cfg = (await this.conn.collection('system_configs').findOne({ key: 'mental_health_urgent_help' }))?.value as { phone?: unknown } | undefined;
-    const call = typeof cfg?.phone === 'string' && /^[0-9+]{2,15}$/.test(cfg.phone) ? cfg.phone : '997';
+    const call = typeof cfg?.phone === 'string' && /^[0-9+]{2,15}$/.test(cfg.phone) ? cfg.phone : DEFAULT_EMERGENCY_NUMBER;
     const now = new Date();
     await this.conn.collection('admin_alerts').insertOne({
       id: `aa_${randomUUID()}`, kind: 'ordering_emergency', entity_type: 'lab_booking', entity_id: id, booking_id: id, window: now.toISOString(),

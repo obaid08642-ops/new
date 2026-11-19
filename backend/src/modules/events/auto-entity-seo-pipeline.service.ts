@@ -5,6 +5,7 @@ import { RedisService } from '../redis/redis.service';
 import { EventBusService } from './event-bus.service';
 import { buildSlug } from '../../common/slug.util';
 import { CATALOG_COLLECTIONS } from '../catalogs/catalog-collections';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 export type PipelineEntityType =
   | 'doctor'
@@ -311,7 +312,7 @@ export class AutoEntitySeoPipelineService {
             streetAddress: doc.address || doc.district,
           },
           paymentAccepted: 'Cash, Credit Card, Mada, Apple Pay',
-          currenciesAccepted: 'SAR',
+          currenciesAccepted: DEFAULT_CURRENCY,
           openingHours: 'Mo-Su 00:00-23:59',
         };
 
@@ -383,7 +384,7 @@ export class AutoEntitySeoPipelineService {
           offers: doc.price ? {
             '@type': 'Offer',
             price: doc.price,
-            priceCurrency: 'SAR',
+            priceCurrency: DEFAULT_CURRENCY,
             availability: 'https://schema.org/InStock',
           } : undefined,
         };
@@ -396,7 +397,7 @@ export class AutoEntitySeoPipelineService {
           offers: doc.price ? {
             '@type': 'Offer',
             price: doc.price,
-            priceCurrency: 'SAR',
+            priceCurrency: DEFAULT_CURRENCY,
             availability: 'https://schema.org/InStock',
           } : undefined,
         };
@@ -409,7 +410,7 @@ export class AutoEntitySeoPipelineService {
           offers: doc.price ? {
             '@type': 'Offer',
             price: doc.price,
-            priceCurrency: 'SAR',
+            priceCurrency: DEFAULT_CURRENCY,
             availability: 'https://schema.org/InStock',
           } : undefined,
         };
@@ -424,7 +425,7 @@ export class AutoEntitySeoPipelineService {
           offers: doc.price ? {
             '@type': 'Offer',
             price: doc.price,
-            priceCurrency: 'SAR',
+            priceCurrency: DEFAULT_CURRENCY,
             availability: 'https://schema.org/InStock',
           } : undefined,
         };

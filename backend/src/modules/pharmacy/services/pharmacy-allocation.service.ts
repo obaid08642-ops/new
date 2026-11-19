@@ -16,6 +16,7 @@ import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT
 import { deliveryModeOf, type DeliveryMode } from '../../../common/tax-registration';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 import { roundSar } from '../../../common/money';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
 function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new ForbiddenException('patient_scope_required'); }
@@ -351,7 +352,7 @@ export class PharmacyAllocationService {
 
   /** P13-R2: keep the order's server-authoritative totals with the decided allocation. */
   private async syncOrderTotalsToAllocation(order: any, a: any, now: Date, event: string) {
-    const totals = { subtotal: a.totals.subtotal, delivery_fee: a.totals.delivery_fee || 0, total: a.totals.total, currency: a.totals.currency || 'SAR' };
+    const totals = { subtotal: a.totals.subtotal, delivery_fee: a.totals.delivery_fee || 0, total: a.totals.total, currency: a.totals.currency || DEFAULT_CURRENCY };
     // Pre-selection composition allocations carry no offer binding yet; only
     // bound allocations own a pricing snapshot (the fulfilment gate reads it).
     const set: any = { totals };
@@ -400,7 +401,7 @@ export class PharmacyAllocationService {
       const payment: any = await this.orders.db.collection('pharmacy_payment_evidence').findOne({
         order_id: order.id, selected_offer_id: a.offer_id, selected_offer_version: a.offer_version,
         quote_snapshot_hash: snapshotHash, amount: Math.round(amount * 100) / 100,
-        currency: String(a.totals?.currency || 'SAR'), payer_account_id: order.patient_account_id,
+        currency: String(a.totals?.currency || DEFAULT_CURRENCY), payer_account_id: order.patient_account_id,
         status: 'confirmed', gateway_payment_id: { $exists: true }, webhook_event_id: { $exists: true },
       });
       return !!payment;
@@ -517,7 +518,7 @@ export class PharmacyAllocationService {
         selected_offer_id: a.offer_id,
         selected_offer_version: a.offer_version,
         amount: Math.round(collected * 100) / 100,
-        currency: String(a.totals?.currency || 'SAR'),
+        currency: String(a.totals?.currency || DEFAULT_CURRENCY),
         method: collMethod,
         collected_by: user.id,
         collected_at: new Date(),

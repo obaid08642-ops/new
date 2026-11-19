@@ -18,6 +18,7 @@ import { RedisService } from '../redis/redis.service';
 import { issuer } from '../agent-oauth/agent-oauth.constants';
 import type { AgentPrincipal } from '../agent-oauth/agent-oauth.service';
 import type { ServiceType } from '../../schemas/appointment.schema';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 /** The assistant's tick as the create expects it: true / false as given, a MISSING argument stays missing (the rollout lets that through while REFUND_POLICY_ACCEPTANCE is optional; an explicit false is always refused). */
 const tick = (v: unknown): boolean | undefined => (v === true ? true : v === false ? false : undefined);
@@ -307,7 +308,7 @@ export class AgentToolsService {
         status: String(o.status ?? ''),
         items_count: Array.isArray(o.items) ? o.items.length : 0,
         total: (o.totals as Record<string, unknown> | undefined)?.total ?? null,
-        currency: (o.totals as Record<string, unknown> | undefined)?.currency ?? 'SAR',
+        currency: (o.totals as Record<string, unknown> | undefined)?.currency ?? DEFAULT_CURRENCY,
         tracking_url: web(`/pharmacy/broadcast-status?orderId=${encodeURIComponent(String(o.id))}`),
         created_at: o.createdAt ?? o.created_at ?? null,
       })),

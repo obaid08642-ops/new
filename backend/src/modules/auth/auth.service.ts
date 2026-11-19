@@ -35,6 +35,7 @@ import { LoginLockService } from '../../common/login-lock.service';
 import { OtpAbuseGuard } from '../../common/otp-abuse.service';
 import { I18nService, resolveLang } from '../i18n/i18n.service';
 import { logEvent } from '../../common/structured-logger';
+import { DEFAULT_TIMEZONE } from '../../common/market-defaults';
 
 /** A device id is an opaque token of 8-128 plain characters; anything else is not a device. */
 export function normaliseGuestDeviceId(raw: unknown): string | null {
@@ -1136,7 +1137,7 @@ export class AuthService {
     try {
       const to = (u.email || '').trim();
       if (!to || !this.mail) return;
-      const when = new Date().toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' });
+      const when = new Date().toLocaleString('ar-SA', { timeZone: DEFAULT_TIMEZONE });
       await this.mail.send(
         to,
         'تنبيه أمني: تسجيل دخول من جهاز جديد — نَبْض',
@@ -1167,7 +1168,7 @@ export class AuthService {
       if (!u || (u.role !== UserRole.SUPER_ADMIN && u.role !== UserRole.ADMIN)) return;
       await this.adminSession?.recordLoginAttempt(u.id, u.email, ok, ctx?.ip, ctx?.ua);
       const to = (u.email || '').trim();
-      const when = new Date().toLocaleString('ar-SA', { timeZone: 'Asia/Riyadh' });
+      const when = new Date().toLocaleString('ar-SA', { timeZone: DEFAULT_TIMEZONE });
       const subject = ok ? 'تسجيل دخول إلى لوحة تحكم نبض — نَبْض' : 'تنبيه أمني: محاولة دخول فاشلة — نَبْض';
       const html = `<div dir="rtl" style="font-family:Tahoma,Arial,sans-serif;line-height:1.9">
           <h2 style="color:#0E8FA3">${ok ? 'تسجيل دخول — لوحة تحكم نبض' : 'محاولة دخول فاشلة — لوحة تحكم نبض'}</h2>

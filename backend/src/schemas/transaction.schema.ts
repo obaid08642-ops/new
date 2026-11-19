@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { halalaShadowPlugin } from '../common/halala-shadow';
+import { DEFAULT_CURRENCY } from '../common/market-defaults';
 
 export type TransactionDocument = Transaction & Document;
 
@@ -14,7 +15,7 @@ export class Transaction {
   /** Issue 684: who paid, when a family member booked and pays for the patient (absent when the patient paid). */
   @Prop() payer_id?: string;
   @Prop({ required: true }) amount: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ enum: ['stripe', 'tap', 'moyasar'], default: 'moyasar' }) gateway: string;
   @Prop({ default: 'card' }) method: string; // card|cash|insurance
   @Prop({ enum: ['initiating', 'pending', 'authorized', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled'], default: 'pending', index: true }) status: string;

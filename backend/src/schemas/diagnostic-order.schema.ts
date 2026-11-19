@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_CURRENCY } from '../common/market-defaults';
 
 /**
  * F74: diagnostics parent order — one order containing lab + radiology
@@ -20,7 +21,7 @@ export class DiagnosticOrder {
     status?: string;
   }>;
   @Prop({ default: 0 }) total: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ default: 'pending' }) payment_status: string;
   @Prop({ default: 'DRAFT' }) status: string;
   @Prop() scheduled_at?: Date;

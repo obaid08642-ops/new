@@ -14,6 +14,7 @@ import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository
 import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.repository";
 import { PharmacyAllocationService, buildQuoteHash, recalcAllocationTotals } from './pharmacy-allocation.service';
 import { assertSubstituteInsidePrescription } from './rx-rules';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 const BLOCK_PATTERNS: Array<{ name: string; re: RegExp }> = [
   { name: 'phone_e164', re: /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){2,4}\d{2,4}/g },
@@ -262,7 +263,7 @@ export class PharmacyChatService {
   private async syncOrderTotals(orderId: string, alloc: any, now: Date, event: string) {
     // Only bound allocations own a pricing snapshot (the fulfilment gate reads it).
     if (!alloc?.offer_id) return;
-    const totals = { subtotal: alloc.totals.subtotal, delivery_fee: alloc.totals.delivery_fee || 0, total: alloc.totals.total, currency: alloc.totals.currency || 'SAR' };
+    const totals = { subtotal: alloc.totals.subtotal, delivery_fee: alloc.totals.delivery_fee || 0, total: alloc.totals.total, currency: alloc.totals.currency || DEFAULT_CURRENCY };
     await this.orders.updateOne({ id: orderId }, {
       $set: {
         totals,

@@ -1,3 +1,4 @@
+import { DEFAULT_TIMEZONE } from './market-defaults';
 /**
  * 15.9 — Clocks and time zones (server side).
  *
@@ -12,7 +13,7 @@
  *   calendar (`islamic-umalqura`). Pure Intl; false when the runtime lacks the
  *   calendar so schedules degrade to normal hours instead of throwing.
  */
-export const RIYADH_TZ = 'Asia/Riyadh';
+export const RIYADH_TZ = DEFAULT_TIMEZONE;
 
 export interface RiyadhWallParts {
   /** 0 = Sunday … 6 = Saturday (matches Date#getDay numbering). */
