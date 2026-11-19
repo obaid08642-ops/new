@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 12:50 UTC — #2750 merged; resynced #2739/#2740; admin prompt page 7 (#2753)
+- #2750 merged. #2739 and #2740 had gone conflicted (generated docs only): re-synced with main, both conflict-free again (blocked = waiting for review).
+- Admin prompt page 7: appointments-oversight.tsx cancel reason through the ConfirmDialog (PR #2753, test 2, tsc clean). 3 calls in 3 files left: provider-audits, scheduled-reports, segments.
+- Open PRs: #2739, #2740, #2753.
+
 ## 2026-11-19 05:45 UTC — STALLED on the 3-PR cap (no review for about 36 h)
 - #2739 (impersonation + lane-P PROGRESS row), #2740 (provider-moderation) and #2750 (provider detail reject) are open, conflict-free, mergeable_state "blocked" (waiting for review/merge). No new inbox order since the 07:05 and 12:00 UTC 2026-11-17 blocks.
 - Blocked by the cap, not by a technical problem: 4 admin prompt calls in 4 files (appointments-oversight, provider-audits, scheduled-reports, segments), the 37 OPEN [client] lines of section 7 of CLIENT_FINAL_RECONCILIATION, the 13 OPEN design lines, then the Phase 1 multi-country read-only audit.
