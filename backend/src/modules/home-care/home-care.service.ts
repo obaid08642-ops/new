@@ -1,7 +1,7 @@
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, Inject, Optional, Logger } from '@nestjs/common';
 import { assertPaymentMethod, PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
 import { buildQuote, readQuoteVatRate } from '../../common/quote';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
@@ -19,7 +19,7 @@ import { pickAttribution } from '../../common/attribution';
 export const HOMECARE_CATALOG_FIELDS = [
   'name_ar', 'name_en', 'description_ar', 'description_en', 'category', 'icon', 'price', 'duration', 'duration_value', 'requires_patient_medication', 'requires_companion', 'cash_availability', 'insurance_availability', 'image_url', 'active', 'popularity', 'booking_mode', 'booking_options',
 ] as const;
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { EventBusService } from '../events/event-bus.service';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { HomeCareServiceRepository } from "./repositories/homecareservice.repository";
@@ -35,6 +35,7 @@ import { isAdminUser } from '../../common/enums';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
 import { assertProviderLicenceCurrent } from '../../common/provider-licence';
+import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_CANCEL_REASON, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 
 /**
  * The catalogue rows as the apps see them: `booking_options` is what the service really offers (booking-mode.ts: the admin's own lists, else the current defaults), so the booking
@@ -230,18 +231,18 @@ export class HomeCareSvc {
     return named;
   }
 
-  async cancel(id: string, user: any) {
+  async cancel(id: string, user: any, reason?: string) {
     const b = await this.bkgModel.findOne({ id });
     if (!b) throw new NotFoundException();
     if (b.patient_id !== user.id && user.role !== 'admin') throw new NotFoundException();
     if ([NursingBookingState.COMPLETED, NursingBookingState.ESCALATED_EMERGENCY].includes(b.state as any)) return b.toObject();
     return await this.engine.apply({
       kind: 'nursing', entity_id: b.id, from_domain: b.state, to_domain: 'CANCELLED',
-      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: 'user_cancelled',
+      actor_account_id: user.id, actor_role: user.role, patient_account_id: b.patient_id, reason: reason ?? 'user_cancelled',
       mutate: async () => {
         const priorState = String(b.state);
         const total = Number((b as any).total ?? (b as any).total_price ?? 0);
-        b.state_history.push({ from: b.state, to: 'CANCELLED', by_user_id: user.id, at: new Date() });
+        b.state_history.push({ from: b.state, to: 'CANCELLED', by_user_id: user.id, at: new Date(), ...(reason ? { note: reason } : {}) });
         b.state = 'CANCELLED' as any;
         await b.save();
         this.events.emit('homecare.booking_cancelled', {
@@ -252,6 +253,23 @@ export class HomeCareSvc {
         return b.toObject();
       },
     });
+  }
+
+  /**
+   * D2 (owner 2026-11-17): the nurse's licence lapsed and the legal module's hourly sweep names a confirmed future booking. Cancelled through the normal `cancel` as the platform (admin role): it emits
+   * `homecare.booking_cancelled` with `cancelled_by: 'admin'`, which the existing NursingRefundListener refunds in full (the trip fee is kept only after IN_TRANSIT, and only CONFIRMED / PROVIDER_ASSIGNED
+   * bookings are cancelled here). Nothing is refunded here. A booking in any other state (the nurse set off, it finished, it was cancelled) is left alone.
+   */
+  @OnEvent(LICENCE_LAPSE_CANCEL_EVENT)
+  async onLicenceLapseCancel(e: LicenceLapseCancelEvent): Promise<void> {
+    if (e?.kind !== 'home_care' || !e.booking_id) return;
+    try {
+      const b: any = await this.bkgModel.findOne({ id: String(e.booking_id) }, { state: 1 }).lean();
+      if (!b || ![NursingBookingState.CONFIRMED, NursingBookingState.PROVIDER_ASSIGNED].includes(b.state)) return;
+      await this.cancel(String(e.booking_id), { id: 'system', role: 'admin' }, LICENCE_LAPSE_CANCEL_REASON);
+    } catch (err: any) {
+      new Logger('LicenceLapse').error(`licence lapse cancel failed for home care booking ${e.booking_id}: ${err?.message || err}`);
+    }
   }
 
   /** Provider/Admin transition. */

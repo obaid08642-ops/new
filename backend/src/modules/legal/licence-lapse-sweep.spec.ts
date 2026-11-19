@@ -56,9 +56,19 @@ describe('licence lapse sweep (D2)', () => {
     }
   });
 
-  it('a provider type with no booking kind yet (nursing, pharmacy, hospital) is not selected at all', async () => {
+  it('only the provider types with a booking kind are selected (pharmacy and hospital are not covered yet)', async () => {
     const { queries } = await run([], []);
     const [, pq] = queries.find(([n]) => n === 'provider_profiles');
-    expect(pq.type.$in.sort()).toEqual(['doctor', 'lab', 'radiology']);
+    expect(pq.type.$in.sort()).toEqual(['doctor', 'home_care', 'lab', 'nurse', 'nursing', 'radiology']);
+  });
+  it('home care (D2 part 3): nurse / nursing / home_care providers; the booking\'s provider_id is the ACCOUNT id; CONFIRMED or PROVIDER_ASSIGNED and in the future; same 24 h rule', async () => {
+    for (const type of ['home_care', 'nursing', 'nurse']) {
+      const rows = [{ id: 'far', patient_id: 'p1', scheduled_at: new Date(now + 3 * 24 * H) }, { id: 'soon', patient_id: 'p2', scheduled_at: new Date(now + 3 * H) }];
+      const { r, emitted, queries } = await run([profile({ id: `${type}-1`, type, account_id: 'acc-1', user_id: 'usr-1' })], rows);
+      expect(r).toEqual({ profiles: 1, cancel_requested: 1 });
+      expect(emitted.map((e) => [e[1].kind, e[1].booking_id])).toEqual([['home_care', 'far']]);
+      const [, q] = queries.find(([n]) => n === 'homecarebookings');
+      expect(q).toMatchObject({ provider_id: { $in: ['acc-1', 'usr-1'] }, state: { $in: ['CONFIRMED', 'PROVIDER_ASSIGNED'] }, scheduled_at: { $gt: new Date(now) } });
+    }
   });
 });
