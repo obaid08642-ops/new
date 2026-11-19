@@ -1,3 +1,6 @@
+## 2026-11-19 — #2766 review change done
+Status: pushed (cbcfd75). getMarket caches positive AND not-found for 60 s (test: 2 requests = 1 DB read, expiry after 60 s); /health/*, API root probe and /.well-known/* skip the middleware (no DB read, no context; tests). The backend serves no static files. Merged main in. tsc, build with live mongo, markets 63 tests, boot gate = same 3 pre-existing failures. Backfill NOT run. Starting step 4 (phone/identity/address/OTP plugins) from main.
+
 ## 2026-11-19 — MC.3 MarketContext + market-scope guard + market_id backfill
 Status: done, PR #2766 (CI: pending), independent of #2765. Server-resolved MarketContext (X-Market validated hint, default SA, DB failure -> built-in SA), opt-in scope plugin (applied to no schema yet), idempotent batched backfill script (dry run default, NOT run; needs backup + your ops run). tsc, build with live mongo (openapi 1726), full jest 40/40, dtolint green; boot gate = same 3 failures as clean main. Note: after the backfill runs, lean-returning endpoints show additive market_id/operator_id. Next: wait for merges of #2765/#2766; then step 4 (phone/identity/address/OTP plugins).
 
