@@ -193,7 +193,7 @@ export class SickLeaveService implements OnModuleInit {
    * Hourly: a doctor who gave a rest period and has not entered the Seha number is reminded after 24 h and again after 72 h (one reminder each, never repeated).
    * After a long stop only the latest due reminder is sent. Returns how many were sent.
    */
-  @Cron('7 * * * *')
+  @Cron('7 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ ttlMs: 10 * 60_000, holdMs: 60_000 })
   async remindDoctors(now: Date = new Date()): Promise<number> {
     const [h24, h72] = SEHA_REMINDER_HOURS;

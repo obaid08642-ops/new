@@ -15,7 +15,7 @@ export class RadiologyReminderCron {
     private events: EventEmitter2,
   ) {}
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_HOUR, { timeZone: 'UTC' })
   @ScheduledOnce()
   async handlePreparationReminders() {
     this.logger.debug('Running Radiology Preparation Reminders Cron Job...');

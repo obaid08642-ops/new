@@ -1096,7 +1096,7 @@ export class MedicinesService {
 
   // ── Pre-computed Aggregations Cron Jobs (Task 2.5) ─────────────────
   // Every 5 min: warm homepage catalog (200 items sorted by usage_count)
-  @Cron('*/5 * * * *')
+  @Cron('*/5 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async warmHomepageCatalog(): Promise<void> {
     try {
@@ -1114,7 +1114,7 @@ export class MedicinesService {
   }
 
   // Every 10 min: warm trending (20 items)
-  @Cron('*/10 * * * *')
+  @Cron('*/10 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async warmTrendingCatalog(): Promise<void> {
     try {

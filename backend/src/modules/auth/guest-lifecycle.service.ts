@@ -26,7 +26,7 @@ export class GuestLifecycleService {
     return result;
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_4AM)
+  @Cron(CronExpression.EVERY_DAY_AT_4AM, { timeZone: 'UTC' })
   @ScheduledOnce()
   async purgeInactiveGuestsScheduled(): Promise<void> {
     await this.purgeInactiveGuests();

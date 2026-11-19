@@ -32,7 +32,8 @@ function decoratorsOf(file: string, method: string): string {
 }
 function minuteOfDay(file: string, method: string): number {
   const d = decoratorsOf(file, method);
-  const all = [...d.matchAll(/@Cron\('(\d+) (\d+) \* \* \*'\)/g)];
+  // the expression is UTC: every @Cron carries `{ timeZone: 'UTC' }` (process-timezone.spec.ts), which this pattern accepts (and also the old form without it)
+  const all = [...d.matchAll(/@Cron\('(\d+) (\d+) \* \* \*'(?:, \{ timeZone: 'UTC' \})?\)/g)];
   expect(all.length).toBeGreaterThan(0);
   const m = all[all.length - 1];       // the one nearest the method
   return Number(m[2]) * 60 + Number(m[1]);
