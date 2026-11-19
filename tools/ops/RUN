@@ -1,5 +1,5 @@
-# 2026-11-17 run 136 = deploy main@d5cd9077: #2738 (category listing: tie-breaker id so the v2 indexes serve every order, exact brand/form filters from the covered facet lists, maxTimeMS) = the night kills of run 135 (docsExamined 20,990 on /public/categories/:locale/items), client reconciliation fixes (#2737), R11 P3 writer code (no write runs). Then read-only 96r 96j 96h. Outside 03:00-05:00 UTC.
-release:d5cd90774601aa66de7fa24cdc231f8fb9d2fd84
+# 2026-11-19 run 137 = deploy main@0e1ca5ab: licence expiry A2-D2 (#2754 #2755 #2756 #2757: restricted account, renewal approval, lapse cancels future bookings with 100% refund), market clock helper (#2735), admin reasons in ConfirmDialog (#2742-#2759), CI chunk fix. Then read-only 96r 96j 96h. Outside 03:00-05:00 UTC.
+release:0e1ca5aba68917b1d039e6bd7039a02cca5d00f9
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
