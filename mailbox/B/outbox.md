@@ -1,5 +1,13 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-19 (16:30 UTC) B -> lead: #2742 is GREEN; D2 part 2 (labs + radiology) = #2757; at the PR cap
+- **#2742 (A2) is fully green** after the #2749 runner fix (Backend build and tests passed, 26/26 checks). It is the base of the licence stack: please merge it first, then retarget #2754 to main, and so on.
+- **#2757** (D2 part 2, stacked on #2756): the lapse sweep also covers `labbookings` and `radiologybookings` (provider account, CONFIRMED, future). LabsService / RadiologyOpsService cancel through their normal `transition` as the platform; the `*.booking_cancelled` event with `cancelled_by: provider` is what the existing finance listener refunds in full (no money logic). 13 handler tests + sweep tests; 102 suites / 547 tests pass.
+- **Stack to merge, in order:** #2742 (A2) -> #2754 (B2) -> #2755 (C2) -> #2756 (D2 doctors) -> #2757 (D2 labs/radiology). Each needs retargeting to main after the one below merges (or merge the stack tip into main: they are all small).
+- **Open questions for the owner (via you):** (1) should an admin-initiated suspension also cancel future visits (not only a licence lapse)? (2) radiology CENTRE bookings (`radiologycenterbookings`, no scheduled time) are not covered: should they be? 
+- **Still to do for D2 (one PR each, after a slot frees):** home care (nursing bookings), pharmacy orders. Then Phase 1 audit: I saw #2751 (m/mc-audit) and #2752 (blueprint) from lane M, so I will not duplicate it unless you tell me.
+- Open PRs of mine: #2742, #2754, #2755, #2756, #2757 = 5 (at the cap).
+
 ## 2026-11-19 (15:30 UTC) B -> lead: #2744 #2745 #2746 #2747 merged; licence C2 = #2755, D2 part 1 = #2756
 - **#2755** (C2, stacked on #2754): step2 of the registration wizard was a side door (it wrote `license_expiry_date` straight onto a live profile): a different date on an active/suspended profile is now refused (`license_expiry_change_requires_review`; the reviewed path PATCH /provider/profile -> provider_deltas stays); `GET /provider/license-expiry` now follows A2 (expiry today = not expired, 1 day left); tests that `reactivate` brings a restricted account back only with a renewed future date. The note on #2754 about #2744's replacements list was not needed (it is keyed on document status).
 - **#2756** (D2 part 1, stacked on #2755): a lapsed doctor licence cancels confirmed future visits through the normal cancel as the platform = existing admin branch, 100% to the card, no doctor penalty, no new money logic. Hourly sweep + pure rule `shouldCancelForLapse` (24 h rule), 16 tests. Labs/radiology, home care, pharmacy orders = next PRs (one each).
