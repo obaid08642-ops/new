@@ -7,7 +7,7 @@ export class Market {
   @Prop({ required: true, unique: true }) id: string;
   @Prop({ required: true }) country: string;
   @Prop({ required: true }) operator_id: string;
-  @Prop({ required: true, enum: ['draft', 'internal_test', 'pilot', 'live', 'suspended'] }) status: MarketStatus;
+  @Prop({ type: String, required: true, enum: ['draft', 'internal_test', 'pilot', 'live', 'suspended'] }) status: MarketStatus;
 }
 export type MarketDocument = Market & Document;
 export const MarketSchema = SchemaFactory.createForClass(Market);
@@ -27,7 +27,7 @@ export class MarketConfigRow {
   @Prop({ required: true }) market_id: string;
   @Prop({ required: true }) version: number;
   @Prop({ required: true }) effective_from: Date;
-  @Prop({ required: true, enum: ['active', 'retired'], default: 'active' }) status: 'active' | 'retired';
+  @Prop({ type: String, required: true, enum: ['active', 'retired'], default: 'active' }) status: 'active' | 'retired';
   @Prop({ type: Object, required: true }) config: MarketConfig; // typed + validated by validateMarketConfig before every write
   @Prop({ type: String, default: null }) created_by: string | null;
 }
