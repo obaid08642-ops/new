@@ -13,7 +13,7 @@ export class RankingScoreJob {
   private readonly logger = new Logger('RankingScoreJob');
   constructor(private readonly ranking: ProductRankingService) {}
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_30_MINUTES, { timeZone: 'UTC' })
   @ScheduledOnce()
   async run(): Promise<void> {
     const gate = await this.ranking.mayRunTimerJob();

@@ -332,7 +332,7 @@ export class AdminNotificationCenterService {
 
   // ── Scheduler: due scheduled campaigns every minute ─────────────────
 
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE, { timeZone: 'UTC' })
   @ScheduledOnce()
   async runScheduledCampaigns() {
     const due = await this.campaigns.find({
@@ -346,7 +346,7 @@ export class AdminNotificationCenterService {
 
   // ── Reminders: appointments 24h ahead ───────────────────────────────
 
-  @Cron(CronExpression.EVERY_HOUR)
+  @Cron(CronExpression.EVERY_HOUR, { timeZone: 'UTC' })
   @ScheduledOnce()
   async appointmentReminders() {
     const now = Date.now();
@@ -387,7 +387,7 @@ export class AdminNotificationCenterService {
 
   // ── Retargeting: stale carts / unpaid orders (48h cooldown) ─────────
 
-  @Cron(CronExpression.EVERY_6_HOURS)
+  @Cron(CronExpression.EVERY_6_HOURS, { timeZone: 'UTC' })
   @ScheduledOnce()
   async retargetIncompleteOrders() {
     const cooldown = new Date(Date.now() - 48 * 3600 * 1000);
