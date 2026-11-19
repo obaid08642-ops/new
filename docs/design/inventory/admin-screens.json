@@ -11284,6 +11284,7 @@
     "admin/src/pages/admin/scheduled-reports.tsx",
     "admin/src/components/DataTable.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -11303,7 +11304,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:138",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 15,
+     "line": 16,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -11328,7 +11329,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:145",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 17,
+     "line": 18,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -11353,7 +11354,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:173",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -11378,7 +11379,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:189",
      "backendPath": "/admin/scheduled-reports/:param/run",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -11403,7 +11404,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:201",
      "backendPath": "/admin/scheduled-reports/:param/runs",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 20,
+     "line": 21,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -11428,7 +11429,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:209",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 21,
+     "line": 25,
      "fn": "adminMutation",
      "via": null,
      "guards": {

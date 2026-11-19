@@ -71,7 +71,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | system | `/admin/rbac` | `rbac.manage` | yes | 4 / 0 | 12 / 0 | `admin/src/pages/admin/rbac.tsx` |
 | system | `/admin/refund-policy` | `finance.read` | yes | 6 / 0 | 11 / 0 | `admin/src/pages/admin/refund-policy.tsx` |
 | system | `/admin/risk-dashboard` | `analytics.read` | yes | 7 / 0 | 14 / 0 | `admin/src/pages/admin/risk-dashboard.tsx` |
-| system | `/admin/scheduled-reports` | `reports.schedule.manage` | yes | 10 / 0 | 19 / 0 | `admin/src/pages/admin/scheduled-reports.tsx` |
+| system | `/admin/scheduled-reports` | `reports.schedule.manage` | yes | 10 / 0 | 26 / 0 | `admin/src/pages/admin/scheduled-reports.tsx` |
 | system | `/admin/security` | **none** | yes | 8 / 0 | 4 / 0 | `admin/src/pages/admin/security.tsx` |
 | system | `/admin/seha-missing` | `appointment.read` | yes | 1 / 0 | 3 / 0 | `admin/src/pages/admin/seha-missing.tsx` |
 | system | `/admin/service-offers` | `facility.edit` | yes | 1 / 0 | 6 / 0 | `admin/src/pages/admin/service-offers.tsx` |
@@ -756,12 +756,12 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/scheduled-reports` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:138` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:15` |
-| POST | `/api/admin/admin/scheduled-reports` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:145` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:17` |
-| PATCH | `/api/admin/admin/scheduled-reports/:param` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:173` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:18` |
-| POST | `/api/admin/admin/scheduled-reports/:param/run` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:189` | roles:ADMIN perms:ops.crons.run | `admin/src/pages/admin/scheduled-reports.tsx:19` |
-| GET | `/api/admin/admin/scheduled-reports/:param/runs` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:201` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:20` |
-| DELETE | `/api/admin/admin/scheduled-reports/:param` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:209` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:21` |
+| GET | `/api/admin/admin/scheduled-reports` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:138` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:16` |
+| POST | `/api/admin/admin/scheduled-reports` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:145` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:18` |
+| PATCH | `/api/admin/admin/scheduled-reports/:param` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:173` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:19` |
+| POST | `/api/admin/admin/scheduled-reports/:param/run` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:189` | roles:ADMIN perms:ops.crons.run | `admin/src/pages/admin/scheduled-reports.tsx:20` |
+| GET | `/api/admin/admin/scheduled-reports/:param/runs` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:201` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:21` |
+| DELETE | `/api/admin/admin/scheduled-reports/:param` | OK | `backend/src/modules/admin/enterprise/admin-analytics.controller.ts:209` | roles:ADMIN perms:reports.schedule.manage | `admin/src/pages/admin/scheduled-reports.tsx:25` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |
