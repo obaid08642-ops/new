@@ -107,7 +107,7 @@ export class ProviderImageProcessorService {
   }
 
   /** Run background image processor every 10 seconds */
-  @Cron('*/10 * * * * *')
+  @Cron('*/10 * * * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ holdMs: 3000 })
   async processPendingJobs() {
     let jobs: any[];

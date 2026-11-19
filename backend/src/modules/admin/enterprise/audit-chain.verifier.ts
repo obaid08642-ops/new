@@ -12,7 +12,7 @@ export class AdminAuditChainVerifier {
   constructor(@InjectConnection() private readonly conn: Connection) {}
 
   // 2026-11-14: nightly heavy jobs run ONE AT A TIME (serial group) and 30 minutes apart, away from the 03:00 dump: 01:10 finance, 01:40 audit chain, 02:10 db integrity, 02:40 consistency, 04:30 reconciliation, 05:00 risk
-  @Cron('40 1 * * *')
+  @Cron('40 1 * * *', { timeZone: 'UTC' })
   @ScheduledOnce({ serial: 'nightly-heavy' })
   async nightly() {
     const r = await verifyAdminAuditChain(this.conn);

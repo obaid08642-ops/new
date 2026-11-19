@@ -843,7 +843,7 @@ export class PaymentAbandonService {
     @Optional() private readonly durable?: DurableEventsService,
   ) {}
 
-  @Cron('*/5 * * * *')
+  @Cron('*/5 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
   async sweepScheduled() {
     if (this.running) return;

@@ -229,7 +229,7 @@ export class LegalEnterpriseService {
   }
 
   // ── 5) Provider license monitoring (auto-notify + auto-suspend) ───────────
-  @Cron(CronExpression.EVERY_DAY_AT_6AM)
+  @Cron(CronExpression.EVERY_DAY_AT_6AM, { timeZone: 'UTC' })
   @ScheduledOnce()
   async licenseMonitorScheduled() { await this.licenseMonitor(); }
 

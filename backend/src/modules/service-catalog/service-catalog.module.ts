@@ -16,6 +16,7 @@ import { CreateDto, ToggleDto, ApproveDto, OfferingDto, UpdateServiceDto, Provid
 import { CapabilitiesCatalogController } from './service-catalog-compat.controller';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
+import { marketTime, marketClock, marketWeekdayKey } from '../../common/market-time';
 /** Provider catalog ownership map: tracks which lab/radiology service belongs to which provider account (extends existing catalog non-destructively via separate ownership doc). */
 @Schema({ timestamps: true, collection: 'service_ownership' })
 export class ServiceOwnership extends Document {
@@ -69,9 +70,6 @@ const DEFAULT_WEEKLY = {
   thu: [{ start: '09:00', end: '14:00' }],
 };
 
-function dayKey(d: Date) { return ['sun','mon','tue','wed','thu','fri','sat'][d.getDay()]; }
-function fromHM(date: Date, hm: string) { const [h, m] = hm.split(':').map(Number); const r = new Date(date); r.setHours(h, m, 0, 0); return r; }
-function toHM(d: Date) { return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; }
 
 @Injectable()
 export class ServiceCatalogService {
@@ -218,17 +216,16 @@ export class ServiceCatalogService {
   async availableSlots(account_id: string, entity_type: string, date: string, bookedCounter?: (slotISO: string) => Promise<number>) {
     let s: any = await this.sched.findOne({ account_id: { $eq: account_id }, entity_type: { $eq: entity_type } }).lean();
     if (!s) s = { weekly: DEFAULT_WEEKLY, blocked_dates: [], slot_minutes: 30, max_per_slot: 1 };
-    const day = new Date(date);
     if (s.blocked_dates?.includes(date)) return [];
-    const blocks = (s.weekly || DEFAULT_WEEKLY)[dayKey(day)] || [];
+    const blocks = (s.weekly || DEFAULT_WEEKLY)[marketWeekdayKey(date)] || [];
     const dur = s.slot_minutes || 30;
     const out: { time: string; available: boolean }[] = [];
     for (const b of blocks) {
-      let cur = fromHM(day, b.start); const end = fromHM(day, b.end);
+      let cur = marketTime(date, b.start); const end = marketTime(date, b.end);
       while (cur < end) {
         const next = new Date(cur.getTime() + dur * 60000);
         if (next > end) break;
-        const inBr = (b.breaks || []).some((br: any) => toHM(cur) >= br.start && toHM(cur) < br.end);
+        const inBr = (b.breaks || []).some((br: any) => marketClock(cur) >= br.start && marketClock(cur) < br.end);
         if (!inBr && cur.getTime() > Date.now()) {
           const iso = cur.toISOString();
           const booked = bookedCounter ? await bookedCounter(iso) : 0;
