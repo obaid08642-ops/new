@@ -1,6 +1,6 @@
 #!/bin/bash
 # Launch facts, READ-ONLY, counts and NAMES only (no value, no id, no document, no secret). Lead order 2026-11-16 22:30, item 4:
-#   1 scfhs      is the SCFHS API configured: which of SCFHS_API_KEY / SCFHS_VERIFY_URL / SCFHS_RECHECK_GRACE_DAYS exist in the backend and worker containers (the NAMES present, never a value)
+#   1 scfhs      (informational only: SCFHS is NOT a launch item, owner 2026-11-17; empty is the expected answer) is the SCFHS API configured: which of SCFHS_API_KEY / SCFHS_VERIFY_URL / SCFHS_RECHECK_GRACE_DAYS exist in the backend and worker containers (the NAMES present, never a value)
 #   2 licences   providers with no licence expiry date (`license_expiry_date`), per provider type, next to the total per type
 #   3 migration  do the indexes of migration 20260827 (backend/scripts/migrations/20260827-pharmacy-expiry-indexes.js) exist: the two UNIQUE ones (domain_outbox, recipients) and the three scan indexes
 #   4 outbox     domain_outbox rows per state (and the oldest pending age in minutes)

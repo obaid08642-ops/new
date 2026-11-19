@@ -3,7 +3,7 @@
 > **Session start (owner, 2026-10-06): read only this file's "Next", then grep `SCREEN_INVENTORY.md` and `WIRING_REPORT.md` for the routes of the current batch. Do not read those two files in full.** History: `PROGRESS_ARCHIVE.md` (do not read at session start). Rules: `/AGENTS.md`, `QUALITY_STANDARDS.md`, `README.md`.
 > After every PR: update this file (keep it under 8 KB). Context low: commit, push, update this file, stop.
 
-_Updated 2026-11-08._
+_Updated 2026-11-17._
 
 ## State
 
@@ -17,6 +17,7 @@ _Updated 2026-11-08._
 | UI issues list (OpenCode plan 2026-10-09 s.10, 169 issues) | Walked; the client fixes are merged; the rest wait on owner decisions or OC-A/B/C |
 | F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; batch-13 static opt-ins wait on it (`design/batch-13-f82-optins`) |
 | Gates (baselines only go down) | `tools/design/*.baseline.json`; `client-token-sync` 708, `no-raw-color` 1418, `no-literal-ui-string` 365 |
+| Client reconciliation, lane P (2026-11-17) | [`docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md`](../review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md) (#2737): 37 client lines OPEN, 13 design OPEN, 40 DEFERRED. In progress, one PR each: admin `window.prompt` to `ConfirmDialog` (impersonation done, 17 calls in 9 files left), then the 37 client lines, then the 13 design lines. Gates now: `no-literal-ui-string` 105 (provider-app only), `client-token-sync` 396 (335 in #2719), `no-raw-color` 414 (402 in #2719) |
 
 ## Next
 

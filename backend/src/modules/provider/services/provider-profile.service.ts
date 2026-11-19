@@ -176,6 +176,18 @@ export class ProviderProfileService {
     return doc;
   }
 
+  /**
+   * The documents the admin asked this provider to replace (rejected, or flagged "needs replacement"): the type, the reason the admin wrote and the status, nothing else. No file id, URL or number:
+   * the old rejected file is not shown again (lead 2026-11-17). Open to a rejected / sent-back account through the central gate (auth.guard.ts), so it must stay this narrow.
+   */
+  async listReplacementDocuments(user: any) {
+    const rows: any[] = await this.docs.find(
+      { account_id: user.id, review_status: { $in: [DocumentReviewStatus.NEEDS_REPLACEMENT, DocumentReviewStatus.REJECTED] } },
+      { _id: 0, doc_type: 1, reviewer_note: 1, review_status: 1, reviewed_at: 1 },
+    ).sort({ createdAt: -1 }).lean();
+    return { documents: rows.map((d) => ({ doc_type: d.doc_type, reason: d.reviewer_note ?? null, status: d.review_status, reviewed_at: d.reviewed_at ?? null })) };
+  }
+
   async listDocuments(user: any) {
     const docs = await this.docs.find({ account_id: user.id }, { _id: 0, __v: 0 }).sort({ createdAt: -1 });
     const a = await this.accounts.findOne({ id: user.id });

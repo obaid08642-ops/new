@@ -38,6 +38,16 @@ export const SelfService = () => SetMetadata(SELF_SERVICE_KEY, true);
 
 const PENDING_PROVIDER_ONBOARDING_PATH = /^\/api\/v1\/provider-onboarding\/(my-profile|step2|step3|submit|progress|contract)$/;
 
+/**
+ * Lead decision 2026-11-17 (G6 rest): a provider whose application was REJECTED or sent back for changes may see WHICH documents must be replaced (type, reason, status; never the file) and upload
+ * the replacements, and nothing else: every other provider route stays behind the approval gate. `GET /provider/kyc/documents` (the full list, with file references) stays closed to them.
+ */
+const DOC_REPLACEMENT_STATUSES = new Set(['rejected', 'needs_changes']);
+const DOC_REPLACEMENT_ROUTES: Array<{ method: string; path: RegExp }> = [
+  { method: 'GET', path: /^\/api\/v1\/provider\/kyc\/replacements$/ },
+  { method: 'POST', path: /^\/api\/v1\/provider\/kyc\/documents$/ },
+];
+
 /** Normalize role/provider_type aliases before evaluating @Roles. */
 export function normalizeEffectiveRole(value: unknown): string {
   const role = String(value || '').trim().toLowerCase();
@@ -246,7 +256,10 @@ export class JwtAuthGuard implements CanActivate {
       );
       if (!account) throw new UnauthorizedException('provider_account_not_found');
       const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
-      if (String(account.status || '').toLowerCase() !== 'approved' && !PENDING_PROVIDER_ONBOARDING_PATH.test(path)) {
+      const status = String(account.status || '').toLowerCase();
+      const method = String((req as any).method || 'GET').toUpperCase();
+      const replacementRoute = DOC_REPLACEMENT_STATUSES.has(status) && DOC_REPLACEMENT_ROUTES.some((r) => r.method === method && r.path.test(path));
+      if (status !== 'approved' && !PENDING_PROVIDER_ONBOARDING_PATH.test(path) && !replacementRoute) {
         throw new ForbiddenException('provider_approval_required');
       }
     }
