@@ -25,6 +25,7 @@ import { ProviderPayoutsController } from './modules/payouts/provider-payouts.co
 import { PresenceModule } from './modules/presence/presence.module';
 import { OpsModule } from './modules/ops/ops.module';
 import { FeatureFlagsModule } from './modules/feature-flags/feature-flags.module';
+import { MarketsModule } from './modules/markets/markets.module';
 import { MediaModule } from './modules/media/media.module';
 import { ModuleSwitchesModule } from './modules/module-switches/module-switches.module';
 import { KillSwitchesModule } from './modules/kill-switches/kill-switches.module';
@@ -205,6 +206,7 @@ import { MongoSelfHealService } from './common/database/mongo-selfheal.service';
     PresenceModule,
     OpsModule,
     FeatureFlagsModule,
+    MarketsModule,
     MediaModule,
     ModuleSwitchesModule,
     KillSwitchesModule,
