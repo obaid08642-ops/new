@@ -31,7 +31,8 @@ export function shouldCancelForLapse(startMs: number, nowMs: number, lapseMs: nu
 
 /**
  * Where each provider type's confirmed future bookings live: the collection, how a booking points at its provider, the field with its start, and what "confirmed" is there. Lab and radiology
- * bookings carry the provider's ACCOUNT id; a consultation carries the doctor's PROFILE id.
+ * bookings carry the provider's ACCOUNT id; a consultation carries the doctor's PROFILE id. Reviewed for health-fields (common/health-fields-raw-access.spec.ts): the sweep reads these collections through
+ * a variable name, with a projection of id / patient_id / start only, so it touches no encrypted health field; the cancel itself runs through each service.
  */
 export interface LapseKind {
   kind: LicenceLapseCancelEvent['kind']; type: string; collection: string; start: string;
