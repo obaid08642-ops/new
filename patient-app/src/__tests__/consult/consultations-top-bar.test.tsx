@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ConsultationsHub from '../../../app/(tabs)/consultations/index';
 import AppointmentsScreen from '../../../app/consultations/appointments';
 import { message } from '../../components/screen/ScreenKit';
+import { getBookingFor, setBookingFor } from '../../utils/bookingFor';
 
 /** Owner 2026-10-30: the consultations header has no cart; it has the "My appointments" button with the count of new outcomes (the outcomes badge endpoint). */
 const mockAppointments = [
@@ -66,6 +67,29 @@ describe('consultations top bar', () => {
     await render(wrap(<ConsultationsHub />));
     const button = await screen.findByTestId('consult-appointments-entry');
     expect(button.props.accessibilityLabel).toBe(k('consult.appt.title'));
+  });
+});
+
+describe('booking on behalf of a family member', () => {
+  afterEach(() => setBookingFor(null));
+
+  it('says whom the booking is for on the hub, and "for me" drops it', async () => {
+    apiFetch.mockResolvedValue([]);
+    setBookingFor({ id: 'minor-1', name: 'Test Child' });
+    await render(wrap(<ConsultationsHub />));
+    expect(await screen.findByText(k('consult.confirm.bookingFor', { name: 'Test Child' }))).toBeTruthy();
+    await act(async () => {
+      fireEvent.press(screen.getByText(k('consult.confirm.bookingForMe')));
+    });
+    expect(getBookingFor()).toBeNull();
+    await waitFor(() => expect(screen.queryByText(k('consult.confirm.bookingFor', { name: 'Test Child' }))).toBeNull());
+  });
+
+  it('shows no such line when the booking is for the signed-in patient', async () => {
+    apiFetch.mockResolvedValue([]);
+    await render(wrap(<ConsultationsHub />));
+    await screen.findByTestId('consult-appointments-entry');
+    expect(screen.queryByText(k('consult.confirm.bookingForMe'))).toBeNull();
   });
 });
 
