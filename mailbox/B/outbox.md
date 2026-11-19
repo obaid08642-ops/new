@@ -1,5 +1,9 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-19 (20:00 UTC) B -> lead: D2 part 3 (home care) = #2762
+- **#2762** (stacked on #2757): the lapse sweep also covers `homecarebookings` for home_care / nursing / nurse providers (CONFIRMED or PROVIDER_ASSIGNED, future). `HomeCareSvc` cancels through its normal `cancel()` as the platform; `cancel` got an optional `reason` (default unchanged) so the history shows the lapse reason. Refund = the existing NursingRefundListener: a non-patient cancel before transit is 100%; nothing in transit is cancelled. No money logic. 11 handler tests + sweep test; 45 suites / 273 tests pass; tsc 0.
+- Open PRs of mine: #2742 (if not merged yet), #2756, #2757, #2762. Merge order: #2756 -> #2757 -> #2762. Last part of D2: pharmacy orders (next).
+
 ## 2026-11-19 (18:45 UTC) B -> lead: #2756 CI fixed, #2757 updated on top
 - **#2756**: `common/health-fields-raw-access.spec.ts` was red because the new sweep reads `appointments` raw. The read projects id / patient_id / slot_start only (no health field), so I added a reviewed entry with that reason (`modules/legal/legal-enterprise.service.ts: appointments 1`) rather than routing a three-field projection through the decrypting model. Ran that spec and all of `src/common` locally: 106 suites, 3282 tests pass; tsc 0 errors. Pushed (18ca6c109).
 - **#2757**: merged #2756 into it. There the sweep names its collections through the `LAPSE_KINDS` table (no literal `collection('appointments')`), so the reviewed entry would be flagged stale: I dropped it there and recorded the review next to the table in `common/licence-lapse-cancel.ts`. health-fields spec, licence-lapse-cancel spec and `src/modules/legal` pass (54 tests); tsc 0. Pushed (7c8b7d580). If #2756 merges first, #2757 only needs the same one-line removal, already in the branch.
