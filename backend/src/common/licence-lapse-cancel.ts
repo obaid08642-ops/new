@@ -35,13 +35,15 @@ export function shouldCancelForLapse(startMs: number, nowMs: number, lapseMs: nu
  * a variable name, with a projection of id / patient_id / start only, so it touches no encrypted health field; the cancel itself runs through each service.
  */
 export interface LapseKind {
-  kind: LicenceLapseCancelEvent['kind']; type: string; collection: string; start: string;
+  kind: LicenceLapseCancelEvent['kind']; types: string[]; collection: string; start: string;
   owner: (p: { id?: string; account_id?: string; user_id?: string }) => Record<string, unknown>;
   confirmed: Record<string, unknown>;
 }
 const accountIds = (p: { account_id?: string; user_id?: string }) => [p.account_id, p.user_id].filter((v): v is string => typeof v === 'string' && !!v);
-export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology', LapseKind> = {
-  appointment: { kind: 'appointment', type: 'doctor', collection: 'appointments', start: 'slot_start', owner: (p) => ({ doctor_id: p.id }), confirmed: { status: 'CONFIRMED' } },
-  lab: { kind: 'lab', type: 'lab', collection: 'labbookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
-  radiology: { kind: 'radiology', type: 'radiology', collection: 'radiologybookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
+export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology' | 'home_care', LapseKind> = {
+  appointment: { kind: 'appointment', types: ['doctor'], collection: 'appointments', start: 'slot_start', owner: (p) => ({ doctor_id: p.id }), confirmed: { status: 'CONFIRMED' } },
+  lab: { kind: 'lab', types: ['lab'], collection: 'labbookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
+  radiology: { kind: 'radiology', types: ['radiology'], collection: 'radiologybookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
+  // Home care: the booking's `provider_id` is the provider ACCOUNT id; "confirmed" before the nurse is on the way (the nursing refund listener refunds a non-patient cancel in full, and keeps the trip fee only after IN_TRANSIT).
+  home_care: { kind: 'home_care', types: ['home_care', 'nursing', 'nurse'], collection: 'homecarebookings', start: 'scheduled_at', owner: (p) => ({ provider_id: { $in: accountIds(p) } }), confirmed: { state: { $in: ['CONFIRMED', 'PROVIDER_ASSIGNED'] } } },
 };
