@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 23:50 UTC — lead decision on rows 2/3 applied; row 90 built, PR waits for a slot
+- Lead decision (23:18 UTC) applied: rows 2 and 3 (catalogue insurance filter) are marked "AFTER LAUNCH, with the insurance offers" in the reconciliation doc (rows and the section 7 line), committed on #2767's branch (docs only, merged main into it first: no conflicts). The catalogue-based rule stays.
+- Row 90 (LMP / due date check) is built and pushed on branch `p2/client-maternity-dates` (commit 231808e10), PR NOT opened yet: the cap of 3 is full (#2760, #2764, #2767, all conflict-free, waiting for review). App: dates must be real year-month-day days, last period not in the future, two new messages in six languages (`care.mat.dateInvalid`, `care.mat.lmpFuture`); web: the date input already gives a real day, the future check and `MaternityWeb.lmpFuture` (six languages) are added. Tests: app 3 files / 16 green (7 new), web 2 new; gates unchanged (literal 105, token-sync 335, parity ok).
+- I open that PR as soon as one of the three merges. Next after it: rows 64/93 (share-with-doctor pre-select), 21, 25, then the design lines and the multi-country client audit.
+
 ## 2026-11-19 23:10 UTC — client line 2 of 37 (#2767)
 - Reconciliation row 100 (#2767): the app's doctors list matched a specialty by its Arabic name only, but `/care/specialties` counts a doctor by slug, Arabic or English name (profiles store the slug), so slug-stored doctors never matched their tile. The chosen specialty is now kept by slug and matched with `doctorHasSpecialty` (the server's three forms). Web has no such defect (it sends the specialty to the server). Test 3; consult suites 21 / 123 green; gates unchanged (literal 105, token-sync 335).
 - Open PRs: #2760, #2764, #2767. Next: rows 90 (LMP/due date check), 64/93 (share-with-doctor pre-select), 21, 25; then the design lines and the multi-country audit.
