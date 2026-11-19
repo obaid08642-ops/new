@@ -16,6 +16,7 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Appointment, AppointmentDocument, APPT_STATES, APPT_TRANSITIONS, ApptState, ServiceType } from '../../schemas/appointment.schema';
 import { ProviderProfile, ProviderProfileDocument } from '../../schemas/provider-profile.schema';
 import { UserRole, ProviderType, ProviderStatus, SPECIALTY_MASTER } from '../../common/enums';
+import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_CANCEL_REASON, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { SlotLocksService } from '../slot-locks/slot-locks.module';
@@ -646,6 +647,23 @@ export class AppointmentsService {
       await this.noShow?.markRefunded(String(e.appointment_id));
     } catch (err: any) {
       await this.noShow?.markReleaseFailed(String(e.appointment_id), err?.message || 'release_failed');
+    }
+  }
+
+  /**
+   * D2 (owner 2026-11-17): the doctor's licence lapsed; the legal module's hourly sweep names a confirmed future visit that must go. Cancelled through the SAME `cancel` a provider-side cancel uses,
+   * as the platform (admin role): the patient is refunded 100% to the card (calculateRefund's facility/admin branch: no wallet, no penalty on the doctor) and told the visit was cancelled, with the
+   * rebook offer the cancel notice carries. Nothing is refunded here by hand. A visit that is no longer CONFIRMED (cancelled, started, finished meanwhile) is left alone.
+   */
+  @OnEvent(LICENCE_LAPSE_CANCEL_EVENT)
+  async onLicenceLapseCancel(e: LicenceLapseCancelEvent): Promise<void> {
+    if (e?.kind !== 'appointment' || !e.booking_id) return;
+    try {
+      const appt: any = await this.apptModel.findOne({ id: String(e.booking_id) });
+      if (!appt || String(appt.status).toUpperCase() !== 'CONFIRMED') return;
+      await this.cancel(String(e.booking_id), { id: 'system', role: UserRole.ADMIN }, LICENCE_LAPSE_CANCEL_REASON);
+    } catch (err: any) {
+      this.logger.error(`licence lapse cancel failed for appointment ${e.booking_id}: ${err?.message || err}`);
     }
   }
 
