@@ -1,3 +1,6 @@
+## 2026-11-20 — MC.4 phone/identity/address-template plugins (first slice)
+Status: done, PR #2769 (CI: pending). Phone plugin built from market phone config (+national_length), SA identity plugin, address template data, registry with no silent SA fallback; AuthService.normalizePhone and patient national-ID rules call the SA plugins. Oracle tests (old code verbatim) on 20k random phones + 5k IDs. tsc, build with live mongo, full jest 40/40, dtolint green; boot gate = same 3 failures as clean main. Left for next slice: other phone call sites (otp-abuse, emergency, checkout/libphonenumber, provider default), OTP channel policy (SMS off). Rollout note: SA v1 config row lacks phone.national_length; publish SA v2 before anything reads phone rules from the DB. Waiting on merges (#2766, #2769).
+
 ## 2026-11-19 — #2766 review change done
 Status: pushed (cbcfd75). getMarket caches positive AND not-found for 60 s (test: 2 requests = 1 DB read, expiry after 60 s); /health/*, API root probe and /.well-known/* skip the middleware (no DB read, no context; tests). The backend serves no static files. Merged main in. tsc, build with live mongo, markets 63 tests, boot gate = same 3 pre-existing failures. Backfill NOT run. Starting step 4 (phone/identity/address/OTP plugins) from main.
 
