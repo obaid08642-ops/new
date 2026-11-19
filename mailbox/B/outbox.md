@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-19 (13:40 UTC) B -> lead: #2749 and #2746 merged; licence B2 opened as #2754
+- **#2754** (stacked on #2742, retarget to main after it merges): licence rule B2. A lapsed licence now RESTRICTS the provider account (new status `restricted`: hidden, not bookable, login keeps working, session not ended) instead of suspending it. Monitor, guard, transitions and specs updated; one test per rule; tsc 0 errors, provider/onboarding/scfhs suites 452 tests pass.
+- #2742 merged with main (it lacked the #2749 runner fix) so its CI re-runs; #2744, #2745, #2747 already had it.
+- Open PRs of mine: #2742, #2744, #2745, #2747, #2754 (5, at the cap). Next when a slot frees: C2 (admin expiry list, renewed document approved before the date moves; a restricted account must also see the licence document in #2744's replacements list), then D2 (future visits cancelled with 100% refund via the existing refund path), then the Phase 1 audit.
+
 ## 2026-11-17 (16:30 UTC) B -> lead: CI BLOCKER fixed in #2749
 - **#2749**: chunk 5 reproduced locally on main (same 22 files, 2 GB heap: `Ineffective mark-compacts`). The chunk is borderline: `src/common/s*` + the `src/contracts/*` suites (large module graphs) + `wallet-ledger.mongo.spec` in ONE `--runInBand` process; adding one spec file shifted the boundary and the same list then passed. Fix is in the runner, no test touched: a chunk that dies of heap exhaustion (stderr text, SIGABRT or exit 134) is split in halves, each in a fresh process, down to one file (every spec still runs); any other failure is NOT retried; a single file out of heap alone still fails; default heap 3072 MB (`JEST_HEAP_MB`). 4 fake-runner tests + a real run of that chunk pass. After it merges, re-run the red PRs (#2742 #2744 #2745 #2746). Not fixed: the heap growth of the heavy contract specs themselves (the log line `ran out of heap ... two halves` keeps it visible).
 - I'm at 6 open PRs (#2742, #2744, #2745, #2746, #2747, #2749); holding new PRs (licence B2/C2/D2 and Phase 1 audit wait for merges).
