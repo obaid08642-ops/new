@@ -535,7 +535,7 @@
   {
    "m": "GET",
    "p": "/business-rules/config/pricing",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:317",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:318",
    "guards": {
     "public": false,
     "roles": [
@@ -548,7 +548,7 @@
   {
    "m": "POST",
    "p": "/business-rules/config/surge",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:309",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:310",
    "guards": {
     "public": false,
     "roles": [
@@ -563,7 +563,7 @@
   {
    "m": "POST",
    "p": "/business-rules/config/fees",
-   "src": "backend/src/modules/business-rules/business-rules.module.ts:322",
+   "src": "backend/src/modules/business-rules/business-rules.module.ts:323",
    "guards": {
     "public": false,
     "roles": [
