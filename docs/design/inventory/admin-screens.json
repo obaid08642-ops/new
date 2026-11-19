@@ -9844,7 +9844,8 @@
    "line": 1,
    "area": "providers",
    "unit": [
-    "admin/src/pages/admin/provider-audits.tsx"
+    "admin/src/pages/admin/provider-audits.tsx",
+    "admin/src/components/ConfirmDialog.tsx"
    ],
    "clientPermission": "facility.edit",
    "navPermission": null,
@@ -9860,7 +9861,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:172",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9885,7 +9886,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:174",
      "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 31,
+     "line": 32,
      "fn": "apiFetch",
      "via": null,
      "guards": {
@@ -9910,7 +9911,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:176",
      "backendPath": "/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-audits.tsx",
-     "line": 46,
+     "line": 54,
      "fn": "apiFetch",
      "via": null,
      "guards": {

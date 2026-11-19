@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 export default function ProviderAuditsPage() {
   const [deltas, setDeltas] = useState<any[]>([]);
@@ -38,16 +39,24 @@ export default function ProviderAuditsPage() {
     }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = window.prompt('سبب رفض التعديل:');
-    if (!reason) return;
+  // the reason is sent to the provider: the admin writes it in the dialog (it was a browser prompt)
+  const [rejectFor, setRejectFor] = useState<string | null>(null);
+  const [rejectText, setRejectText] = useState('');
+  const [rejectError, setRejectError] = useState('');
+  const closeReject = () => { setRejectFor(null); setRejectText(''); setRejectError(''); };
+  const confirmReject = async () => {
+    if (rejectFor === null) return;
+    const id = rejectFor;
+    const reason = rejectText.trim();
+    if (!reason) { setRejectError('اكتب سبب الرفض.'); return; }
     setProcessingId(id);
     try {
       await apiFetch(`/api/admin/admin/providers/provider-deltas/${id}/reject`, { method: 'POST', body: JSON.stringify({ reason }) });
       setDeltas((prev) => prev.filter((d) => (d.id || d._id) !== id));
+      closeReject();
       alert('تم رفض التعديل وإشعار مقدم الخدمة.');
     } catch (err: any) {
-      alert(err?.message || 'حدث خطأ أثناء الرفض');
+      setRejectError(err?.message || 'حدث خطأ أثناء الرفض');
     } finally {
       setProcessingId(null);
     }
@@ -122,7 +131,7 @@ export default function ProviderAuditsPage() {
                     </button>
                     <button
                       disabled={processingId === deltaId}
-                      onClick={() => handleReject(deltaId)}
+                      onClick={() => setRejectFor(deltaId)}
                       className="bg-rose-600 text-white px-5 py-2 rounded-lg text-sm font-bold hover:bg-rose-700 disabled:opacity-50"
                     >
                       رفض التعديل
@@ -133,6 +142,11 @@ export default function ProviderAuditsPage() {
             })}
           </div>
         )}
+        <ConfirmDialog open={rejectFor !== null} title="سبب رفض التعديل" confirmLabel="رفض التعديل" busy={processingId !== null && processingId === rejectFor} onConfirm={confirmReject} onCancel={closeReject}>
+          <p className="text-slate-600">يصل السبب إلى مقدم الخدمة.</p>
+          <textarea value={rejectText} onChange={(e) => setRejectText(e.target.value)} rows={3} aria-label="سبب رفض التعديل" className="w-full rounded-lg border p-2" />
+          {rejectError ? <p role="alert" className="text-sm text-rose-700">{rejectError}</p> : null}
+        </ConfirmDialog>
       </div>
     </>
   );

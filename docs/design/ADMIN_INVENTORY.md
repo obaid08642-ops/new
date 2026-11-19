@@ -51,7 +51,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | providers | `/admin/insurance-queue` | `order.read` | yes | 2 / 0 | 8 / 0 | `admin/src/pages/admin/insurance-queue.tsx` |
 | providers | `/admin/nursing-portal` | `appointment.read` | yes | 7 / 0 | 10 / 0 | `admin/src/pages/admin/nursing-portal.tsx` |
 | providers | `/admin/pharmacy-procurement` | `pharmacy.inventory.read` | yes | 6 / 0 | 14 / 0 | `admin/src/pages/admin/pharmacy-procurement.tsx` |
-| providers | `/admin/provider-audits` | `facility.edit` | yes | 3 / 0 | 2 / 0 | `admin/src/pages/admin/provider-audits.tsx` |
+| providers | `/admin/provider-audits` | `facility.edit` | yes | 3 / 0 | 9 / 0 | `admin/src/pages/admin/provider-audits.tsx` |
 | providers | `/admin/provider-moderation` | `facility.edit` | yes | 22 / 2 | 50 / 0 | `admin/src/pages/admin/provider-moderation.tsx` |
 | system | `/admin/ai-control` | `settings.edit` | yes | 5 / 0 | 6 / 0 | `admin/src/pages/admin/ai-control.tsx` |
 | system | `/admin/alerts` | `command.center.view` | yes | 10 / 0 | 18 / 0 | `admin/src/pages/admin/alerts.tsx` |
@@ -668,9 +668,9 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:172` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:18` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:174` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:31` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:176` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:46` |
+| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:172` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:19` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:174` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:32` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:176` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:54` |
 
 ### `/admin/provider-moderation`
 
