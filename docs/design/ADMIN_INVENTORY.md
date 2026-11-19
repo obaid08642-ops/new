@@ -51,7 +51,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | providers | `/admin/insurance-queue` | `order.read` | yes | 2 / 0 | 8 / 0 | `admin/src/pages/admin/insurance-queue.tsx` |
 | providers | `/admin/nursing-portal` | `appointment.read` | yes | 7 / 0 | 10 / 0 | `admin/src/pages/admin/nursing-portal.tsx` |
 | providers | `/admin/pharmacy-procurement` | `pharmacy.inventory.read` | yes | 6 / 0 | 14 / 0 | `admin/src/pages/admin/pharmacy-procurement.tsx` |
-| providers | `/admin/provider-audits` | `facility.edit` | yes | 3 / 0 | 2 / 0 | `admin/src/pages/admin/provider-audits.tsx` |
+| providers | `/admin/provider-audits` | `facility.edit` | yes | 3 / 0 | 9 / 0 | `admin/src/pages/admin/provider-audits.tsx` |
 | providers | `/admin/provider-moderation` | `facility.edit` | yes | 22 / 2 | 50 / 0 | `admin/src/pages/admin/provider-moderation.tsx` |
 | system | `/admin/ai-control` | `settings.edit` | yes | 5 / 0 | 6 / 0 | `admin/src/pages/admin/ai-control.tsx` |
 | system | `/admin/alerts` | `command.center.view` | yes | 10 / 0 | 18 / 0 | `admin/src/pages/admin/alerts.tsx` |
@@ -140,8 +140,8 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/providers` | OK | `backend/src/modules/provider/provider.controllers.ts:166` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/approvals.tsx:22` |
-| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:171` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/approvals.tsx:24` |
+| GET | `/api/admin/admin/providers` | OK | `backend/src/modules/provider/provider.controllers.ts:167` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/approvals.tsx:22` |
+| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:172` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/approvals.tsx:24` |
 | GET | `/api/admin/admin/finance/payouts` | OK | `backend/src/modules/admin/enterprise/admin-finance.controller.ts:47` | roles:ADMIN perms:finance.read | `admin/src/pages/admin/approvals.tsx:26` |
 | GET | `/api/admin/admin/returns` | OK | `backend/src/modules/returns/returns.controller.ts:85` | roles:ADMIN | `admin/src/pages/admin/approvals.tsx:28` |
 | GET | `/medicines/admin/change-requests` | OK | `backend/src/modules/medicines/medicines.controller.ts:264` | roles:ADMIN | `admin/src/pages/admin/approvals.tsx:30` |
@@ -409,7 +409,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | POST | `/medicines/admin/image-suggestions/:param/:param` | OK | `backend/src/modules/medicines/medicines.controller.ts:228` | roles:ADMIN perms:catalog.update | `admin/src/pages/admin/image-suggestions.tsx:44` |
 | GET | `/api/admin/storage/:param/signed-url` | OK | `backend/src/modules/storage/storage.module.ts:572` | NONE | `admin/src/components/ProviderFullDetail.tsx:22` |
 | GET | `/api/admin/storage/:param` | OK | `backend/src/modules/storage/storage.module.ts:562` | NONE | `admin/src/components/ProviderFullDetail.tsx:27` |
-| POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:188` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:195` |
+| POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:189` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:195` |
 | GET | `/api/admin/provider-onboarding/admin/contracts/:param/meta` | OK | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648` | roles:ADMIN | `admin/src/components/ProviderFullDetail.tsx:217` |
 | GET | `/api/admin/provider-onboarding/admin/contracts/:param` | OK | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts:635` | roles:ADMIN | `admin/src/components/ProviderFullDetail.tsx:234` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
@@ -472,7 +472,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/providers/license-expiry` | OK | `backend/src/modules/provider/provider.controllers.ts:170` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/license-expiry.tsx:15` |
+| GET | `/api/admin/admin/providers/license-expiry` | OK | `backend/src/modules/provider/provider.controllers.ts:171` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/license-expiry.tsx:15` |
 
 ### `/admin/live-chat-console`
 
@@ -668,27 +668,27 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:171` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:18` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:173` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:31` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:175` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:46` |
+| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:172` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:19` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:174` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:32` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:176` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-audits.tsx:54` |
 
 ### `/admin/provider-moderation`
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/providers/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:176` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:48` |
-| GET | `/api/admin/admin/providers` | OK | `backend/src/modules/provider/provider.controllers.ts:166` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:86` |
-| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:171` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:104` |
-| POST | `/api/admin/admin/providers/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:160` |
-| POST | `/api/admin/admin/providers/:param/reject-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:184` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:199` |
-| POST | `/api/admin/admin/providers/:param/approve-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:182` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:219` |
-| POST | `/api/admin/admin/providers/:param/reactivate` | OK | `backend/src/modules/provider/provider.controllers.ts:219` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:239` |
-| POST | `/api/admin/admin/providers/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:262` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:173` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:285` |
-| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:175` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:305` |
+| GET | `/api/admin/admin/providers/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:177` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:48` |
+| GET | `/api/admin/admin/providers` | OK | `backend/src/modules/provider/provider.controllers.ts:167` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:86` |
+| GET | `/api/admin/admin/providers/provider-deltas` | OK | `backend/src/modules/provider/provider.controllers.ts:172` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:104` |
+| POST | `/api/admin/admin/providers/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:179` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:160` |
+| POST | `/api/admin/admin/providers/:param/reject-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:185` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:199` |
+| POST | `/api/admin/admin/providers/:param/approve-bank` | OK | `backend/src/modules/provider/provider.controllers.ts:183` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:219` |
+| POST | `/api/admin/admin/providers/:param/reactivate` | OK | `backend/src/modules/provider/provider.controllers.ts:220` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:239` |
+| POST | `/api/admin/admin/providers/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:179` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:262` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/approve` | OK | `backend/src/modules/provider/provider.controllers.ts:174` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:285` |
+| POST | `/api/admin/admin/providers/provider-deltas/:param/reject` | OK | `backend/src/modules/provider/provider.controllers.ts:176` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/provider-moderation.tsx:305` |
 | GET | `/api/admin/storage/:param/signed-url` | OK | `backend/src/modules/storage/storage.module.ts:572` | NONE | `admin/src/components/ProviderFullDetail.tsx:22` |
 | GET | `/api/admin/storage/:param` | OK | `backend/src/modules/storage/storage.module.ts:562` | NONE | `admin/src/components/ProviderFullDetail.tsx:27` |
-| POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:188` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:195` |
+| POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:189` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:195` |
 | GET | `/api/admin/provider-onboarding/admin/contracts/:param/meta` | OK | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648` | roles:ADMIN | `admin/src/components/ProviderFullDetail.tsx:217` |
 | GET | `/api/admin/provider-onboarding/admin/contracts/:param` | OK | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts:635` | roles:ADMIN | `admin/src/components/ProviderFullDetail.tsx:234` |
 | GET | `/locations/regions` | OK | `backend/src/modules/location/location.controller.ts:13` | PUBLIC | `admin/src/components/GeoPicker.tsx:18` |
@@ -817,7 +817,7 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/service-offers/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:539` | roles:DOCTOR,PHARMACY,LAB,RADIOLOGY,NURSE,NURSING,HOME_CARE,HOSPITAL,DELIVERY,ADMIN | `admin/src/pages/admin/service-offers.tsx:25` |
+| GET | `/api/admin/admin/service-offers/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:540` | roles:DOCTOR,PHARMACY,LAB,RADIOLOGY,NURSE,NURSING,HOME_CARE,HOSPITAL,DELIVERY,ADMIN | `admin/src/pages/admin/service-offers.tsx:25` |
 
 ### `/admin/service-proposals`
 
@@ -888,20 +888,20 @@ _No API call in the page or its local components._
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
 | GET | `/api/admin/admin/users/:param/overview` | OK | `backend/src/modules/admin/admin.controller.ts:150` | roles:ADMIN | `admin/src/pages/admin/users-management.tsx:68` |
-| GET | `/api/admin/admin/providers/by-user/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:169` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:74` |
+| GET | `/api/admin/admin/providers/by-user/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:170` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:74` |
 | GET | `/api/admin/admin/users/:param/overview` | OK | `backend/src/modules/admin/admin.controller.ts:150` | roles:ADMIN | `admin/src/pages/admin/users-management.tsx:85` |
 | GET | `/api/admin/admin/users` | OK | `backend/src/modules/admin/admin.controller.ts:253` | roles:ADMIN | `admin/src/pages/admin/users-management.tsx:99` |
 | POST | `/api/admin/admin/users/:param/ban` | OK | `backend/src/modules/admin/admin.controller.ts:472` | roles:ADMIN perms:user.edit | `admin/src/pages/admin/users-management.tsx:122` |
 | POST | `/api/admin/admin/users/:param/unban` | OK | `backend/src/modules/admin/admin.controller.ts:497` | roles:ADMIN perms:user.edit | `admin/src/pages/admin/users-management.tsx:137` |
-| GET | `/api/admin/admin/providers/by-user/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:169` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:144` |
-| POST | `/api/admin/admin/providers/:param/reactivate` | OK | `backend/src/modules/provider/provider.controllers.ts:219` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:146` |
-| POST | `/api/admin/admin/providers/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:178` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:175` |
+| GET | `/api/admin/admin/providers/by-user/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:170` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:144` |
+| POST | `/api/admin/admin/providers/:param/reactivate` | OK | `backend/src/modules/provider/provider.controllers.ts:220` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:146` |
+| POST | `/api/admin/admin/providers/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:179` | roles:ADMIN perms:facility.edit | `admin/src/pages/admin/users-management.tsx:175` |
 | DELETE | `/api/admin/admin/users/:param` | OK | `backend/src/modules/admin/admin.controller.ts:532` | roles:ADMIN perms:user.edit,gdpr.manage | `admin/src/pages/admin/users-management.tsx:193` |
 | GET | `/api/admin/admin/provider-profiles/orphans` | OK | `backend/src/modules/admin/admin.controller.ts:577` | roles:ADMIN perms:user.edit,gdpr.manage | `admin/src/pages/admin/users-management.tsx:208` |
 | DELETE | `/api/admin/admin/provider-profiles/:param` | OK | `backend/src/modules/admin/admin.controller.ts:600` | roles:ADMIN perms:user.edit,gdpr.manage | `admin/src/pages/admin/users-management.tsx:226` |
 | GET | `/api/admin/storage/:param/signed-url` | OK | `backend/src/modules/storage/storage.module.ts:572` | NONE | `admin/src/components/ProviderFullDetail.tsx:22` |
 | GET | `/api/admin/storage/:param` | OK | `backend/src/modules/storage/storage.module.ts:562` | NONE | `admin/src/components/ProviderFullDetail.tsx:27` |
-| POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:188` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:195` |
+| POST | `/api/admin/admin/providers/:param/documents/:param/:param` | OK | `backend/src/modules/provider/provider.controllers.ts:189` | roles:ADMIN perms:facility.edit | `admin/src/components/ProviderFullDetail.tsx:195` |
 | GET | `/api/admin/provider-onboarding/admin/contracts/:param/meta` | OK | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648` | roles:ADMIN | `admin/src/components/ProviderFullDetail.tsx:217` |
 | GET | `/api/admin/provider-onboarding/admin/contracts/:param` | OK | `backend/src/modules/provider-onboarding/provider-onboarding.module.ts:635` | roles:ADMIN | `admin/src/components/ProviderFullDetail.tsx:234` |
 | GET | `/locations/regions` | OK | `backend/src/modules/location/location.controller.ts:13` | PUBLIC | `admin/src/components/GeoPicker.tsx:18` |
