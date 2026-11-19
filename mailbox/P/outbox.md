@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 23:10 UTC — client line 2 of 37 (#2767)
+- Reconciliation row 100 (#2767): the app's doctors list matched a specialty by its Arabic name only, but `/care/specialties` counts a doctor by slug, Arabic or English name (profiles store the slug), so slug-stored doctors never matched their tile. The chosen specialty is now kept by slug and matched with `doctorHasSpecialty` (the server's three forms). Web has no such defect (it sends the specialty to the server). Test 3; consult suites 21 / 123 green; gates unchanged (literal 105, token-sync 335).
+- Open PRs: #2760, #2764, #2767. Next: rows 90 (LMP/due date check), 64/93 (share-with-doctor pre-select), 21, 25; then the design lines and the multi-country audit.
+
 ## 2026-11-19 22:30 UTC — #2740 merged; #2760 merged with main
 - Lead order of 22:20 UTC done: merged main into #2760 (generated docs only, regenerated; admin tsc clean, admin vitest 36 files / 137 tests green). Conflict-free, "blocked" = waiting for review. No admin `window.prompt` page is left, so nothing more to add to #2760.
 - Open PRs: #2760, #2764. Next: the other small client lines (rows 90, 100, 64/93, 21, 25), then the design lines and the multi-country audit. The row 2/3 insurance-filter question is still in the 21:40 entry.
