@@ -45,11 +45,18 @@ export class MarketsService implements OnModuleInit {
     );
   }
 
+  private marketCache = new Map<string, { at: number; value: MarketInfo }>();
+
   async getMarket(id: string): Promise<MarketInfo> {
+    const hit = this.marketCache.get(id);
+    if (hit && Date.now() - hit.at < TTL_MS) return hit.value;
     const m = await this.markets.findOne({ id }).lean<MarketInfo | null>();
-    if (m) return { id: m.id, country: m.country, operator_id: m.operator_id, status: m.status };
-    if (id === SA_MARKET_ID) return SA_MARKET; // DB not seeded yet (fresh test DB): SA is always known
-    throw new NotFoundException('market_not_found');
+    let value: MarketInfo;
+    if (m) value = { id: m.id, country: m.country, operator_id: m.operator_id, status: m.status };
+    else if (id === SA_MARKET_ID) value = SA_MARKET; // DB not seeded yet (fresh test DB): SA is always known
+    else throw new NotFoundException('market_not_found');
+    this.marketCache.set(id, { at: Date.now(), value });
+    return value;
   }
 
   async getConfig(marketId: string = SA_MARKET_ID, at: Date = new Date()): Promise<ResolvedMarketConfig> {
