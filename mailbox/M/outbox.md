@@ -1,3 +1,6 @@
+## 2026-11-19 — MC.3 MarketContext + market-scope guard + market_id backfill
+Status: done, PR #2766 (CI: pending), independent of #2765. Server-resolved MarketContext (X-Market validated hint, default SA, DB failure -> built-in SA), opt-in scope plugin (applied to no schema yet), idempotent batched backfill script (dry run default, NOT run; needs backup + your ops run). tsc, build with live mongo (openapi 1726), full jest 40/40, dtolint green; boot gate = same 3 failures as clean main. Note: after the backfill runs, lean-returning endpoints show additive market_id/operator_id. Next: wait for merges of #2765/#2766; then step 4 (phone/identity/address/OTP plugins).
+
 ## 2026-11-19 — MC.2 constants -> one source (market-defaults)
 Status: done, PR #2765 (CI: pending). 81 'SAR' literals + Riyadh tz / VAT / 997 / +966 now read common/market-defaults (from the SA row). tsc, `npm run build` with live mongo (openapi 1726 paths), full jest 39/39, dtolint green; boot gate = same 3 failures as clean main. Also fixed a real bug in getConfig(at) (past `at` returned the cached now value) + 4 cache tests. Ratchet spec added (baseline 0). Next: step 3 (separate PR from main).
 
