@@ -31,8 +31,10 @@ import { findCopayTransaction } from '../../common/copay-transaction';
 import { renderInvoicePdf } from './invoice-pdf';
 import { MailModule, MailService } from '../mail/mail.module';
 import { readInvoiceConfig, documentKindOf, platformVatOf, deliveryModeOf, deliveryFeeLineKey, type DocumentKind } from '../../common/tax-registration';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
+import { DEFAULT_VAT_RATE } from '../../common/market-defaults';
 
-const VAT_RATE = 0.15;
+const VAT_RATE = DEFAULT_VAT_RATE;
 
 // ── Schema ─────────────────────────────────────────────────────────────────
 @Schema({ timestamps: true })
@@ -46,7 +48,7 @@ export class EInvoice {
   @Prop({ default: VAT_RATE }) vat_rate: number;
   @Prop({ default: 0 }) vat_amount: number;
   @Prop({ default: 0 }) total: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop() qr_base64: string; // ZATCA TLV QR payload
   /** UBL document type code of a tax document: 388 = tax invoice, 381 = credit note (it references `original_invoice_no`). Absent on a receipt and on documents issued before the field existed. */
   @Prop() document_type_code?: string;

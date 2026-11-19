@@ -41,6 +41,7 @@ import { Permission, RequirePermissions } from '../../common/permissions';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { paymentCompletedKey } from '../durable-events/payment-events.reconciler';
 import { ScheduledOnce } from '../../common/scheduled-once';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 /**
  * Fallback for a failed or short-circuited payment-gateway operation.
  *
@@ -111,7 +112,7 @@ export class TapAdapter implements PaymentGateway {
   private headers() { return { Authorization: `Bearer ${process.env.TAP_API_KEY}`, 'Content-Type': 'application/json' }; }
   async createIntent(o: CreateIntentRequest) {
     const run = async (req: CreateIntentRequest) => {
-      const body = JSON.stringify({ amount: req.amount, currency: req.currency || 'SAR', description: req.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
+      const body = JSON.stringify({ amount: req.amount, currency: req.currency || DEFAULT_CURRENCY, description: req.description, source: { id: 'src_all' }, redirect: { url: process.env.PUBLIC_APP_URL || 'https://example.com/payment/return' } });
       const r = await externalFetch(`${this.base}/charges`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.errors?.[0]?.description || 'tap_intent_failed');
@@ -155,7 +156,7 @@ export class MoyasarAdapter implements PaymentGateway {
       const base = returned.base;
       // #550: the return address names our transaction (`?ref=`); the provider appends its own id and status after it.
       const callback = req.return_ref ? `${base}${base.includes('?') ? '&' : '?'}ref=${encodeURIComponent(req.return_ref)}` : base;
-      const body = JSON.stringify({ amount: toHalalas(req.amount), currency: req.currency || 'SAR', description: req.description, callback_url: callback, success_url: callback, back_url: callback });
+      const body = JSON.stringify({ amount: toHalalas(req.amount), currency: req.currency || DEFAULT_CURRENCY, description: req.description, callback_url: callback, success_url: callback, back_url: callback });
       const r = await externalFetch(`${this.base}/invoices`, { method: 'POST', headers: this.headers(), body });
       const j: any = await r.json();
       if (!r.ok) throw new BadGatewayException(j.message || 'moyasar_intent_failed');
@@ -273,7 +274,7 @@ export class PaymentsService {
     // R11 P2: the integer shadow when the transaction has one, else the double converted exactly (never `round(x * 100)`)
     const amountSar = Number(t.amount || 0);
     const expectedHalalas = Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : (Number.isFinite(amountSar) ? toHalalas(amountSar) : NaN);
-    const expectedCurrency = String(t.currency || 'SAR').toUpperCase();
+    const expectedCurrency = String(t.currency || DEFAULT_CURRENCY).toUpperCase();
     if (!Number.isFinite(expectedHalalas) || expectedHalalas <= 0) return false;
     if (String(raw?.currency || '').toUpperCase() !== expectedCurrency) return false;
     const rawAmount = Number(raw?.amount);
@@ -368,7 +369,7 @@ export class PaymentsService {
     return {
       booking_id: order.id,
       amount,
-      currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
+      currency: String(order.pricing_snapshot?.totals?.currency || DEFAULT_CURRENCY),
       methods,
       eta_minutes: typeof eta === 'number' && Number.isFinite(eta) ? eta : null,
     };
@@ -393,7 +394,7 @@ export class PaymentsService {
     return {
       booking_id: appt.id,
       amount,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
       purpose: 'consultation_card_payment',
       methods,
     };
@@ -451,7 +452,7 @@ export class PaymentsService {
       id: String(t.gateway_charge_id || t.gateway_intent_id || t.id),
       event_id: `txn_${t.id}`,
       amount_halalas: Number.isSafeInteger(t.amount_halalas) ? t.amount_halalas : toHalalas(Number(t.amount)),
-      currency: String(order.pricing_snapshot?.totals?.currency || 'SAR'),
+      currency: String(order.pricing_snapshot?.totals?.currency || DEFAULT_CURRENCY),
       metadata: {
         order_id: order.id,
         selected_offer_id: order.selected_offer_id,
@@ -543,7 +544,7 @@ export class PaymentsService {
     }
     let intent: { intent_id: string; client_secret?: string; checkout_url?: string };
     try {
-      intent = await this.adapter.createIntent({ amount, currency: 'SAR', description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind }, return_ref: txn.id });
+      intent = await this.adapter.createIntent({ amount, currency: DEFAULT_CURRENCY, description: `Nabd ${kind} #${id.slice(0, 8)}`, metadata: { booking_id: id, kind }, return_ref: txn.id });
     } catch (error: any) {
       // Fail-closed gateway (no keys configured) must surface as 503, not 502:
       // mark the reservation failed and rethrow the original 503.

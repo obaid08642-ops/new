@@ -39,6 +39,7 @@ import { timedFetch } from '../../common/external-call';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 // ── Schemas ──────────────────────────────────────────────────────────────────
 
 @Schema({ timestamps: true, collection: 'moyasar_payments' })
@@ -47,7 +48,7 @@ export class MoyasarPayment {
   @Prop({ required: true }) booking_kind: string;
   @Prop({ required: true }) patient_id: string;
   @Prop({ required: true }) amount: number; // in SAR (stored as SAR, sent as halalas)
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop() moyasar_id?: string; // Moyasar payment ID
   @Prop({
     default: 'initiated',
@@ -185,7 +186,7 @@ export class MoyasarService {
 
     const requestBody = {
       amount: amountHalalas,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
       description:
         params.description ||
         `Nabd ${params.bookingKind} #${params.bookingId.slice(0, 8)}`,
@@ -244,7 +245,7 @@ export class MoyasarService {
       booking_kind: params.bookingKind,
       patient_id: params.patientId,
       amount: params.amount,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
       moyasar_id: moyasarResponse?.id,
       status: moyasarResponse?.status || 'initiated',
       payment_url: moyasarResponse?.url ?? moyasarResponse?.source?.transaction_url,

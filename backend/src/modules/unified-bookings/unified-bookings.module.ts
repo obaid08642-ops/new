@@ -188,7 +188,7 @@ export class UnifiedBookingsService {
       patient_id: user.id,
       lines: lines.map((l) => ({ kind: l.kind, service_id: l.service_id, provider_account_id: l.provider_account_id })),
       total: 0,
-      currency: 'SAR',
+      currency: DEFAULT_CURRENCY,
       payment_status: 'pending',
       status: 'DRAFT',
       scheduled_at,
@@ -709,6 +709,7 @@ import { HomeCareModule } from '../home-care/home-care.module';
 import { CareModule } from '../care/care.module';
 import { OrdersModule } from '../orders/orders.module';
 import { logEvent } from '../../common/structured-logger';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 @Module({
   imports: [

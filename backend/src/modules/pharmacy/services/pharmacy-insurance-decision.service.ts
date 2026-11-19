@@ -3,6 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { PharmacyAllocationState, PharmacyOrderState } from '../schemas/pharmacy.schema';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
 const ITEM_OUTCOMES = new Set(['approved', 'partial', 'rejected']);
@@ -96,7 +97,7 @@ export class PharmacyInsuranceDecisionService {
       const outcome = patientShare === 0 ? 'full' : insurerShare === 0 ? 'rejected' : 'partial';
       const nextStatus = outcome === 'full' ? PharmacyOrderState.CONFIRMED : outcome === 'partial' ? PharmacyOrderState.WAITING_COPAY : PharmacyOrderState.MANUAL_REVIEW;
       const now = new Date();
-      const decision = { outcome, approval_reference: approvalReference, offer_id: offer.id, offer_version: offer.version, allocation_id: allocation.id, quote_total: quoteTotal, insurer_share: insurerShare, patient_share: patientShare, currency: offer.totals?.currency || 'SAR', items: itemDecisions, idempotency_key: idempotencyKey, decided_by: pharmacy.id, decided_at: now };
+      const decision = { outcome, approval_reference: approvalReference, offer_id: offer.id, offer_version: offer.version, allocation_id: allocation.id, quote_total: quoteTotal, insurer_share: insurerShare, patient_share: patientShare, currency: offer.totals?.currency || DEFAULT_CURRENCY, items: itemDecisions, idempotency_key: idempotencyKey, decided_by: pharmacy.id, decided_at: now };
       const update = await this.orders.updateOne(
         { id: order.id, selected_offer_id: offer.id, selected_offer_version: offer.version, selected_allocation_id: allocation.id, insurance_decision: { $exists: false } },
         { $set: { insurance_decision: decision, status: nextStatus }, $push: { timeline: { ts: now, event: 'pharmacy_insurance_decision_recorded', by: pharmacy.id, meta: { outcome, approval_reference: approvalReference, offer_id: offer.id, offer_version: offer.version, allocation_id: allocation.id } } } }, { session },

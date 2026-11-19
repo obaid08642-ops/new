@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY } from './market-defaults';
 /**
  * What providers offer for each catalogue service (owner, 2026-10-28: the patient lists read the CATALOGUE, and every item carries its offers).
  * One reader for the three diagnostics/care verticals, so the lists, the detail pages and the filters agree:
@@ -107,28 +108,28 @@ export async function loadOffers(db: DbHandle, vertical: Vertical, services: any
       const own = chosen.get(`${p.account_id}|${svc.id}`);
       if (own) {
         // the provider's own choice decides, whatever the older sources say
-        if (own.offered === true) put(svc, p, { price: priced(own.price), currency: own.currency || 'SAR', ...whereFlags(own.where), insurance: own.insurance === true });
+        if (own.offered === true) put(svc, p, { price: priced(own.price), currency: own.currency || DEFAULT_CURRENCY, ...whereFlags(own.where), insurance: own.insurance === true });
         continue;
       }
       if (vertical === 'lab') {
         const own = caps.filter((c) => c.provider_account_id === p.account_id && (c.code === svc.id || (svc.short_code && c.code === svc.short_code) || (svc.name_ar && c.name_ar === svc.name_ar)));
         // the price: the lab's own choice (above), else its capability row, else what it typed at registration (test_prices); the catalogue price is the patient lists' last resort, not here
         const regPrice = registeredPrice(p.test_prices, svc.id, svc.short_code);
-        for (const c of own) put(svc, p, { price: priced(c.price) ?? regPrice, currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!(c.home_collection_supported || c.home_supported), insurance: !!c.insurance_covered });
+        for (const c of own) put(svc, p, { price: priced(c.price) ?? regPrice, currency: c.currency || DEFAULT_CURRENCY, premises: c.premises_supported !== false, home: !!(c.home_collection_supported || c.home_supported), insurance: !!c.insurance_covered });
         const listed = Array.isArray(p.test_categories) && (p.test_categories.includes(svc.id) || (!!svc.category && p.test_categories.includes(svc.category)));
         // what the lab entered at registration (test_home_map / test_insurance_map, keyed by the test id) decides home and insurance when it has an entry
         const keys = [svc.id, svc.short_code];
-        if (!own.length && listed) put(svc, p, { price: regPrice, currency: 'SAR', premises: true, home: flag(p.test_home_map, ...keys) ?? !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.test_insurance_map, ...keys) ?? false });
+        if (!own.length && listed) put(svc, p, { price: regPrice, currency: DEFAULT_CURRENCY, premises: true, home: flag(p.test_home_map, ...keys) ?? !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.test_insurance_map, ...keys) ?? false });
       } else if (vertical === 'radiology') {
         const own = caps.filter((c) => c.provider_account_id === p.account_id && (c.service_id ? c.service_id === svc.id
           : ci(c.scan_type) === ci(svc.modality) && (!svc.body_part || ci(c.body_part) === ci(svc.body_part))));
         const regPrice = registeredPrice(p.scan_prices, svc.id, svc.short_code, svc.modality);
-        for (const c of own) put(svc, p, { price: priced(c.price) ?? regPrice, currency: c.currency || 'SAR', premises: c.premises_supported !== false, home: !!c.home_supported, insurance: !!c.insurance_covered });
+        for (const c of own) put(svc, p, { price: priced(c.price) ?? regPrice, currency: c.currency || DEFAULT_CURRENCY, premises: c.premises_supported !== false, home: !!c.home_supported, insurance: !!c.insurance_covered });
         const listed = Array.isArray(p.equipment_list) && (p.equipment_list.includes(svc.id) || (!!svc.modality && p.equipment_list.includes(svc.modality)));
-        if (!own.length && listed) put(svc, p, { price: regPrice, currency: 'SAR', premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.scan_insurance_map, svc.id, svc.modality) ?? false });
+        if (!own.length && listed) put(svc, p, { price: regPrice, currency: DEFAULT_CURRENCY, premises: true, home: !!(p.home_visit_supported && svc.home_visit_supported), insurance: flag(p.scan_insurance_map, svc.id, svc.modality) ?? false });
       } else {
         const entry = (Array.isArray(p.nursing_services) ? p.nursing_services : []).find((n: any) => n?.key === svc.id);
-        if (entry) put(svc, p, { price: registeredPrice({ v: entry.price }, 'v'), currency: entry.currency || 'SAR', premises: entry.premises === true, home: entry.home !== false, insurance: entry.insurance === true });
+        if (entry) put(svc, p, { price: registeredPrice({ v: entry.price }, 'v'), currency: entry.currency || DEFAULT_CURRENCY, premises: entry.premises === true, home: entry.home !== false, insurance: entry.insurance === true });
       }
     }
   }

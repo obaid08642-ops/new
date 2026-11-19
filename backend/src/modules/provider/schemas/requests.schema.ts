@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 // ===================== REQUEST TYPES =====================
 export enum ProviderRequestType {
@@ -71,7 +72,7 @@ export class ProviderRequest extends Document {
 
   // Pricing
   @Prop({ default: 0 }) amount_total: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
 
   // State machine artifacts
   @Prop({ type: [Object], default: [] }) timeline: Array<{

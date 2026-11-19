@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { ProviderRequestType } from './requests.schema';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 // ============ SERVICE CAPABILITIES (per-type catalogs) ============
 
@@ -25,7 +26,7 @@ export class PharmacyInventoryItem extends Document {
   // /Phase 2A additive
   @Prop({ default: 0 }) stock: number;
   @Prop({ required: true, default: 0 }) price: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ default: true }) available: boolean;
   @Prop({ default: false }) insurance_covered: boolean;
   @Prop() coverage_notes?: string;
@@ -50,7 +51,7 @@ export class LabTestCatalogItem extends Document {
   @Prop({ default: 24 }) turnaround_hours: number;
   @Prop({ default: false }) home_collection_supported: boolean;
   @Prop({ required: true, default: 0 }) price: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ default: true }) available: boolean;
   @Prop({ default: false }) insurance_covered: boolean;
   @Prop() coverage_notes?: string;
@@ -68,7 +69,7 @@ export class RadiologyServiceCatalogItem extends Document {
   @Prop() name_en?: string;
   @Prop({ default: false }) contrast_supported: boolean;
   @Prop({ required: true, default: 0 }) price: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ default: true }) available: boolean;
   @Prop({ default: false }) insurance_covered: boolean;
   @Prop() coverage_notes?: string;
@@ -84,7 +85,7 @@ export class DoctorSessionType extends Document {
   @Prop({ required: true }) specialty: string;
   @Prop({ default: 30 }) duration_minutes: number;
   @Prop({ required: true, default: 0 }) price: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ default: true }) available: boolean;
   @Prop({ default: false }) insurance_covered: boolean;
   @Prop() coverage_notes?: string;
@@ -101,7 +102,7 @@ export class HomeCareServiceCatalogItem extends Document {
   @Prop({ default: [], type: [String] }) required_skills: string[];
   @Prop({ default: 1 }) min_hours: number;
   @Prop({ required: true, default: 0 }) hourly_price: number;
-  @Prop({ default: 'SAR' }) currency: string;
+  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
   @Prop({ default: true }) available: boolean;
   @Prop({ default: false }) insurance_covered: boolean;
   @Prop() coverage_notes?: string;

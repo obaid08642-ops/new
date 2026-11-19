@@ -9986,7 +9986,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:167",
      "backendPath": "/admin/providers",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 86,
+     "line": 100,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10011,7 +10011,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:172",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 104,
+     "line": 118,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10036,7 +10036,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:179",
      "backendPath": "/admin/providers/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 160,
+     "line": 174,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10061,7 +10061,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:185",
      "backendPath": "/admin/providers/:param/reject-bank",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 199,
+     "line": 213,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10086,7 +10086,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:183",
      "backendPath": "/admin/providers/:param/approve-bank",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 219,
+     "line": 233,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10111,7 +10111,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:220",
      "backendPath": "/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 239,
+     "line": 251,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10136,7 +10136,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:179",
      "backendPath": "/admin/providers/:param/:param",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 262,
+     "line": 270,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10161,7 +10161,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:174",
      "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 285,
+     "line": 292,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {
@@ -10186,7 +10186,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:176",
      "backendPath": "/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
-     "line": 305,
+     "line": 309,
      "fn": "fetchWithAdminGuard",
      "via": null,
      "guards": {

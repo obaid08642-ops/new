@@ -54,6 +54,7 @@ import { publicLabFilter } from './labs-public';
 import { byRating, paged, parsePage, withProviderRating, type CataloguePage } from '../../common/catalogue-page';
 import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -210,7 +211,7 @@ export class LabsService {
         rating: profile.rating_count > 0 ? profile.rating_avg : null,
         rating_count: profile.rating_count || 0,
         price: total,
-        currency: 'SAR',
+        currency: DEFAULT_CURRENCY,
         logo: profile.logo || null,
       };
     });

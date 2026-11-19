@@ -1,3 +1,4 @@
+import { DEFAULT_TIMEZONE } from './market-defaults';
 /**
  * The market's local time, in ONE place. Opening hours, doctor and service schedules, quiet hours and peak-hour surge are written by people as the clock of the market they serve, but the
  * containers run in UTC (TZ is not set; the nightly crons are pinned to UTC on purpose, see process-timezone.spec.ts). So every local-time read goes through these helpers, which take the
@@ -11,7 +12,7 @@ export const WEEKDAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'] as
 export function marketTimezone(): string {
   const tz = (process.env.MARKET_TIMEZONE || '').trim();
   if (tz) { try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); return tz; } catch { /* an invalid name falls back */ } }
-  return 'Asia/Riyadh';
+  return DEFAULT_TIMEZONE;
 }
 
 export interface MarketParts { date: string; hour: number; minute: number; weekday: number; minutesOfDay: number }
