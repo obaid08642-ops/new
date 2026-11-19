@@ -1,3 +1,6 @@
+## 2026-11-19 — MC.1 fix for #2761 build
+Status: fixed, pushed. Cause: union-typed `status` @Prop in Market and MarketConfigRow had no explicit type (openapi:generate error). Added `type: String`. Verified with `nest build` + `openapi:generate --strict` against a live mongo (1726 paths), tsc, markets jest. My earlier report missed it because openapi:generate skips silently without mongo; I now run it strict. Waiting for merge, then step 2.
+
 ## 2026-11-19 — MC.1 markets/operators/market_configs + one reader + SA row
 Status: done, PR #2761 (CI: pending). tsc, build, full jest (39/39 chunks), dtolint, dtocheck green; golden spec compares SA row to live constants. Boot gate: 3 failures in provider-onboarding + p3-provider-credential e2e, identical on clean main (not from this PR). Step 2 needs #2761 merged first (no stacking); waiting.
 
