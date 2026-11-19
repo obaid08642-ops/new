@@ -318,7 +318,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/appointments-oversight.tsx",
-    "line": 27
+    "line": 36
    },
    {
     "kind": "button",
@@ -328,17 +328,46 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/appointments-oversight.tsx",
-    "line": 28
+    "line": 37
    },
    {
     "kind": "button",
     "label": "إلغاء",
-    "src": "POST /api/admin/admin/appointments/:param/cancel; GET /api/admin/admin/appointments; prompt()",
+    "src": "local state",
     "status": "ok",
-    "mutation": true,
-    "confirm": true,
+    "mutation": false,
+    "confirm": false,
     "file": "admin/src/pages/admin/appointments-oversight.tsx",
-    "line": 33
+    "line": 42
+   },
+   {
+    "kind": "action",
+    "label": "يصل السبب إلى المريض.",
+    "src": "confirmCancel; POST /api/admin/admin/appointments/:param/cancel; GET /api/admin/admin/appointments",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/admin/appointments/:param/cancel) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/appointments-oversight.tsx",
+    "line": 47
+   },
+   {
+    "kind": "action",
+    "label": "يصل السبب إلى المريض.",
+    "src": "closeCancel; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/appointments-oversight.tsx",
+    "line": 47
+   },
+   {
+    "kind": "input",
+    "label": "سبب إلغاء الموعد",
+    "src": "state reasonText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/appointments-oversight.tsx",
+    "line": 49
    },
    {
     "kind": "link",
@@ -404,6 +433,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    },
    {
     "kind": "link",
@@ -4203,23 +4273,23 @@
    {
     "kind": "button",
     "label": "قبول",
-    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 552,
+    "line": 563,
     "via": "ProviderFullDetail"
    },
    {
     "kind": "button",
     "label": "رفض",
-    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 554,
+    "line": 565,
     "via": "ProviderFullDetail"
    },
    {
@@ -4230,7 +4300,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 591,
+    "line": 602,
     "via": "ProviderFullDetail"
    },
    {
@@ -4241,7 +4311,38 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 593,
+    "line": 604,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "يظهر السبب للمزود.",
+    "src": "confirmReject; POST /api/admin/admin/providers/:param/documents/:param/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 651,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "يظهر السبب للمزود.",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 651,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "سبب رفض المستند",
+    "src": "state rejectText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 653,
     "via": "ProviderFullDetail"
    },
    {
@@ -4318,6 +4419,47 @@
     "confirm": false,
     "file": "admin/src/components/DataTable.tsx",
     "line": 66,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
     "via": "ProviderFullDetail"
    },
    {
@@ -4407,7 +4549,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "input",
@@ -4415,7 +4557,7 @@
     "src": "state query used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "button",
@@ -4425,7 +4567,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "input",
@@ -4433,7 +4575,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "button",
@@ -4443,17 +4585,87 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
    },
    {
     "kind": "button",
     "label": "إبطال",
-    "src": "POST /api/admin/impersonation/revoke; GET /api/admin/admin/impersonation; prompt()",
+    "src": "local state",
     "status": "ok",
-    "mutation": true,
-    "confirm": true,
+    "mutation": false,
+    "confirm": false,
     "file": "admin/src/pages/admin/impersonation.tsx",
-    "line": 18
+    "line": 22
+   },
+   {
+    "kind": "action",
+    "label": "سبب إبطال جلسة الدعم",
+    "src": "POST /api/admin/impersonation/revoke; GET /api/admin/admin/impersonation",
+    "status": "ok",
+    "warn": "Sensitive action (POST /api/admin/impersonation/revoke) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 22
+   },
+   {
+    "kind": "action",
+    "label": "سبب إبطال جلسة الدعم",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 22
+   },
+   {
+    "kind": "input",
+    "label": "سبب إبطال جلسة الدعم",
+    "src": "state revokeReason used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/impersonation.tsx",
+    "line": 22
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    }
   ],
   "/admin/insurance-companies": [
@@ -8201,23 +8413,23 @@
    {
     "kind": "button",
     "label": "قبول",
-    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 552,
+    "line": 563,
     "via": "ProviderFullDetail"
    },
    {
     "kind": "button",
     "label": "رفض",
-    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 554,
+    "line": 565,
     "via": "ProviderFullDetail"
    },
    {
@@ -8228,7 +8440,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 591,
+    "line": 602,
     "via": "ProviderFullDetail"
    },
    {
@@ -8239,7 +8451,38 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 593,
+    "line": 604,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "يظهر السبب للمزود.",
+    "src": "confirmReject; POST /api/admin/admin/providers/:param/documents/:param/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 651,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "يظهر السبب للمزود.",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 651,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "سبب رفض المستند",
+    "src": "state rejectText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 653,
     "via": "ProviderFullDetail"
    },
    {
@@ -10592,23 +10835,23 @@
    {
     "kind": "button",
     "label": "قبول",
-    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 552,
+    "line": 563,
     "via": "ProviderFullDetail"
    },
    {
     "kind": "button",
     "label": "رفض",
-    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param; prompt()",
+    "src": "POST /api/admin/admin/providers/:param/documents/:param/:param",
     "status": "ok",
     "mutation": true,
-    "confirm": true,
+    "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 554,
+    "line": 565,
     "via": "ProviderFullDetail"
    },
    {
@@ -10619,7 +10862,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 591,
+    "line": 602,
     "via": "ProviderFullDetail"
    },
    {
@@ -10630,7 +10873,38 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/components/ProviderFullDetail.tsx",
-    "line": 593,
+    "line": 604,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "يظهر السبب للمزود.",
+    "src": "confirmReject; POST /api/admin/admin/providers/:param/documents/:param/:param",
+    "status": "ok",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 651,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "يظهر السبب للمزود.",
+    "src": "local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 651,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "input",
+    "label": "سبب رفض المستند",
+    "src": "state rejectText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/components/ProviderFullDetail.tsx",
+    "line": 653,
     "via": "ProviderFullDetail"
    },
    {
@@ -10735,6 +11009,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ProviderFullDetail"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ProviderFullDetail"
    },
    {
     "kind": "input",
