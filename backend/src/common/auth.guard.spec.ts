@@ -49,8 +49,9 @@ describe('JwtAuthGuard', () => {
     guard = new JwtAuthGuard(jwtService, reflector, connection, impersonationSessions);
   });
 
-  const createMockContext = (headers: Record<string, string>, params: any = {}, body: any = {}, query: any = {}, path = '/api/v1/private'): any => {
+  const createMockContext = (headers: Record<string, string>, params: any = {}, body: any = {}, query: any = {}, path = '/api/v1/private', method = 'GET'): any => {
     const req = {
+      method,
       headers,
       params,
       query,
@@ -193,6 +194,15 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider-onboarding/progress'))).resolves.toBe(true);
   });
 
+  it('B2: a restricted provider account (lapsed licence) keeps its login: provider routes work to finish existing work and upload the renewed licence', async () => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider', provider_type: 'lab' });
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status: 'restricted' }) });
+    for (const path of ['/api/v1/provider/jobs/queue', '/api/v1/provider/kyc/documents']) {
+      await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, path))).resolves.toBe(true);
+    }
+  });
+
   it.each(['rejected', 'needs_changes', 'under_review', 'suspended'])('G6: a provider account in status %s is kept off every provider route except the onboarding steps (resubmit and read the reason stay open)', async (status) => {
     reflector.getAllAndOverride.mockReturnValue(null);
     jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
@@ -205,12 +215,28 @@ describe('JwtAuthGuard', () => {
     }
   });
 
-  // Pins today's behaviour for the lead's decision (G6 rest): the rejected provider's dashboard asks GET /provider/kyc/documents for the documents marked "needs replacement"; this gate answers 403, so the app (which swallows the error) never shows them.
-  it('G6 (open question): the KYC document list a rejected provider needs to replace flagged documents is behind the approval gate', async () => {
+  // Lead decision 2026-11-17 (G6 rest): a rejected / sent-back provider may read WHICH documents must be replaced (type, reason, status) and upload replacements; nothing else opens.
+  it.each(['rejected', 'needs_changes'])('G6: an account in status %s may read the replacement list and upload a document, only with those methods', async (status) => {
     reflector.getAllAndOverride.mockReturnValue(null);
     jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
-    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status: 'rejected' }) });
-    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider/kyc/documents'))).rejects.toThrow('provider_approval_required');
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status }) });
+    const ask = (path: string, method: string) => guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, path, method));
+    await expect(ask('/api/v1/provider/kyc/replacements', 'GET')).resolves.toBe(true);
+    await expect(ask('/api/v1/provider/kyc/documents', 'POST')).resolves.toBe(true);
+    // the full document list (it carries file references) and every other method / route stay closed
+    await expect(ask('/api/v1/provider/kyc/documents', 'GET')).rejects.toThrow('provider_approval_required');
+    await expect(ask('/api/v1/provider/kyc/replacements', 'POST')).rejects.toThrow('provider_approval_required');
+    await expect(ask('/api/v1/provider/kyc/documents', 'DELETE')).rejects.toThrow('provider_approval_required');
+    await expect(ask('/api/v1/provider/kyc/replacements/x', 'GET')).rejects.toThrow('provider_approval_required');
+    await expect(ask('/api/v1/provider/jobs/queue', 'GET')).rejects.toThrow('provider_approval_required');
+  });
+
+  it.each(['under_review', 'suspended', 'pending_admin_approval', 'onboarding'])('G6: an account in status %s does not get the replacement routes', async (status) => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status }) });
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider/kyc/replacements', 'GET'))).rejects.toThrow('provider_approval_required');
+    await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider/kyc/documents', 'POST'))).rejects.toThrow('provider_approval_required');
   });
 
   it('allows an approved provider through the central KYC gate', async () => {

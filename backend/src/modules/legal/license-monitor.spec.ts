@@ -43,14 +43,14 @@ describe('licence monitor', () => {
     expect(gone.notes).toHaveLength(1);
   });
 
-  it('expired: the provider ACCOUNT is suspended too (login refused, open session ended), for any provider type', async () => {
+  it('expired (B2): the provider ACCOUNT is restricted (login keeps working, session not ended), for any provider type', async () => {
     for (const type of ['pharmacy', 'lab', 'radiology', 'nursing', 'hospital']) {
       const gone = await run({ _id: 1, id: 'p1', type, account_id: 'acc-1', user_id: 'u1', license_expiry_date: new Date(Date.now() - DAY) });
       expect(gone.accountUpdates).toHaveLength(1);
-      expect(gone.accountUpdates[0].u.$set.status).toBe('suspended');
-      expect(gone.accountUpdates[0].u.$inc).toEqual({ token_version: 1 });
+      expect(gone.accountUpdates[0].u.$set.status).toBe('restricted');
+      expect(gone.accountUpdates[0].u.$inc).toBeUndefined();
     }
-    const already = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: new Date(Date.now() - DAY) }, { id: 'acc-1', status: 'suspended' });
+    const already = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: new Date(Date.now() - DAY) }, { id: 'acc-1', status: 'restricted' });
     expect(already.accountUpdates).toEqual([]);
   });
 

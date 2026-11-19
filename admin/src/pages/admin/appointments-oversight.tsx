@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Head from 'next/head';
 import { apiFetch } from '../../utils/api';
 import { useCan } from '../../components/AdminGuard';
+import { ConfirmDialog } from '../../components/ConfirmDialog';
 
 export default function AppointmentsOversightPage() {
   const [rows, setRows] = useState<any[]>([]);
@@ -15,12 +16,20 @@ export default function AppointmentsOversightPage() {
     finally{setLoading(false);}
   },[]);
   useEffect(()=>{load();},[load]);
-  const cancel = async(id:string)=>{
-    // the reason is stored on the appointment and shown to the patient: the admin writes it
-    const reason = window.prompt('سبب إلغاء الموعد (يصل إلى المريض):');
-    if(reason===null) return;
-    if(reason.trim().length<3){ alert('اكتب سبب الإلغاء (3 أحرف على الأقل)'); return; }
-    try{ await apiFetch(`/api/admin/admin/appointments/${id}/cancel`,{method:'POST', body: JSON.stringify({reason:reason.trim()})}); await load();}catch(e:any){alert(e?.message||'فشل');}
+  // the reason is stored on the appointment and shown to the patient: the admin writes it in the dialog
+  const [cancelFor, setCancelFor] = useState<string|null>(null);
+  const [reasonText, setReasonText] = useState('');
+  const [reasonError, setReasonError] = useState('');
+  const [busy, setBusy] = useState(false);
+  const closeCancel = ()=>{ setCancelFor(null); setReasonText(''); setReasonError(''); };
+  const confirmCancel = async()=>{
+    if(cancelFor===null) return;
+    const reason = reasonText.trim();
+    if(reason.length<3){ setReasonError('اكتب سبب الإلغاء (3 أحرف على الأقل)'); return; }
+    setBusy(true);
+    try{ await apiFetch(`/api/admin/admin/appointments/${cancelFor}/cancel`,{method:'POST', body: JSON.stringify({reason})}); closeCancel(); await load();}
+    catch(e:any){ setReasonError(e?.message||'فشل'); }
+    finally{ setBusy(false); }
   };
   return (<><Head><title>إشراف المواعيد | نبض</title></Head>
   <div className="p-8 space-y-6">
@@ -30,10 +39,15 @@ export default function AppointmentsOversightPage() {
       <div key={a.id} className="bg-white rounded-xl border p-4 flex flex-wrap justify-between items-center gap-3">
        <div><div className="font-bold">{a.patient_name||a.patient_id?.slice(0,8)} → {a.doctor_name||a.provider_name||'—'}</div><div className="text-xs text-slate-400">{a.slot_start?.slice(0,16)||''} · {a.status}</div></div>
        <div className="flex gap-2"><span className={`px-2 py-1 text-xs rounded-full ${a.status==='CONFIRMED'?'bg-green-100 text-green-700': a.status==='CANCELLED'?'bg-red-100 text-red-700':'bg-amber-100 text-amber-700'}`}>{a.status}</span>
-       {canCancel && a.status!=='CANCELLED' && <button onClick={()=>cancel(a.id)} className="text-xs bg-red-600 text-white px-3 py-1 rounded-lg">إلغاء</button>}
+       {canCancel && a.status!=='CANCELLED' && <button onClick={()=>setCancelFor(a.id)} className="text-xs bg-red-600 text-white px-3 py-1 rounded-lg">إلغاء</button>}
        </div>
       </div>
     ))}</div>
    )}
+   <ConfirmDialog open={cancelFor!==null} title="سبب إلغاء الموعد" confirmLabel="إلغاء الموعد" busy={busy} onConfirm={confirmCancel} onCancel={closeCancel}>
+    <p className="text-slate-600">يصل السبب إلى المريض.</p>
+    <textarea value={reasonText} onChange={(e)=>setReasonText(e.target.value)} rows={3} aria-label="سبب إلغاء الموعد" className="w-full rounded-lg border p-2" />
+    {reasonError ? <p role="alert" className="text-sm text-rose-700">{reasonError}</p> : null}
+   </ConfirmDialog>
   </div></>);
 }
