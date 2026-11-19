@@ -9391,7 +9391,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "input",
@@ -9399,7 +9399,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "input",
@@ -9407,7 +9407,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "input",
@@ -9415,7 +9415,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "input",
@@ -9423,7 +9423,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "input",
@@ -9431,7 +9431,7 @@
     "src": "state form used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "button",
@@ -9439,7 +9439,7 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22,
+    "line": 26,
     "submit": true
    },
    {
@@ -9450,7 +9450,7 @@
     "mutation": true,
     "confirm": true,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "button",
@@ -9460,7 +9460,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "button",
@@ -9470,17 +9470,46 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
    },
    {
     "kind": "button",
     "label": "حذف",
-    "src": "DELETE /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports; confirm(); prompt()",
+    "src": "local state",
     "status": "ok",
-    "mutation": true,
-    "confirm": true,
+    "mutation": false,
+    "confirm": false,
     "file": "admin/src/pages/admin/scheduled-reports.tsx",
-    "line": 22
+    "line": 26
+   },
+   {
+    "kind": "action",
+    "label": "سيحذف التقرير من الجدولة ويُسجَّل السبب. اكتب السبب (5 أحرف",
+    "src": "DELETE /api/admin/admin/scheduled-reports/:param; GET /api/admin/admin/scheduled-reports",
+    "status": "ok",
+    "warn": "Sensitive action (DELETE /api/admin/admin/scheduled-reports/:param) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 36
+   },
+   {
+    "kind": "action",
+    "label": "سيحذف التقرير من الجدولة ويُسجَّل السبب. اكتب السبب (5 أحرف",
+    "src": "closeRemove; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 36
+   },
+   {
+    "kind": "input",
+    "label": "سبب حذف التقرير المجدول",
+    "src": "state removeText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/scheduled-reports.tsx",
+    "line": 36
    },
    {
     "kind": "action",
@@ -9557,6 +9586,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    },
    {
     "kind": "link",
