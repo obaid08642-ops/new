@@ -19,7 +19,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | customers-growth | `/admin/crm` | `crm.read` | yes | 7 / 0 | 13 / 0 | `admin/src/pages/admin/crm.tsx` |
 | customers-growth | `/admin/gdpr` | `gdpr.manage` | yes | 3 / 0 | 12 / 0 | `admin/src/pages/admin/gdpr.tsx` |
 | customers-growth | `/admin/home-curation` | `cms.edit` | yes | 2 / 0 | 16 / 0 | `admin/src/pages/admin/home-curation.tsx` |
-| customers-growth | `/admin/impersonation` | `user.impersonate` | yes | 5 / 0 | 6 / 0 | `admin/src/pages/admin/impersonation.tsx` |
+| customers-growth | `/admin/impersonation` | `user.impersonate` | yes | 5 / 0 | 13 / 0 | `admin/src/pages/admin/impersonation.tsx` |
 | customers-growth | `/admin/locations` | `settings.edit` | yes | 7 / 0 | 17 / 0 | `admin/src/pages/admin/locations.tsx` |
 | customers-growth | `/admin/loyalty-config` | `coupons.manage` | yes | 8 / 0 | 23 / 0 | `admin/src/pages/admin/loyalty-config.tsx` |
 | customers-growth | `/admin/notification-center` | `notifications.send` | yes | 17 / 0 | 29 / 0 | `admin/src/pages/admin/notification-center.tsx` |
@@ -424,11 +424,11 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/users` | OK | `backend/src/modules/admin/admin.controller.ts:253` | roles:ADMIN | `admin/src/pages/admin/impersonation.tsx:12` |
-| GET | `/api/admin/admin/impersonation` | OK | `backend/src/modules/admin/enterprise/admin-impersonation.controller.ts:56` | roles:ADMIN perms:user.impersonate | `admin/src/pages/admin/impersonation.tsx:13` |
-| POST | `/api/admin/impersonation/start` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/impersonation/start.ts` |  | `admin/src/pages/admin/impersonation.tsx:16` |
-| GET | `/api/admin/impersonation/context` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/impersonation/context.ts` |  | `admin/src/pages/admin/impersonation.tsx:16` |
-| POST | `/api/admin/impersonation/revoke` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/impersonation/revoke.ts` |  | `admin/src/pages/admin/impersonation.tsx:17` |
+| GET | `/api/admin/admin/users` | OK | `backend/src/modules/admin/admin.controller.ts:253` | roles:ADMIN | `admin/src/pages/admin/impersonation.tsx:15` |
+| GET | `/api/admin/admin/impersonation` | OK | `backend/src/modules/admin/enterprise/admin-impersonation.controller.ts:56` | roles:ADMIN perms:user.impersonate | `admin/src/pages/admin/impersonation.tsx:16` |
+| POST | `/api/admin/impersonation/start` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/impersonation/start.ts` |  | `admin/src/pages/admin/impersonation.tsx:19` |
+| GET | `/api/admin/impersonation/context` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/impersonation/context.ts` |  | `admin/src/pages/admin/impersonation.tsx:19` |
+| POST | `/api/admin/impersonation/revoke` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/impersonation/revoke.ts` |  | `admin/src/pages/admin/impersonation.tsx:21` |
 
 ### `/admin/insurance-companies`
 
