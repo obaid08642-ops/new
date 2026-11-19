@@ -70,3 +70,37 @@ describe('MarketsService', () => {
     expect((await svc.getConfig('SA')).version).toBe(2);
   });
 });
+
+describe('MarketsService.getConfig cache and `at`', () => {
+  const rows = () => [
+    { market_id: 'SA', version: 1, effective_from: new Date('2026-01-01'), status: 'active', config: cfg('SAR') },
+    { market_id: 'SA', version: 2, effective_from: new Date('2026-06-01'), status: 'active', config: cfg('USD') },
+  ];
+  it('caches "now" reads: a second call does not hit the database', async () => {
+    const { svc, configs } = make(rows());
+    await svc.getConfig('SA');
+    await svc.getConfig('SA');
+    expect(configs.find).toHaveBeenCalledTimes(1);
+  });
+  it('a past `at` bypasses the cache, returns the version effective then, and does not poison the cache', async () => {
+    const { svc, configs } = make(rows());
+    const now = await svc.getConfig('SA');
+    expect(now.version).toBe(2);
+    const past = await svc.getConfig('SA', new Date('2026-03-01'));
+    expect(past.version).toBe(1);
+    expect(configs.find).toHaveBeenCalledTimes(2);
+    expect((await svc.getConfig('SA')).version).toBe(2); // cached "now" untouched by the past read
+    expect(configs.find).toHaveBeenCalledTimes(2);
+  });
+  it('a past read first does not fill the cache with the old version', async () => {
+    const { svc } = make(rows());
+    expect((await svc.getConfig('SA', new Date('2026-03-01'))).version).toBe(1);
+    expect((await svc.getConfig('SA')).version).toBe(2);
+  });
+  it('publishing clears the cache so the new version is served at once', async () => {
+    const { svc } = make(rows(), [{ id: 'SA' }]);
+    expect((await svc.getConfig('SA')).version).toBe(2);
+    await svc.publishConfig('SA', cfg('EUR'), new Date(Date.now() - 1000), 't');
+    expect((await svc.getConfig('SA')).version).toBe(3);
+  });
+});

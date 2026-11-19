@@ -10,6 +10,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from '../../../schemas/insurance.schema';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 // ============ ORDER STATES ============
 export enum PharmacyOrderState {
@@ -181,7 +182,7 @@ export class PharmacyOrder extends Document {
     uri?: string; base64?: string; intake_id?: string;
   }>;
 
-  @Prop({ type: Object, default: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' } })
+  @Prop({ type: Object, default: { subtotal: 0, delivery_fee: 0, total: 0, currency: DEFAULT_CURRENCY } })
   totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
 
   // Pricing breakdown
@@ -292,7 +293,7 @@ export class PharmacyAllocation extends Document {
     updated_at?: Date;
   }>;
 
-  @Prop({ type: Object, default: { subtotal: 0, delivery_fee: 0, total: 0, currency: 'SAR' } })
+  @Prop({ type: Object, default: { subtotal: 0, delivery_fee: 0, total: 0, currency: DEFAULT_CURRENCY } })
   totals: { subtotal: number; delivery_fee: number; total: number; currency: string };
 
   @Prop() distance_km?: number;

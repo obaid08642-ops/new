@@ -1,3 +1,4 @@
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 /**
  * Server-side localization for structured catalogue fields that exist only in
  * Arabic in the source data (dosage form, category tree, package-size units…).
@@ -448,7 +449,7 @@ export function resolveMedicinePublicDto(raw: Record<string, any>, productLocale
     barcode: raw?.barcode || null,
     price, old_price: old || null,
     discount_percent: discount, has_discount: discount > 0,
-    currency: 'SAR',
+    currency: DEFAULT_CURRENCY,
     is_rx: isRx,
     // Decision 11: the "online only" badge on the public product page and the online-only note on cart lines.
     online_exclusive: raw?.online_exclusive === true,

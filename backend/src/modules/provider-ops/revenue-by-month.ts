@@ -1,5 +1,7 @@
 import { halalasSum } from '../finance-engine/report-totals';
 import { fromHalalas } from '../../common/money';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
+import { DEFAULT_TIMEZONE } from '../../common/market-defaults';
 
 /**
  * A provider's revenue per month, refunds netted (the provider app's revenue screen used to add this up on the phone from the newest 200 ledger rows of any type).
@@ -7,7 +9,7 @@ import { fromHalalas } from '../../common/money';
  * 'refund') booked in the month; `net` = earned - refunded. A refund is counted in the month it is made (cash basis), not the month of the order. Months are Saudi calendar
  * months (Asia/Riyadh, UTC+3 all year). Whole halalas are added and converted to SAR once.
  */
-export const REVENUE_TZ = 'Asia/Riyadh';
+export const REVENUE_TZ = DEFAULT_TIMEZONE;
 const RIYADH_OFFSET_MS = 3 * 3600_000;
 export const MAX_REVENUE_MONTHS = 24;
 
@@ -60,7 +62,7 @@ export function foldRevenue(rows: Array<{ _id?: { m?: string; t?: string }; tota
   }
   const list: RevenueMonth[] = keys.map((k) => { const v = acc.get(k)!; return { month: k, earned: fromHalalas(v.earned), refunded: fromHalalas(v.refunded), net: fromHalalas(v.earned - v.refunded) }; });
   const sum = [...acc.values()].reduce((s, v) => ({ earned: s.earned + v.earned, refunded: s.refunded + v.refunded }), { earned: 0, refunded: 0 });
-  return { currency: 'SAR', months: list, total: { earned: fromHalalas(sum.earned), refunded: fromHalalas(sum.refunded), net: fromHalalas(sum.earned - sum.refunded) } };
+  return { currency: DEFAULT_CURRENCY, months: list, total: { earned: fromHalalas(sum.earned), refunded: fromHalalas(sum.refunded), net: fromHalalas(sum.earned - sum.refunded) } };
 }
 
 /**

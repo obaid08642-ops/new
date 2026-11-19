@@ -3,6 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { OnEvent } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 /**
  * Canonical writer for payment evidence used by pharmacy fulfillment gates.
@@ -27,7 +28,7 @@ export class PharmacyPaymentEvidenceService {
     const offerVersion = Number(metadata.selected_offer_version ?? payload?.selected_offer_version);
     const snapshotHash = String(metadata.quote_snapshot_hash || payload?.quote_snapshot_hash || '').trim();
     const payerId = String(metadata.payer_account_id || payload?.payer_account_id || '').trim();
-    const currency = String(payload?.currency || metadata.currency || 'SAR').toUpperCase();
+    const currency = String(payload?.currency || metadata.currency || DEFAULT_CURRENCY).toUpperCase();
     const amountHalalas = Number(payload?.amount_halalas ?? payload?.amount_minor ?? NaN);
     if (!eventId || !paymentId || !orderId || !offerId || !Number.isInteger(offerVersion) || !snapshotHash || !payerId || !Number.isFinite(amountHalalas) || amountHalalas < 0) {
       throw new BadRequestException('payment_evidence_metadata_incomplete');
@@ -40,7 +41,7 @@ export class PharmacyPaymentEvidenceService {
     if (String(order.selected_offer_id) !== offerId || Number(order.selected_offer_version) !== offerVersion) throw new BadRequestException('payment_selected_offer_mismatch');
     if (String(order.pricing_snapshot?.offer_id) !== offerId || Number(order.pricing_snapshot?.offer_version) !== offerVersion) throw new BadRequestException('payment_quote_binding_mismatch');
     if (String(order.pricing_snapshot?.hash || '') !== snapshotHash) throw new BadRequestException('payment_quote_hash_mismatch');
-    if (String(order.pricing_snapshot?.totals?.currency || 'SAR').toUpperCase() !== currency) throw new BadRequestException('payment_currency_mismatch');
+    if (String(order.pricing_snapshot?.totals?.currency || DEFAULT_CURRENCY).toUpperCase() !== currency) throw new BadRequestException('payment_currency_mismatch');
     const expected = Math.round(Number(order.pricing_snapshot?.totals?.total || 0) * 100) / 100;
     // Insurance orders with a partial decision settle only the accepted co-pay
     // share online; the insurer share is settled off-gateway.

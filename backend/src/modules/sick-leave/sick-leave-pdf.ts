@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as PDFDocument from 'pdfkit';
 import { drawBidi, wrapBidi, hasArabic } from '../../common/pdf-bidi';
+import { DEFAULT_TIMEZONE } from '../../common/market-defaults';
 
 /**
  * The PDF of a MEDICAL REPORT that states a recommended rest period (owner decisions PT-08, 2026-11-09; we never call it a "sick leave": that is the official Seha document), drawn like the invoice's (billing/invoice-pdf.ts): Arabic shaped from the embedded Naskh font and
@@ -60,8 +61,8 @@ const L = {
   none: { ar: 'غير متوفر', en: 'not available' },
 };
 
-const dateOf = (v: unknown) => (v ? new Date(v as any).toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' }) : '');
-const dateTimeOf = (v: unknown) => (v ? `${new Date(v as any).toLocaleString('en-CA', { timeZone: 'Asia/Riyadh', hour12: false }).replace(',', '')} (UTC+3)` : '');
+const dateOf = (v: unknown) => (v ? new Date(v as any).toLocaleDateString('en-CA', { timeZone: DEFAULT_TIMEZONE }) : '');
+const dateTimeOf = (v: unknown) => (v ? `${new Date(v as any).toLocaleString('en-CA', { timeZone: DEFAULT_TIMEZONE, hour12: false }).replace(',', '')} (UTC+3)` : '');
 
 export interface SickLeavePdfInput { cert: any; qrPng: Buffer | null; verifyUrl: string }
 

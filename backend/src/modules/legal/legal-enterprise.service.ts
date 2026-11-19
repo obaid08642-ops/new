@@ -17,6 +17,7 @@ import * as ExcelJS from 'exceljs';
 import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { ScheduledOnce } from '../../common/scheduled-once';
 import { roundSar } from '../../common/money';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -204,7 +205,7 @@ export class LegalEnterpriseService {
     }));
 
     const totalsSheet = workbook.addWorksheet('Totals');
-    totalsSheet.columns = [{ header: 'Metric', key: 'metric' }, { header: 'SAR', key: 'sar' }];
+    totalsSheet.columns = [{ header: 'Metric', key: 'metric' }, { header: DEFAULT_CURRENCY, key: 'sar' }];
     totalsSheet.addRows([
       { metric: 'Gross Total', sar: Math.round(data.totals.total * 100) / 100 },
       { metric: 'Platform Commission', sar: Math.round(data.totals.commission * 100) / 100 },

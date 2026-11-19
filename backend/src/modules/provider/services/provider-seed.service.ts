@@ -32,6 +32,7 @@ import { HomeCareServiceCatalogItemRepository } from "./repositories/homecareser
 import { ProviderDeliveryZoneRepository } from "./repositories/providerdeliveryzone.repository";
 import { ProviderScheduleSlotRepository } from "./repositories/providerscheduleslot.repository";
 import { isProviderRole } from '../../../common/enums';
+import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 function assertProvider(user: any) {
   if (!user || !isProviderRole(user.role)) throw new ForbiddenException('provider scope required');
@@ -135,7 +136,7 @@ export class ProviderSeedService {
     for (const p of pharmacyItems) {
       await this.pharma.findOneAndUpdate(
         { provider_account_id: user.id, sku: p.sku },
-        { ...p, provider_account_id: user.id, available: true, currency: 'SAR' },
+        { ...p, provider_account_id: user.id, available: true, currency: DEFAULT_CURRENCY },
         { upsert: true, setDefaultsOnInsert: true },
       );
     }
@@ -148,7 +149,7 @@ export class ProviderSeedService {
     for (const l of labItems) {
       await this.lab.findOneAndUpdate(
         { provider_account_id: user.id, code: l.code },
-        { ...l, provider_account_id: user.id, available: true, currency: 'SAR' },
+        { ...l, provider_account_id: user.id, available: true, currency: DEFAULT_CURRENCY },
         { upsert: true, setDefaultsOnInsert: true },
       );
     }
@@ -161,7 +162,7 @@ export class ProviderSeedService {
     for (const r of radItems) {
       await this.rad.findOneAndUpdate(
         { provider_account_id: user.id, scan_type: r.scan_type, body_part: r.body_part },
-        { ...r, provider_account_id: user.id, available: true, currency: 'SAR' },
+        { ...r, provider_account_id: user.id, available: true, currency: DEFAULT_CURRENCY },
         { upsert: true, setDefaultsOnInsert: true },
       );
     }
@@ -174,7 +175,7 @@ export class ProviderSeedService {
     for (const d of docSessions) {
       await this.doc.findOneAndUpdate(
         { provider_account_id: user.id, consultation_type: d.consultation_type, specialty: d.specialty },
-        { ...d, provider_account_id: user.id, available: true, currency: 'SAR' },
+        { ...d, provider_account_id: user.id, available: true, currency: DEFAULT_CURRENCY },
         { upsert: true, setDefaultsOnInsert: true },
       );
     }
@@ -186,7 +187,7 @@ export class ProviderSeedService {
     for (const h of hcItems) {
       await this.hc.findOneAndUpdate(
         { provider_account_id: user.id, service_type: h.service_type },
-        { ...h, provider_account_id: user.id, available: true, currency: 'SAR' },
+        { ...h, provider_account_id: user.id, available: true, currency: DEFAULT_CURRENCY },
         { upsert: true, setDefaultsOnInsert: true },
       );
     }

@@ -1,3 +1,4 @@
+import { DEFAULT_EMERGENCY_NUMBER } from '../../common/market-defaults';
 /**
  * Owner decision 24: a doctor is reachable only inside a booked consultation.
  * - Online consultation: from confirmation until the follow-up window ends: text, images, files and voice notes;
@@ -7,7 +8,7 @@
  * - After the window the thread is read-only and offers a follow-up booking. The doctor may close a thread early,
  *   or extend it once by another window.
  */
-export const EMERGENCY_LINE = '997';
+export const EMERGENCY_LINE = DEFAULT_EMERGENCY_NUMBER;
 
 const ONLINE_TYPES = new Set(['video', 'online', 'audio', 'voice', 'tele', 'telemedicine', 'chat']);
 

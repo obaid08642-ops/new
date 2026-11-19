@@ -52,17 +52,17 @@ export class MarketsService implements OnModuleInit {
     throw new NotFoundException('market_not_found');
   }
 
-  async getConfig(marketId: string = SA_MARKET_ID, at: Date = new Date()): Promise<ResolvedMarketConfig> {
-    const key = `${marketId}`;
-    const hit = this.cache.get(key);
-    if (hit && Date.now() - hit.at < TTL_MS && at.getTime() <= Date.now()) return hit.value;
+  /** `at` omitted = "now" (cached for 60 s). An explicit `at` (past or future) always reads the database and never touches the cache. */
+  async getConfig(marketId: string = SA_MARKET_ID, at?: Date): Promise<ResolvedMarketConfig> {
+    const hit = at ? undefined : this.cache.get(marketId);
+    if (hit && Date.now() - hit.at < TTL_MS) return hit.value;
     const rows = await this.configs.find({ market_id: marketId, status: 'active' }).lean<ConfigVersion[]>();
-    const picked = pickActiveVersion(rows, at);
+    const picked = pickActiveVersion(rows, at ?? new Date());
     let value: ResolvedMarketConfig;
     if (picked) value = { market_id: marketId, version: picked.version, config: picked.config };
     else if (marketId === SA_MARKET_ID) value = { market_id: SA_MARKET_ID, version: 1, config: SA_CONFIG_V1 };
     else throw new NotFoundException('market_config_not_found');
-    if (at.getTime() <= Date.now()) this.cache.set(key, { at: Date.now(), value });
+    if (!at) this.cache.set(marketId, { at: Date.now(), value });
     return value;
   }
 
