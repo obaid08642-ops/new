@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { fetchWithAdminGuard } from '@/utils/api';
 import { DataTable, type LooseRow } from '@/components/DataTable';
 import { useCan } from '@/components/AdminGuard';
+import { ConfirmDialog } from '@/components/ConfirmDialog';
 import PharmacyOwnDeliveryAdmin from '@/components/PharmacyOwnDeliveryAdmin';
 
 const DAY_AR: Record<string, string> = {
@@ -172,13 +173,23 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
   const [docBusy, setDocBusy] = useState<string | null>(null);
   // Document decisions need facility.edit (provider admin controller).
   const canReviewDocs = useCan('facility.edit');
-  const reviewDoc = async (docId: string, decision: 'approve' | 'reject') => {
+  // A rejection asks for its reason (shown to the provider) in the shared confirm dialog, not the browser prompt: no focus trap, no keyboard, unstyled.
+  const [rejectFor, setRejectFor] = useState<string | null>(null);
+  const [rejectText, setRejectText] = useState('');
+  const [rejectError, setRejectError] = useState('');
+  const reviewDoc = (docId: string, decision: 'approve' | 'reject') => {
     if (!cid) return;
-    let reason = '';
-    if (decision === 'reject') {
-      reason = (window.prompt('سبب رفض المستند (يظهر للمزود):') || '').trim();
-      if (reason.length < 5) { alert('اكتب سبباً واضحاً (5 أحرف على الأقل).'); return; }
-    }
+    if (decision === 'reject') { setRejectText(''); setRejectError(''); setRejectFor(docId); return; }
+    void sendDocDecision(docId, 'approve', '');
+  };
+  const confirmReject = () => {
+    if (!rejectFor) return;
+    if (rejectText.trim().length < 5) { setRejectError('اكتب سبباً واضحاً (5 أحرف على الأقل).'); return; }
+    const docId = rejectFor;
+    setRejectFor(null);
+    void sendDocDecision(docId, 'reject', rejectText.trim());
+  };
+  const sendDocDecision = async (docId: string, decision: 'approve' | 'reject', reason: string) => {
     setDocBusy(docId);
     try {
       const res = await fetchWithAdminGuard(`/api/admin/admin/providers/${cid}/documents/${docId}/${decision}`, {
@@ -637,6 +648,11 @@ export default function ProviderFullDetail({ detail, accountId }: { detail: any;
           </div>
         </Section>
       )}
+      <ConfirmDialog open={rejectFor !== null} title="سبب رفض المستند" confirmLabel="رفض" onConfirm={confirmReject} onCancel={() => { setRejectFor(null); setRejectError(''); }}>
+        <p className="text-slate-600">يظهر السبب للمزود.</p>
+        <textarea value={rejectText} onChange={(e) => setRejectText(e.target.value)} rows={3} aria-label="سبب رفض المستند" className="w-full rounded-lg border p-2" />
+        {rejectError ? <p role="alert" className="text-sm text-rose-700">{rejectError}</p> : null}
+      </ConfirmDialog>
     </div>
   );
 }

@@ -5749,6 +5749,7 @@
     "admin/src/components/ProviderFullDetail.tsx",
     "admin/src/components/AdminGuard.tsx",
     "admin/src/components/DataTable.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
@@ -5817,7 +5818,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:572",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 21,
+     "line": 22,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -5838,7 +5839,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:562",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 26,
+     "line": 27,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -5859,7 +5860,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:188",
      "backendPath": "/admin/providers/:param/documents/:param/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 184,
+     "line": 195,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -5884,7 +5885,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648",
      "backendPath": "/provider-onboarding/admin/contracts/:param/meta",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 206,
+     "line": 217,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -5907,7 +5908,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:635",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 223,
+     "line": 234,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -6058,7 +6059,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 21,
+     "line": 22,
      "backend": "backend/src/modules/storage/storage.module.ts:572"
     },
     {
@@ -6068,7 +6069,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 26,
+     "line": 27,
      "backend": "backend/src/modules/storage/storage.module.ts:562"
     },
     {
@@ -10207,7 +10208,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:572",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 21,
+     "line": 22,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10228,7 +10229,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:562",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 26,
+     "line": 27,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10249,7 +10250,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:188",
      "backendPath": "/admin/providers/:param/documents/:param/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 184,
+     "line": 195,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10274,7 +10275,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648",
      "backendPath": "/provider-onboarding/admin/contracts/:param/meta",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 206,
+     "line": 217,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10297,7 +10298,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:635",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 223,
+     "line": 234,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -10486,7 +10487,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 21,
+     "line": 22,
      "backend": "backend/src/modules/storage/storage.module.ts:572"
     },
     {
@@ -10496,7 +10497,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 26,
+     "line": 27,
      "backend": "backend/src/modules/storage/storage.module.ts:562"
     },
     {
@@ -13373,6 +13374,7 @@
     "admin/src/components/GeoPicker.tsx",
     "admin/src/components/DataTable.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/PharmacyOwnDeliveryAdmin.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
@@ -13690,7 +13692,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:572",
      "backendPath": "/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 21,
+     "line": 22,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -13711,7 +13713,7 @@
      "backend": "backend/src/modules/storage/storage.module.ts:562",
      "backendPath": "/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 26,
+     "line": 27,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -13732,7 +13734,7 @@
      "backend": "backend/src/modules/provider/provider.controllers.ts:188",
      "backendPath": "/admin/providers/:param/documents/:param/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 184,
+     "line": 195,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -13757,7 +13759,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:648",
      "backendPath": "/provider-onboarding/admin/contracts/:param/meta",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 206,
+     "line": 217,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -13780,7 +13782,7 @@
      "backend": "backend/src/modules/provider-onboarding/provider-onboarding.module.ts:635",
      "backendPath": "/provider-onboarding/admin/contracts/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 223,
+     "line": 234,
      "fn": "fetchWithAdminGuard",
      "via": "ProviderFullDetail",
      "guards": {
@@ -13994,7 +13996,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param/signed-url",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 21,
+     "line": 22,
      "backend": "backend/src/modules/storage/storage.module.ts:572"
     },
     {
@@ -14004,7 +14006,7 @@
      "method": "GET",
      "path": "/api/admin/storage/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
-     "line": 26,
+     "line": 27,
      "backend": "backend/src/modules/storage/storage.module.ts:562"
     },
     {
