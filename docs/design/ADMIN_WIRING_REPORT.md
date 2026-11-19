@@ -239,6 +239,7 @@ None.
 
 | Page | Element | Warning | Where |
 |---|---|---|---|
+| `/admin/appointments-oversight` | يصل السبب إلى المريض. | Sensitive action (POST /api/admin/admin/appointments/:param/cancel) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify). | `admin/src/pages/admin/appointments-oversight.tsx:47` |
 | `/admin/config-portal` | حفظ التعديلات (Override Globally) | Sensitive action (PUT /api/admin/admin/config/sla) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify). | `admin/src/pages/admin/config-portal.tsx:359` |
 | `/admin/content-growth` | اعتماد ونشر | Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify). | `admin/src/pages/admin/content-growth.tsx:62` |
 | `/admin/content-growth` | سحب | Sensitive action (POST /api/admin/admin/cms/:param/publish) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify). | `admin/src/pages/admin/content-growth.tsx:62` |
