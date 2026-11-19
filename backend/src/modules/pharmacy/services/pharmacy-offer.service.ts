@@ -12,6 +12,7 @@ import { PharmacyNotificationService } from './pharmacy-notification.service';
 import { CATALOGUE_PROJECTION, cataloguePrice, catalogueSku } from './catalogue-lines';
 import { assertSubstituteInsidePrescription } from './rx-rules';
 import { syncLineReviews } from '../price-review';
+import { assertProviderLicenceCurrent } from '../../../common/provider-licence';
 
 const OFFER_TTL_MS = 10 * 60_000;
 const ACTIVE_PHARMACY_STATUSES = ['approved', 'active'];
@@ -411,6 +412,8 @@ export class PharmacyOfferService {
 
   async submitDraft(user: any, orderId: string, offerId: string) {
     await this.assertActivePharmacy(user);
+    await assertProviderLicenceCurrent(this.connection.db, user.id);   // A2: nor submit one
+    await assertProviderLicenceCurrent(this.connection.db, user.id);   // A2: a lapsed licence cannot start a new offer
     const now = new Date();
     const offer: any = await this.offers.findOneAndUpdate(
       { id: offerId, order_id: orderId, pharmacy_account_id: user.id, status: 'draft', quote_expires_at: { $gt: now } },

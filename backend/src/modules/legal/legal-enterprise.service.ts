@@ -17,6 +17,7 @@ import * as ExcelJS from 'exceljs';
 import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { ScheduledOnce } from '../../common/scheduled-once';
 import { roundSar } from '../../common/money';
+import { licenceDaysLeft } from '../../common/provider-licence';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -243,8 +244,9 @@ export class LegalEnterpriseService {
       { projection: { id: 1, user_id: 1, account_id: 1, license_expiry_date: 1, license_warn_expiry: 1, ...Object.fromEntries(thresholds.map((t) => [`license_warn_${t}d`, 1])) }, batchSize: 200, maxTimeMS: 120_000 },
     );
     for await (const p of profiles as any) {
-      const expiry = new Date(p.license_expiry_date).getTime();
-      const daysLeft = Math.ceil((expiry - now) / (24 * 3600 * 1000));
+      // A2 (owner 2026-11-17): valid through the end of the expiry day in Riyadh time, lapsed from the next instant (common/provider-licence.ts).
+      const daysLeft = licenceDaysLeft(p.license_expiry_date, now);
+      if (daysLeft === null) continue;
 
       if (daysLeft <= 0) {
         // Expired → auto-suspend + notify

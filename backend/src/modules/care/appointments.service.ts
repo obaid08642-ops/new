@@ -29,6 +29,7 @@ import { assertTelehealthConsent } from '../legal/telehealth-consent';
 import { consultationPricing } from './consultation-pricing';
 import { buildQuote, readQuoteVatRate } from '../../common/quote';
 import { PAYMENT_METHODS_BY_CONTEXT } from '../../common/payment-policy';
+import { isLicenceLapsed } from '../../common/provider-licence';
 
 /**
  * Appointment lifecycle service.
@@ -162,7 +163,8 @@ export class AppointmentsService {
     if (!doctor) throw new NotFoundException('doctor_not_found');
     // Owner decision 2026-10-24: bookings stop the moment the SCFHS licence date passes; the daily monitor then suspends the
     // account, this check closes the hours in between.
-    if ((doctor as any).license_expiry_date && new Date((doctor as any).license_expiry_date).getTime() <= Date.now()) {
+    // A2 (owner 2026-11-17): valid through the end of the expiry day in Riyadh time (common/provider-licence.ts); the same rule now guards every provider type.
+    if (isLicenceLapsed((doctor as any).license_expiry_date)) {
       throw new BadRequestException('doctor_license_expired');
     }
     // The doctor's own block list (provider-ops blacklist, kept in step with the patient file's `blocked`): a blocked patient cannot book.
