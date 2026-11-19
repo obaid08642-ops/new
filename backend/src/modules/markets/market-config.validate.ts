@@ -32,6 +32,7 @@ export function validateMarketConfig(c: MarketConfig): string[] {
   else {
     try { new RegExp(p.national_number_pattern); } catch { e.push('phone.national_number_pattern is not a valid regex'); }
     if (typeof p.trunk_prefix !== 'string') e.push('phone.trunk_prefix must be a string');
+    if (!Number.isInteger(p.national_length) || p.national_length < 4 || p.national_length > 14) e.push('phone.national_length must be 4..14');
   }
   if (!/^[0-9+]{2,15}$/.test(c?.emergency_numbers?.ambulance ?? '')) e.push('emergency_numbers.ambulance must be digits');
   const o = c?.branding?.operated_by;
