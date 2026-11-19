@@ -42,7 +42,7 @@ export class ReconciliationService {
   ) {}
 
   /** Nightly drift sweep (manual runs via POST events/reconciliation/run). */
-  @Cron('30 4 * * *')   // 2026-11-14: spread out (serial group 'nightly-heavy'), after the dump window
+  @Cron('30 4 * * *', { timeZone: 'UTC' })   // 2026-11-14: spread out (serial group 'nightly-heavy'), after the dump window
   @ScheduledOnce({ serial: 'nightly-heavy' })
   async nightly() {
     try {

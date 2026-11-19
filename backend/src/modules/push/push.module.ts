@@ -425,7 +425,7 @@ export class PushService implements OnModuleInit {
     return this.tokens.find({ user_id: userId, active: true }, { _id: 0, __v: 0 }).lean();
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: 'UTC' })
   @ScheduledOnce()
   async cleanupStaleTokens() {
     this.logger.log('Starting stale push tokens cleanup cron job...');
