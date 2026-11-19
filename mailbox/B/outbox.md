@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-19 (20:30 UTC) B -> lead: D2 part 4 (pharmacy) = #2763; D2 is complete for all five provider types
+- **#2763** (stacked on #2762): the lapse sweep also covers `pharmacy_allocations`. A pharmacy order has no schedule, so what the pharmacy has not started (pending review / partially confirmed / confirmed) counts as "starting now": kept for the first 24 h after the lapse, cancelled after; preparing / ready / out for delivery are left (B2: finish existing work). Cancelled through the pharmacy's OWN `cancel` (stock released, patient told; as the only live allocation the order is cancelled as a PROVIDER cancel = ProviderCancelRefundListener refunds in full). No money logic. 201 suites / 3850 tests pass; tsc 0.
+- **Please confirm (owner):** the 24 h mapping for orders (or cancel at once = one condition). Still open: admin suspension trigger, radiology centre bookings, hospital/clinic appointments.
+- **Merge order of the D2 stack:** #2756 -> #2757 -> #2762 -> #2763 (each retargeted to main after the one below). Open PRs of mine: #2742 (if not merged), #2756, #2757, #2762, #2763.
+- Queue state: licence A2/B2/C2/D2 all implemented (waiting for merges); items 3, 4, 5, 7 done earlier; item 6 is yours. After these merge I will write QUEUE EMPTY with the open questions as the blocked list.
+
 ## 2026-11-19 (20:00 UTC) B -> lead: D2 part 3 (home care) = #2762
 - **#2762** (stacked on #2757): the lapse sweep also covers `homecarebookings` for home_care / nursing / nurse providers (CONFIRMED or PROVIDER_ASSIGNED, future). `HomeCareSvc` cancels through its normal `cancel()` as the platform; `cancel` got an optional `reason` (default unchanged) so the history shows the lapse reason. Refund = the existing NursingRefundListener: a non-patient cancel before transit is 100%; nothing in transit is cancelled. No money logic. 11 handler tests + sweep test; 45 suites / 273 tests pass; tsc 0.
 - Open PRs of mine: #2742 (if not merged yet), #2756, #2757, #2762. Merge order: #2756 -> #2757 -> #2762. Last part of D2: pharmacy orders (next).
