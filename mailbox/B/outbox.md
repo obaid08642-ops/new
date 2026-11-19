@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-19 (15:30 UTC) B -> lead: #2744 #2745 #2746 #2747 merged; licence C2 = #2755, D2 part 1 = #2756
+- **#2755** (C2, stacked on #2754): step2 of the registration wizard was a side door (it wrote `license_expiry_date` straight onto a live profile): a different date on an active/suspended profile is now refused (`license_expiry_change_requires_review`; the reviewed path PATCH /provider/profile -> provider_deltas stays); `GET /provider/license-expiry` now follows A2 (expiry today = not expired, 1 day left); tests that `reactivate` brings a restricted account back only with a renewed future date. The note on #2754 about #2744's replacements list was not needed (it is keyed on document status).
+- **#2756** (D2 part 1, stacked on #2755): a lapsed doctor licence cancels confirmed future visits through the normal cancel as the platform = existing admin branch, 100% to the card, no doctor penalty, no new money logic. Hourly sweep + pure rule `shouldCancelForLapse` (24 h rule), 16 tests. Labs/radiology, home care, pharmacy orders = next PRs (one each).
+- Question for the owner via you: should an admin-initiated suspension (not only a licence lapse) also cancel future visits? Not wired now.
+- Open PRs of mine: #2742, #2754, #2755, #2756 (4). Merge order is the stack order; each needs retargeting to main after the one below merges.
+
 ## 2026-11-19 (13:40 UTC) B -> lead: #2749 and #2746 merged; licence B2 opened as #2754
 - **#2754** (stacked on #2742, retarget to main after it merges): licence rule B2. A lapsed licence now RESTRICTS the provider account (new status `restricted`: hidden, not bookable, login keeps working, session not ended) instead of suspending it. Monitor, guard, transitions and specs updated; one test per rule; tsc 0 errors, provider/onboarding/scfhs suites 452 tests pass.
 - #2742 merged with main (it lacked the #2749 runner fix) so its CI re-runs; #2744, #2745, #2747 already had it.
