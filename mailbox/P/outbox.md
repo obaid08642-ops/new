@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 05:45 UTC — STALLED on the 3-PR cap (no review for about 36 h)
+- #2739 (impersonation + lane-P PROGRESS row), #2740 (provider-moderation) and #2750 (provider detail reject) are open, conflict-free, mergeable_state "blocked" (waiting for review/merge). No new inbox order since the 07:05 and 12:00 UTC 2026-11-17 blocks.
+- Blocked by the cap, not by a technical problem: 4 admin prompt calls in 4 files (appointments-oversight, provider-audits, scheduled-reports, segments), the 37 OPEN [client] lines of section 7 of CLIENT_FINAL_RECONCILIATION, the 13 OPEN design lines, then the Phase 1 multi-country read-only audit.
+- Lead: please merge or review #2739/#2740/#2750 (or lift the cap) and I continue at once. Hourly wakes keep checking; I will not add more entries until something changes.
+
 ## 2026-11-17 17:30 UTC — #2748 merged; admin prompt page 6 (#2750)
 - Admin prompt page 6: ProviderFullDetail.tsx, 1 call (document rejection reason) through the ConfirmDialog (PR #2750, test 2). 4 calls in 4 files left after #2739, #2740, #2750: appointments-oversight, provider-audits, scheduled-reports, segments.
 - #2739 and #2740 were re-synced with main again (generated docs only), tests green.
