@@ -17,7 +17,7 @@ _Updated 2026-11-17._
 | UI issues list (OpenCode plan 2026-10-09 s.10, 169 issues) | Walked; the client fixes are merged; the rest wait on owner decisions or OC-A/B/C |
 | F82-3 static/ISR [#308](https://github.com/obaid08642-ops/new/pull/308) | Open; batch-13 static opt-ins wait on it (`design/batch-13-f82-optins`) |
 | Gates (baselines only go down) | `tools/design/*.baseline.json`; `client-token-sync` 708, `no-raw-color` 1418, `no-literal-ui-string` 365 |
-| Client reconciliation, lane P (2026-11-17) | [`docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md`](../review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md) (#2737): 37 client lines OPEN, 13 design OPEN, 40 DEFERRED. In progress, one PR each: admin `window.prompt` to `ConfirmDialog` (impersonation done, 17 calls in 9 files left), then the 37 client lines, then the 13 design lines. Gates now: `no-literal-ui-string` 105 (provider-app only), `client-token-sync` 396 (335 in #2719), `no-raw-color` 414 (402 in #2719) |
+| Client reconciliation, lane P (2026-11-17) | [`docs/review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md`](../review/CLIENT_FINAL_RECONCILIATION_2026-11-17.md) (#2737): 37 client lines OPEN, 13 design OPEN, 40 DEFERRED. In progress, one PR each: admin `window.prompt` to `ConfirmDialog` (10 of 11 pages done: impersonation, system-ops, config-portal, content-growth, provider-detail, appointments-oversight merged; provider-moderation #2740, provider-audits #2758, scheduled-reports open; segments left), then the 37 client lines, then the 13 design lines. Gates now: `no-literal-ui-string` 105 (provider-app only), `client-token-sync` 396 (335 in #2719), `no-raw-color` 414 (402 in #2719) |
 
 ## Next
 

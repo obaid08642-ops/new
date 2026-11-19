@@ -1227,7 +1227,7 @@
      "path": "/api/admin/admin/providers",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:166",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:167",
      "backendPath": "/admin/providers",
      "file": "admin/src/pages/admin/approvals.tsx",
      "line": 22,
@@ -1244,7 +1244,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 166,
+     "routeLine": 167,
      "raw": false
     },
     {
@@ -1252,7 +1252,7 @@
      "path": "/api/admin/admin/providers/provider-deltas",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:171",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:172",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/approvals.tsx",
      "line": 24,
@@ -1269,7 +1269,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 171,
+     "routeLine": 172,
      "raw": false
     },
     {
@@ -5858,7 +5858,7 @@
      "path": "/api/admin/admin/providers/:param/documents/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:188",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:189",
      "backendPath": "/admin/providers/:param/documents/:param/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 195,
@@ -5875,7 +5875,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 188,
+     "routeLine": 189,
      "raw": false
     },
     {
@@ -6786,7 +6786,7 @@
      "path": "/api/admin/admin/providers/license-expiry",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:170",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:171",
      "backendPath": "/admin/providers/license-expiry",
      "file": "admin/src/pages/admin/license-expiry.tsx",
      "line": 15,
@@ -6803,7 +6803,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 170,
+     "routeLine": 171,
      "raw": false
     }
    ],
@@ -9857,7 +9857,7 @@
      "path": "/api/admin/admin/providers/provider-deltas",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:171",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:172",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/provider-audits.tsx",
      "line": 18,
@@ -9874,7 +9874,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 171,
+     "routeLine": 172,
      "raw": false
     },
     {
@@ -9882,7 +9882,7 @@
      "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:173",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:174",
      "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-audits.tsx",
      "line": 31,
@@ -9899,7 +9899,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 173,
+     "routeLine": 174,
      "raw": false
     },
     {
@@ -9907,7 +9907,7 @@
      "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:175",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:176",
      "backendPath": "/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-audits.tsx",
      "line": 46,
@@ -9924,7 +9924,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 175,
+     "routeLine": 176,
      "raw": false
     }
    ],
@@ -9957,7 +9957,7 @@
      "path": "/api/admin/admin/providers/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:176",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:177",
      "backendPath": "/admin/providers/:param",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 48,
@@ -9974,7 +9974,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 176,
+     "routeLine": 177,
      "raw": false
     },
     {
@@ -9982,7 +9982,7 @@
      "path": "/api/admin/admin/providers",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:166",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:167",
      "backendPath": "/admin/providers",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 86,
@@ -9999,7 +9999,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 166,
+     "routeLine": 167,
      "raw": false
     },
     {
@@ -10007,7 +10007,7 @@
      "path": "/api/admin/admin/providers/provider-deltas",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:171",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:172",
      "backendPath": "/admin/providers/provider-deltas",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 104,
@@ -10024,7 +10024,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 171,
+     "routeLine": 172,
      "raw": false
     },
     {
@@ -10032,7 +10032,7 @@
      "path": "/api/admin/admin/providers/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:178",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:179",
      "backendPath": "/admin/providers/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 160,
@@ -10049,7 +10049,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 178,
+     "routeLine": 179,
      "raw": false
     },
     {
@@ -10057,7 +10057,7 @@
      "path": "/api/admin/admin/providers/:param/reject-bank",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:184",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:185",
      "backendPath": "/admin/providers/:param/reject-bank",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 199,
@@ -10074,7 +10074,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 184,
+     "routeLine": 185,
      "raw": false
     },
     {
@@ -10082,7 +10082,7 @@
      "path": "/api/admin/admin/providers/:param/approve-bank",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:182",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:183",
      "backendPath": "/admin/providers/:param/approve-bank",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 219,
@@ -10099,7 +10099,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 182,
+     "routeLine": 183,
      "raw": false
     },
     {
@@ -10107,7 +10107,7 @@
      "path": "/api/admin/admin/providers/:param/reactivate",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:219",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:220",
      "backendPath": "/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 239,
@@ -10124,7 +10124,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 219,
+     "routeLine": 220,
      "raw": false
     },
     {
@@ -10132,7 +10132,7 @@
      "path": "/api/admin/admin/providers/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:178",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:179",
      "backendPath": "/admin/providers/:param/:param",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 262,
@@ -10149,7 +10149,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 178,
+     "routeLine": 179,
      "raw": false
     },
     {
@@ -10157,7 +10157,7 @@
      "path": "/api/admin/admin/providers/provider-deltas/:param/approve",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:173",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:174",
      "backendPath": "/admin/providers/provider-deltas/:param/approve",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 285,
@@ -10174,7 +10174,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 173,
+     "routeLine": 174,
      "raw": false
     },
     {
@@ -10182,7 +10182,7 @@
      "path": "/api/admin/admin/providers/provider-deltas/:param/reject",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:175",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:176",
      "backendPath": "/admin/providers/provider-deltas/:param/reject",
      "file": "admin/src/pages/admin/provider-moderation.tsx",
      "line": 305,
@@ -10199,7 +10199,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 175,
+     "routeLine": 176,
      "raw": false
     },
     {
@@ -10249,7 +10249,7 @@
      "path": "/api/admin/admin/providers/:param/documents/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:188",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:189",
      "backendPath": "/admin/providers/:param/documents/:param/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 195,
@@ -10266,7 +10266,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 188,
+     "routeLine": 189,
      "raw": false
     },
     {
@@ -11283,6 +11283,7 @@
     "admin/src/pages/admin/scheduled-reports.tsx",
     "admin/src/components/DataTable.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -11302,7 +11303,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:138",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 15,
+     "line": 16,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -11327,7 +11328,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:145",
      "backendPath": "/admin/scheduled-reports",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 17,
+     "line": 18,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -11352,7 +11353,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:173",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -11377,7 +11378,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:189",
      "backendPath": "/admin/scheduled-reports/:param/run",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 19,
+     "line": 20,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -11402,7 +11403,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:201",
      "backendPath": "/admin/scheduled-reports/:param/runs",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 20,
+     "line": 21,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -11427,7 +11428,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-analytics.controller.ts:209",
      "backendPath": "/admin/scheduled-reports/:param",
      "file": "admin/src/pages/admin/scheduled-reports.tsx",
-     "line": 21,
+     "line": 25,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -12238,7 +12239,7 @@
      "path": "/api/admin/admin/service-offers/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:539",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:540",
      "backendPath": "/admin/service-offers/:param",
      "file": "admin/src/pages/admin/service-offers.tsx",
      "line": 25,
@@ -12262,7 +12263,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 539,
+     "routeLine": 540,
      "raw": false
     }
    ],
@@ -13417,7 +13418,7 @@
      "path": "/api/admin/admin/providers/by-user/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:169",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:170",
      "backendPath": "/admin/providers/by-user/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
      "line": 74,
@@ -13434,7 +13435,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 169,
+     "routeLine": 170,
      "raw": false
     },
     {
@@ -13538,7 +13539,7 @@
      "path": "/api/admin/admin/providers/by-user/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:169",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:170",
      "backendPath": "/admin/providers/by-user/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
      "line": 144,
@@ -13555,7 +13556,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 169,
+     "routeLine": 170,
      "raw": false
     },
     {
@@ -13563,7 +13564,7 @@
      "path": "/api/admin/admin/providers/:param/reactivate",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:219",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:220",
      "backendPath": "/admin/providers/:param/reactivate",
      "file": "admin/src/pages/admin/users-management.tsx",
      "line": 146,
@@ -13580,7 +13581,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 219,
+     "routeLine": 220,
      "raw": false
     },
     {
@@ -13588,7 +13589,7 @@
      "path": "/api/admin/admin/providers/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:178",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:179",
      "backendPath": "/admin/providers/:param/:param",
      "file": "admin/src/pages/admin/users-management.tsx",
      "line": 175,
@@ -13605,7 +13606,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 178,
+     "routeLine": 179,
      "raw": false
     },
     {
@@ -13733,7 +13734,7 @@
      "path": "/api/admin/admin/providers/:param/documents/:param/:param",
      "target": "backend",
      "status": "OK",
-     "backend": "backend/src/modules/provider/provider.controllers.ts:188",
+     "backend": "backend/src/modules/provider/provider.controllers.ts:189",
      "backendPath": "/admin/providers/:param/documents/:param/:param",
      "file": "admin/src/components/ProviderFullDetail.tsx",
      "line": 195,
@@ -13750,7 +13751,7 @@
       "useGuards": ""
      },
      "routeFile": "backend/src/modules/provider/provider.controllers.ts",
-     "routeLine": 188,
+     "routeLine": 189,
      "raw": false
     },
     {
