@@ -17,7 +17,8 @@ import * as ExcelJS from 'exceljs';
 import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/commission-defaults';
 import { ScheduledOnce } from '../../common/scheduled-once';
 import { roundSar } from '../../common/money';
-import { licenceDaysLeft } from '../../common/provider-licence';
+import { licenceDaysLeft, licenceLapseInstant, isLicenceLapsed } from '../../common/provider-licence';
+import { LICENCE_LAPSE_CANCEL_EVENT, shouldCancelForLapse, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -277,6 +278,41 @@ export class LegalEnterpriseService {
         }
       }
     }
+  }
+
+  /**
+   * D2 (owner 2026-11-17): every hour, for each provider whose licence has lapsed (profile suspended for `license_expired`, the stored date still past under rule A2), the confirmed FUTURE bookings
+   * are cancelled, except what starts inside the next 24 h while the lapse is under 24 h old (common/licence-lapse-cancel.ts). This only FINDS the bookings and emits one event per booking; the
+   * module that owns the booking cancels it with its own provider-cancel path, which is also what refunds 100% (no money logic here). Idempotent: a cancelled booking is not found again.
+   * Doctors' consultations (`appointments`) in this step; labs, radiology, home care and pharmacy orders follow, one PR each.
+   */
+  @Cron('0 * * * *', { timeZone: 'UTC' })
+  @ScheduledOnce()
+  async licenceLapseSweepScheduled() { await this.licenceLapseSweep(); }
+
+  async licenceLapseSweep(now: number = Date.now()): Promise<{ profiles: number; cancel_requested: number }> {
+    let profiles = 0; let requested = 0;
+    const cursor = this.conn.collection('provider_profiles').find(
+      { status: 'suspended', suspended_reason: 'license_expired', type: 'doctor', license_expiry_date: { $ne: null, $lte: new Date(now) } } as any,
+      { projection: { id: 1, type: 1, license_expiry_date: 1 }, batchSize: 100, maxTimeMS: 60_000 },
+    );
+    for await (const p of cursor as any) {
+      if (!isLicenceLapsed(p.license_expiry_date, now)) continue;   // renewed since: the date moved
+      const lapse = licenceLapseInstant(p.license_expiry_date) as Date;
+      profiles++;
+      const bookings = this.conn.collection('appointments').find(
+        { doctor_id: p.id, status: 'CONFIRMED', slot_start: { $gt: new Date(now) } } as any,
+        { projection: { _id: 0, id: 1, patient_id: 1, slot_start: 1 }, batchSize: 200, maxTimeMS: 60_000 },
+      );
+      for await (const b of bookings as any) {
+        if (!shouldCancelForLapse(new Date(b.slot_start).getTime(), now, lapse.getTime())) continue;
+        const event: LicenceLapseCancelEvent = { kind: 'appointment', booking_id: b.id, patient_id: b.patient_id, provider_profile_id: p.id, lapse_at: lapse.toISOString() };
+        this.events?.emit(LICENCE_LAPSE_CANCEL_EVENT, event);
+        requested++;
+      }
+    }
+    if (requested) this.logger.warn(`licence lapse sweep: ${requested} booking(s) of ${profiles} lapsed provider(s) sent for cancellation`);
+    return { profiles, cancel_requested: requested };
   }
 
   private async notify(userId: string, title: string, body: string, data: any) {
