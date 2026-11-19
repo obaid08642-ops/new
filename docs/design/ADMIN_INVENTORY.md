@@ -25,7 +25,7 @@ Path rule: `adminFetch` / `adminMutation` prefix `/api/admin` to a path that doe
 | customers-growth | `/admin/notification-center` | `notifications.send` | yes | 17 / 0 | 29 / 0 | `admin/src/pages/admin/notification-center.tsx` |
 | customers-growth | `/admin/reports` | **none** | yes | 3 / 0 | 8 / 0 | `admin/src/pages/admin/reports.tsx` |
 | customers-growth | `/admin/search-intelligence` | `analytics.read` | yes | 2 / 0 | 6 / 0 | `admin/src/pages/admin/search-intelligence.tsx` |
-| customers-growth | `/admin/segments` | `crm.read` | yes | 9 / 0 | 19 / 0 | `admin/src/pages/admin/segments.tsx` |
+| customers-growth | `/admin/segments` | `crm.read` | yes | 9 / 0 | 26 / 0 | `admin/src/pages/admin/segments.tsx` |
 | customers-growth | `/admin/support-tickets` | `crm.read` | yes | 7 / 0 | 15 / 0 | `admin/src/pages/admin/support-tickets.tsx` |
 | customers-growth | `/admin/users-management` | `user.read` | yes | 25 / 2 | 44 / 0 | `admin/src/pages/admin/users-management.tsx` |
 | finance | `/admin/commissions` | `finance.read` | yes | 8 / 1 | 29 / 0 | `admin/src/pages/admin/commissions.tsx` |
@@ -797,11 +797,11 @@ _No API call in the page or its local components._
 
 | Method | Path | Status | Backend | Guard (public / roles / permissions) | Call site |
 |---|---|---|---|---|---|
-| GET | `/api/admin/admin/segments` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:32` | roles:ADMIN perms:crm.read | `admin/src/pages/admin/segments.tsx:18` |
-| GET | `/api/admin/admin/segments/fields` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:26` | roles:ADMIN perms:crm.read | `admin/src/pages/admin/segments.tsx:18` |
-| POST | `/api/admin/admin/segments/preview` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:49` | roles:ADMIN perms:crm.read | `admin/src/pages/admin/segments.tsx:22` |
-| POST | `/api/admin/admin/segments` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:68` | roles:ADMIN perms:crm.manage | `admin/src/pages/admin/segments.tsx:23` |
-| DELETE | `/api/admin/admin/segments/:param` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:97` | roles:ADMIN perms:crm.manage | `admin/src/pages/admin/segments.tsx:24` |
+| GET | `/api/admin/admin/segments` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:32` | roles:ADMIN perms:crm.read | `admin/src/pages/admin/segments.tsx:19` |
+| GET | `/api/admin/admin/segments/fields` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:26` | roles:ADMIN perms:crm.read | `admin/src/pages/admin/segments.tsx:19` |
+| POST | `/api/admin/admin/segments/preview` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:49` | roles:ADMIN perms:crm.read | `admin/src/pages/admin/segments.tsx:23` |
+| POST | `/api/admin/admin/segments` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:68` | roles:ADMIN perms:crm.manage | `admin/src/pages/admin/segments.tsx:24` |
+| DELETE | `/api/admin/admin/segments/:param` | OK | `backend/src/modules/admin/enterprise/admin-segments.controller.ts:97` | roles:ADMIN perms:crm.manage | `admin/src/pages/admin/segments.tsx:28` |
 | POST | `/auth/heartbeat` | OK | `backend/src/modules/auth/auth.controller.ts:269` | NONE | `admin/src/components/AdminGuard.tsx:256` |
 | GET | `/api/admin/admin/session` | OK | `backend/src/modules/admin/enterprise/admin-security.controller.ts:80` | roles:ADMIN | `admin/src/components/AdminGuard.tsx:267` |
 | POST | `/auth/logout` | BFF (handled by a specific Next BFF handler) | `admin/src/pages/api/admin/auth/logout.ts` |  | `admin/src/components/AdminGuard.tsx:295` |

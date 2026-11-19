@@ -11932,6 +11932,7 @@
    "unit": [
     "admin/src/pages/admin/segments.tsx",
     "admin/src/components/AdminGuard.tsx",
+    "admin/src/components/ConfirmDialog.tsx",
     "admin/src/components/useDrawer.ts",
     "admin/src/components/useMediaQuery.ts",
     "admin/src/components/useLegacyTableCards.ts",
@@ -11951,7 +11952,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-segments.controller.ts:32",
      "backendPath": "/admin/segments",
      "file": "admin/src/pages/admin/segments.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -11976,7 +11977,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-segments.controller.ts:26",
      "backendPath": "/admin/segments/fields",
      "file": "admin/src/pages/admin/segments.tsx",
-     "line": 18,
+     "line": 19,
      "fn": "adminFetch",
      "via": null,
      "guards": {
@@ -12001,7 +12002,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-segments.controller.ts:49",
      "backendPath": "/admin/segments/preview",
      "file": "admin/src/pages/admin/segments.tsx",
-     "line": 22,
+     "line": 23,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -12026,7 +12027,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-segments.controller.ts:68",
      "backendPath": "/admin/segments",
      "file": "admin/src/pages/admin/segments.tsx",
-     "line": 23,
+     "line": 24,
      "fn": "adminMutation",
      "via": null,
      "guards": {
@@ -12051,7 +12052,7 @@
      "backend": "backend/src/modules/admin/enterprise/admin-segments.controller.ts:97",
      "backendPath": "/admin/segments/:param",
      "file": "admin/src/pages/admin/segments.tsx",
-     "line": 24,
+     "line": 28,
      "fn": "adminMutation",
      "via": null,
      "guards": {

@@ -9691,12 +9691,12 @@
    {
     "kind": "button",
     "label": "حذف",
-    "src": "DELETE /api/admin/admin/segments/:param; GET /api/admin/admin/segments; GET /api/admin/admin/segments/fields; confirm(); prompt()",
+    "src": "local state",
     "status": "ok",
-    "mutation": true,
-    "confirm": true,
+    "mutation": false,
+    "confirm": false,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "form",
@@ -9706,7 +9706,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "input",
@@ -9714,7 +9714,7 @@
     "src": "state name used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "input",
@@ -9722,7 +9722,7 @@
     "src": "state description used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "input",
@@ -9730,7 +9730,7 @@
     "src": "state match used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "input",
@@ -9739,7 +9739,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "input",
@@ -9748,7 +9748,7 @@
     "status": "ok",
     "untraced": true,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "button",
@@ -9758,7 +9758,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "button",
@@ -9768,7 +9768,7 @@
     "mutation": false,
     "confirm": false,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "input",
@@ -9776,7 +9776,7 @@
     "src": "state reason used by logic/request",
     "status": "ok",
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "button",
@@ -9786,7 +9786,7 @@
     "mutation": true,
     "confirm": false,
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25
+    "line": 29
    },
    {
     "kind": "button",
@@ -9794,8 +9794,37 @@
     "src": "submits the enclosing form",
     "status": "ok",
     "file": "admin/src/pages/admin/segments.tsx",
-    "line": 25,
+    "line": 29,
     "submit": true
+   },
+   {
+    "kind": "action",
+    "label": "سيتم حذف الشريحة وتسجيل ذلك في التدقيق. اكتب السبب (5 أحرف ع",
+    "src": "DELETE /api/admin/admin/segments/:param; GET /api/admin/admin/segments; GET /api/admin/admin/segments/fields",
+    "status": "ok",
+    "warn": "Sensitive action (DELETE /api/admin/admin/segments/:param) runs on one tap with no confirm/prompt in the handler (a confirmation may live in the caller or a modal; verify).",
+    "mutation": true,
+    "confirm": false,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 29
+   },
+   {
+    "kind": "action",
+    "label": "سيتم حذف الشريحة وتسجيل ذلك في التدقيق. اكتب السبب (5 أحرف ع",
+    "src": "closeRemove; local state",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 29
+   },
+   {
+    "kind": "input",
+    "label": "سبب حذف الشريحة",
+    "src": "state removeText used by logic/request",
+    "status": "ok",
+    "file": "admin/src/pages/admin/segments.tsx",
+    "line": 29
    },
    {
     "kind": "link",
@@ -9861,6 +9890,47 @@
     "file": "admin/src/components/AdminGuard.tsx",
     "line": 393,
     "via": "AdminGuard"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 41,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "action",
+    "label": "<div> onClick",
+    "src": "",
+    "status": "ok",
+    "mutation": false,
+    "confirm": false,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 42,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onConfirm",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 46,
+    "via": "ConfirmDialog"
+   },
+   {
+    "kind": "button",
+    "label": "<button> onClick",
+    "src": "onClick -> parent/prop callback onCancel",
+    "status": "ok",
+    "untraced": true,
+    "file": "admin/src/components/ConfirmDialog.tsx",
+    "line": 47,
+    "via": "ConfirmDialog"
    },
    {
     "kind": "link",
