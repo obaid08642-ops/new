@@ -38,6 +38,8 @@ export enum ProviderAccountStatus {
   ONBOARDING = 'onboarding', PENDING_ADMIN_APPROVAL = 'pending_admin_approval',
   UNDER_REVIEW = 'under_review', NEEDS_CHANGES = 'needs_changes',
   APPROVED = 'approved', SUSPENDED = 'suspended', REJECTED = 'rejected',
+  /** B2 (owner 2026-11-17): a lapsed licence. Hidden and not bookable, but the login works to finish existing work and upload the renewed licence. */
+  RESTRICTED = 'restricted',
 }
 
 export const PROVIDER_STATUS_TRANSITIONS: Record<ProviderAccountStatus, ProviderAccountStatus[]> = {
@@ -47,7 +49,8 @@ export const PROVIDER_STATUS_TRANSITIONS: Record<ProviderAccountStatus, Provider
   [ProviderAccountStatus.PENDING_ADMIN_APPROVAL]: [ProviderAccountStatus.UNDER_REVIEW, ProviderAccountStatus.APPROVED, ProviderAccountStatus.REJECTED, ProviderAccountStatus.NEEDS_CHANGES],
   [ProviderAccountStatus.UNDER_REVIEW]: [ProviderAccountStatus.APPROVED, ProviderAccountStatus.REJECTED, ProviderAccountStatus.NEEDS_CHANGES],
   [ProviderAccountStatus.NEEDS_CHANGES]: [ProviderAccountStatus.PENDING_ADMIN_APPROVAL],
-  [ProviderAccountStatus.APPROVED]: [ProviderAccountStatus.SUSPENDED],
+  [ProviderAccountStatus.APPROVED]: [ProviderAccountStatus.SUSPENDED, ProviderAccountStatus.RESTRICTED],
+  [ProviderAccountStatus.RESTRICTED]: [ProviderAccountStatus.APPROVED, ProviderAccountStatus.SUSPENDED],
   [ProviderAccountStatus.SUSPENDED]: [ProviderAccountStatus.APPROVED, ProviderAccountStatus.REJECTED],
   [ProviderAccountStatus.REJECTED]: [ProviderAccountStatus.PENDING_ADMIN_APPROVAL],
 };

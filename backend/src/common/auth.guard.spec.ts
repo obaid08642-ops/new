@@ -193,6 +193,15 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, '/api/v1/provider-onboarding/progress'))).resolves.toBe(true);
   });
 
+  it('B2: a restricted provider account (lapsed licence) keeps its login: provider routes work to finish existing work and upload the renewed licence', async () => {
+    reflector.getAllAndOverride.mockReturnValue(null);
+    jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider', provider_type: 'lab' });
+    (connection.collection as jest.Mock).mockReturnValue({ findOne: jest.fn().mockResolvedValue({ status: 'restricted' }) });
+    for (const path of ['/api/v1/provider/jobs/queue', '/api/v1/provider/kyc/documents']) {
+      await expect(guard.canActivate(createMockContext({ authorization: 'Bearer token' }, {}, {}, {}, path))).resolves.toBe(true);
+    }
+  });
+
   it.each(['rejected', 'needs_changes', 'under_review', 'suspended'])('G6: a provider account in status %s is kept off every provider route except the onboarding steps (resubmit and read the reason stay open)', async (status) => {
     reflector.getAllAndOverride.mockReturnValue(null);
     jwtService.verifyAsync.mockResolvedValue({ id: 'provider-1', role: 'provider', scope: 'provider' });
