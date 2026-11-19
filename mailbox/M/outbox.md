@@ -1,3 +1,6 @@
+## 2026-11-19 — MC.2 constants -> one source (market-defaults)
+Status: done, PR #2765 (CI: pending). 81 'SAR' literals + Riyadh tz / VAT / 997 / +966 now read common/market-defaults (from the SA row). tsc, `npm run build` with live mongo (openapi 1726 paths), full jest 39/39, dtolint green; boot gate = same 3 failures as clean main. Also fixed a real bug in getConfig(at) (past `at` returned the cached now value) + 4 cache tests. Ratchet spec added (baseline 0). Next: step 3 (separate PR from main).
+
 ## 2026-11-19 — MC.1 fix for #2761 build
 Status: fixed, pushed. Cause: union-typed `status` @Prop in Market and MarketConfigRow had no explicit type (openapi:generate error). Added `type: String`. Verified with `nest build` + `openapi:generate --strict` against a live mongo (1726 paths), tsc, markets jest. My earlier report missed it because openapi:generate skips silently without mongo; I now run it strict. Waiting for merge, then step 2.
 
