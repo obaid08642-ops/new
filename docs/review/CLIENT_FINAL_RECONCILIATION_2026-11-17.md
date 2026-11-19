@@ -64,8 +64,8 @@ The `[client]` lines that were still `open` in `docs/design/needs-review/*.json`
 | # | file:line | element | state | what | basis |
 |---:|---|---|---|---|---|
 | 1 | `backend/src/modules/agent-oauth/agent-oauth.controller.ts:100` | List and disconnect connected AI assistants | **OPEN** | web has Settings > Connected apps (`settings/connected-apps`); the APP has no screen for `GET /patient/agent-connections` + `DELETE` | code |
-| 2 | `patient-web/components-next/diagnostics/catalog-load.ts:67` | insurance filter is applied on the loaded rows | **OPEN** | client change, not done in this pass | line |
-| 3 | `patient-app/app/(tabs)/diagnostics.tsx:157` | insurance filter on loaded rows | **OPEN** | client change, not done in this pass | line |
+| 2 | `patient-web/components-next/diagnostics/catalog-load.ts:67` | insurance filter is applied on the loaded rows | **AFTER LAUNCH** | lead decision 2026-11-19: keep today's catalogue-based rule (`insurance_availability`); the offer-based filter (`insurance=1`) waits for the insurance offers (decision 30, parked after launch), it would show nothing now | line |
+| 3 | `patient-app/app/(tabs)/diagnostics.tsx:157` | insurance filter on loaded rows | **AFTER LAUNCH** | lead decision 2026-11-19: keep today's catalogue-based rule (`insurance_availability`); the offer-based filter (`insurance=1`) waits for the insurance offers (decision 30, parked after launch), it would show nothing now | line |
 | 4 | `patient-web/components-next/diagnostics/notify-me-button.tsx:1` | notify-me confirmation and sign-in | **DEFERRED** | runtime / device check (nothing to fix in code) | line |
 | 5 | `patient-app/src/components/diagnostics/CatalogueKit.tsx:122` | signed-out sign-in state of Notify me | **DEFERRED** | runtime / device check (nothing to fix in code) | line |
 | 6 | `patient-web/app/[locale]/appointments/[appointmentId]/page.tsx:205` | Web: Book requested tests | **OPEN** | client change, not done in this pass | line |
@@ -175,7 +175,7 @@ The `[client]` lines that were still `open` in `docs/design/needs-review/*.json`
 
 Not fixed here, one line each (the exact need is in the row above):
 - **App: Connected AI assistants screen** (row 1): the web has Settings > Connected apps, the app has no screen for `GET/DELETE /patient/agent-connections`.
-- **Catalogue insurance filter** (rows 2, 3): web and app still filter on the loaded rows by `insurance_availability`; the backend now takes `insurance=1` and filters by what providers offer.
+- **Catalogue insurance filter** (rows 2, 3): AFTER LAUNCH, with the insurance offers (lead decision 2026-11-19): web and app keep filtering on the loaded rows by `insurance_availability`; the backend takes `insurance=1` and filters by what providers offer, which shows nothing until offers exist.
 - **Web: referral codes into the lab basket** (row 6), **hospital sheet link to a facility route** (row 11), **`/diagnostics/service-home` has no hub entry** (row 20), **doctor-order items pre-ticked** (row 21), **"Use this split"** (row 25), **family selector in the web context bar** (rows 28, 59), **results link / trend on the booking card** (rows 35, 36), **radiology technician name and report files on the web** (row 78), **nearest-first sort with the address coordinates** (row 79), **LMP / due date format check before POST** (row 90), **share-with-doctor pre-selecting the result** (rows 64, 93), **book on behalf lands on the tab root** (row 94), **doctors filtered by the Arabic specialty name** (row 100), **pending / rejected scan state for support attachments, return photos, provider report and visit files** (rows 101-104).
 - **Admin: 18 remaining `window.prompt` calls in 10 files** (same `ConfirmDialog` fix as returns and payouts, one page each).
 
