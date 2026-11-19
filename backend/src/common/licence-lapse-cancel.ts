@@ -28,3 +28,19 @@ export function shouldCancelForLapse(startMs: number, nowMs: number, lapseMs: nu
   const lapsedLessThan24hAgo = nowMs - lapseMs < LICENCE_LAPSE_KEEP_MS;
   return !lapsedLessThan24hAgo;
 }
+
+/**
+ * Where each provider type's confirmed future bookings live: the collection, how a booking points at its provider, the field with its start, and what "confirmed" is there. Lab and radiology
+ * bookings carry the provider's ACCOUNT id; a consultation carries the doctor's PROFILE id.
+ */
+export interface LapseKind {
+  kind: LicenceLapseCancelEvent['kind']; type: string; collection: string; start: string;
+  owner: (p: { id?: string; account_id?: string; user_id?: string }) => Record<string, unknown>;
+  confirmed: Record<string, unknown>;
+}
+const accountIds = (p: { account_id?: string; user_id?: string }) => [p.account_id, p.user_id].filter((v): v is string => typeof v === 'string' && !!v);
+export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology', LapseKind> = {
+  appointment: { kind: 'appointment', type: 'doctor', collection: 'appointments', start: 'slot_start', owner: (p) => ({ doctor_id: p.id }), confirmed: { status: 'CONFIRMED' } },
+  lab: { kind: 'lab', type: 'lab', collection: 'labbookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
+  radiology: { kind: 'radiology', type: 'radiology', collection: 'radiologybookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
+};

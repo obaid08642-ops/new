@@ -18,7 +18,7 @@ import { DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../common/co
 import { ScheduledOnce } from '../../common/scheduled-once';
 import { roundSar } from '../../common/money';
 import { licenceDaysLeft, licenceLapseInstant, isLicenceLapsed } from '../../common/provider-licence';
-import { LICENCE_LAPSE_CANCEL_EVENT, shouldCancelForLapse, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
+import { LICENCE_LAPSE_CANCEL_EVENT, LAPSE_KINDS, shouldCancelForLapse, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -284,7 +284,8 @@ export class LegalEnterpriseService {
    * D2 (owner 2026-11-17): every hour, for each provider whose licence has lapsed (profile suspended for `license_expired`, the stored date still past under rule A2), the confirmed FUTURE bookings
    * are cancelled, except what starts inside the next 24 h while the lapse is under 24 h old (common/licence-lapse-cancel.ts). This only FINDS the bookings and emits one event per booking; the
    * module that owns the booking cancels it with its own provider-cancel path, which is also what refunds 100% (no money logic here). Idempotent: a cancelled booking is not found again.
-   * Doctors' consultations (`appointments`) in this step; labs, radiology, home care and pharmacy orders follow, one PR each.
+   * Covered: doctors' consultations (`appointments`), labs (`labbookings`) and radiology (`radiologybookings`). Home care and pharmacy orders follow, one PR each. The older radiology "center" bookings
+   * (`radiologycenterbookings`: no scheduled time, ObjectId owners) have no "future" to test and are not covered.
    */
   @Cron('0 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
@@ -292,21 +293,24 @@ export class LegalEnterpriseService {
 
   async licenceLapseSweep(now: number = Date.now()): Promise<{ profiles: number; cancel_requested: number }> {
     let profiles = 0; let requested = 0;
+    const kinds = Object.values(LAPSE_KINDS);
     const cursor = this.conn.collection('provider_profiles').find(
-      { status: 'suspended', suspended_reason: 'license_expired', type: 'doctor', license_expiry_date: { $ne: null, $lte: new Date(now) } } as any,
-      { projection: { id: 1, type: 1, license_expiry_date: 1 }, batchSize: 100, maxTimeMS: 60_000 },
+      { status: 'suspended', suspended_reason: 'license_expired', type: { $in: kinds.map((k) => k.type) }, license_expiry_date: { $ne: null, $lte: new Date(now) } } as any,
+      { projection: { id: 1, type: 1, account_id: 1, user_id: 1, license_expiry_date: 1 }, batchSize: 100, maxTimeMS: 60_000 },
     );
     for await (const p of cursor as any) {
       if (!isLicenceLapsed(p.license_expiry_date, now)) continue;   // renewed since: the date moved
       const lapse = licenceLapseInstant(p.license_expiry_date) as Date;
       profiles++;
-      const bookings = this.conn.collection('appointments').find(
-        { doctor_id: p.id, status: 'CONFIRMED', slot_start: { $gt: new Date(now) } } as any,
-        { projection: { _id: 0, id: 1, patient_id: 1, slot_start: 1 }, batchSize: 200, maxTimeMS: 60_000 },
+      const kind = kinds.find((k) => k.type === p.type);
+      if (!kind) continue;
+      const bookings = this.conn.collection(kind.collection).find(
+        { ...kind.owner(p), ...kind.confirmed, [kind.start]: { $gt: new Date(now) } } as any,
+        { projection: { _id: 0, id: 1, patient_id: 1, [kind.start]: 1 }, batchSize: 200, maxTimeMS: 60_000 },
       );
       for await (const b of bookings as any) {
-        if (!shouldCancelForLapse(new Date(b.slot_start).getTime(), now, lapse.getTime())) continue;
-        const event: LicenceLapseCancelEvent = { kind: 'appointment', booking_id: b.id, patient_id: b.patient_id, provider_profile_id: p.id, lapse_at: lapse.toISOString() };
+        if (!shouldCancelForLapse(new Date(b[kind.start]).getTime(), now, lapse.getTime())) continue;
+        const event: LicenceLapseCancelEvent = { kind: kind.kind, booking_id: b.id, patient_id: b.patient_id, provider_profile_id: p.id, lapse_at: lapse.toISOString() };
         this.events?.emit(LICENCE_LAPSE_CANCEL_EVENT, event);
         requested++;
       }

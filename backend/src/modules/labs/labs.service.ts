@@ -9,7 +9,7 @@ import { homeCollectionFee } from '../../common/provider-home-fees';
 import { catalogueSortSpec } from '../catalogue-ranking/catalogue-ranking';
 import { SearchService } from '../search/search.service';
 import { LAB_TYPES, byRelevance, matchedIds } from '../search/catalogue-search';
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException, ServiceUnavailableException, Inject, Optional, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { LabService, LabBooking, LabBookingState, LAB_BOOKING_TRANSITIONS, LabSample } from '../../schemas/lab.schema';
@@ -55,6 +55,7 @@ import { byRating, paged, parsePage, withProviderRating, type CataloguePage } fr
 import { loadOffers, ownPrices, withOfferSummary, withOffers, type OfferSummary } from '../../common/service-offers';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
 import { assertProviderLicenceCurrent } from '../../common/provider-licence';
+import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_CANCEL_REASON, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -811,6 +812,23 @@ export class LabsService {
   }
 
   /** Verified card payment confirms a new lab booking (server-side; the app never confirms unpaid card bookings). */
+  /**
+   * D2 (owner 2026-11-17): the lab's licence lapsed and the legal module's hourly sweep names a confirmed future booking. Cancelled through the normal `transition` as the platform (admin role): the
+   * booking emits `lab.booking_cancelled` with `cancelled_by: 'provider'`, which is what the existing finance listener refunds in full (the trip fee is kept only on a PATIENT cancel). Nothing is refunded
+   * here. A booking that is no longer CONFIRMED (the collector set off, it finished, it was cancelled) is left alone.
+   */
+  @OnEvent(LICENCE_LAPSE_CANCEL_EVENT)
+  async onLicenceLapseCancel(e: LicenceLapseCancelEvent): Promise<void> {
+    if (e?.kind !== 'lab' || !e.booking_id) return;
+    try {
+      const b: any = await this.bkgModel.findOne({ id: String(e.booking_id) }, { state: 1 }).lean();
+      if (!b || b.state !== LabBookingState.CONFIRMED) return;
+      await this.transition(String(e.booking_id), LabBookingState.CANCELLED, { id: 'system', role: 'admin' }, LICENCE_LAPSE_CANCEL_REASON);
+    } catch (err: any) {
+      new Logger('LicenceLapse').error(`licence lapse cancel failed for lab booking ${e.booking_id}: ${err?.message || err}`);
+    }
+  }
+
   @OnEvent('payment.completed')
   async confirmPaidBooking(event: any) {
     if (event?.booking_kind !== 'lab' || !event?.booking_id) return;

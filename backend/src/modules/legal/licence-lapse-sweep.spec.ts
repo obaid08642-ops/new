@@ -42,6 +42,23 @@ describe('licence lapse sweep (D2)', () => {
     const [, q] = queries.find(([n]) => n === 'appointments');
     expect(q).toMatchObject({ doctor_id: 'doc-1', status: 'CONFIRMED', slot_start: { $gt: new Date(now) } });
     const [, pq] = queries.find(([n]) => n === 'provider_profiles');
-    expect(pq).toMatchObject({ status: 'suspended', suspended_reason: 'license_expired', type: 'doctor' });
+    expect(pq).toMatchObject({ status: 'suspended', suspended_reason: 'license_expired' });
+    expect(pq.type.$in).toContain('doctor');
+  });
+  it('labs and radiology (D2 part 2): the lab / radiology bookings of the provider ACCOUNT, CONFIRMED and in the future, are sent with their kind; the same 24 h rule applies', async () => {
+    for (const [type, collection, kind] of [['lab', 'labbookings', 'lab'], ['radiology', 'radiologybookings', 'radiology']] as const) {
+      const rows = [{ id: 'far', patient_id: 'p1', scheduled_at: new Date(now + 3 * 24 * H) }, { id: 'soon', patient_id: 'p2', scheduled_at: new Date(now + 3 * H) }];
+      const { r, emitted, queries } = await run([profile({ id: `${type}-1`, type, account_id: 'acc-1', user_id: 'usr-1' })], rows);
+      expect(r).toEqual({ profiles: 1, cancel_requested: 1 });
+      expect(emitted.map((e) => [e[1].kind, e[1].booking_id, e[1].provider_profile_id])).toEqual([[kind, 'far', `${type}-1`]]);
+      const [, q] = queries.find(([n]) => n === collection);
+      expect(q).toMatchObject({ provider_account_id: { $in: ['acc-1', 'usr-1'] }, state: 'CONFIRMED', scheduled_at: { $gt: new Date(now) } });
+    }
+  });
+
+  it('a provider type with no booking kind yet (nursing, pharmacy, hospital) is not selected at all', async () => {
+    const { queries } = await run([], []);
+    const [, pq] = queries.find(([n]) => n === 'provider_profiles');
+    expect(pq.type.$in.sort()).toEqual(['doctor', 'lab', 'radiology']);
   });
 });
