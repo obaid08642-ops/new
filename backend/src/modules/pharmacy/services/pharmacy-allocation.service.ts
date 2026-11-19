@@ -12,6 +12,8 @@ import { PharmacyAllocationRepository } from "./repositories/pharmacyallocation.
 import { PharmacyOrderRepository } from "./repositories/pharmacyorder.repository";
 import { PharmacyInventoryItemRepository } from "./repositories/pharmacyinventoryitem.repository";
 import { isProviderRole } from '../../../common/enums';
+import { OnEvent } from '@nestjs/event-emitter';
+import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_CANCEL_REASON, type LicenceLapseCancelEvent } from '../../../common/licence-lapse-cancel';
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../../common/commission-defaults';
 import { deliveryModeOf, type DeliveryMode } from '../../../common/tax-registration';
 import { assertSubstituteInsidePrescription } from './rx-rules';
@@ -632,6 +634,24 @@ export class PharmacyAllocationService {
     await this.notif.notifyPatientAllocationCancelled(a, reason);
     await this.bus.emit({ type: 'allocation.cancelled', entity_type: 'allocation', entity_id: a.id, actor_account_id: user.id, actor_role: 'provider', pharmacy_account_id: user.id, reason_code: reason || 'pharmacy_cancelled', meta: { order_id: a.order_id } });
     return a.toObject();
+  }
+
+  /**
+   * D2 (owner 2026-11-17): the pharmacy's licence lapsed and the legal module's hourly sweep names an allocation it has not started (pending review, partially confirmed, confirmed) once the 24 h grace
+   * after the lapse is over. Cancelled through the pharmacy's OWN `cancel` (the same path as "the pharmacy cancels": stock released, patient told, and when it was the order's only live allocation the
+   * order is cancelled as a PROVIDER cancel, which ProviderCancelRefundListener refunds in full, delivery fee included). Nothing is refunded here. An allocation that is preparing, ready, out for
+   * delivery or finished is left alone (the pharmacy finishes existing work, rule B2).
+   */
+  @OnEvent(LICENCE_LAPSE_CANCEL_EVENT)
+  async onLicenceLapseCancel(e: LicenceLapseCancelEvent): Promise<void> {
+    if (e?.kind !== 'pharmacy_allocation' || !e.booking_id) return;
+    try {
+      const a: any = await this.allocs.findOne({ id: String(e.booking_id) });
+      if (!a || ![PharmacyAllocationState.PENDING_REVIEW, PharmacyAllocationState.PARTIALLY_CONFIRMED, PharmacyAllocationState.CONFIRMED].includes(a.status)) return;
+      await this.cancel({ id: a.pharmacy_account_id, role: 'pharmacy' }, String(e.booking_id), LICENCE_LAPSE_CANCEL_REASON);
+    } catch (err: any) {
+      this.logger.error(`licence lapse cancel failed for pharmacy allocation ${e.booking_id}: ${err?.message || err}`);
+    }
   }
 
   /**

@@ -284,7 +284,7 @@ export class LegalEnterpriseService {
    * D2 (owner 2026-11-17): every hour, for each provider whose licence has lapsed (profile suspended for `license_expired`, the stored date still past under rule A2), the confirmed FUTURE bookings
    * are cancelled, except what starts inside the next 24 h while the lapse is under 24 h old (common/licence-lapse-cancel.ts). This only FINDS the bookings and emits one event per booking; the
    * module that owns the booking cancels it with its own provider-cancel path, which is also what refunds 100% (no money logic here). Idempotent: a cancelled booking is not found again.
-   * Covered: doctors' consultations (`appointments`), labs (`labbookings`), radiology (`radiologybookings`) and home care (`homecarebookings`). Pharmacy orders follow in their own PR. The older radiology "center" bookings
+   * Covered: doctors' consultations (`appointments`), labs (`labbookings`), radiology (`radiologybookings`), home care (`homecarebookings`) and pharmacy (`pharmacy_allocations`, the pharmacy's part of an order). The older radiology "center" bookings
    * (`radiologycenterbookings`: no scheduled time, ObjectId owners) have no "future" to test and are not covered.
    */
   @Cron('0 * * * *', { timeZone: 'UTC' })
@@ -305,11 +305,13 @@ export class LegalEnterpriseService {
       const kind = kinds.find((k) => k.types.includes(p.type));
       if (!kind) continue;
       const bookings = this.conn.collection(kind.collection).find(
-        { ...kind.owner(p), ...kind.confirmed, [kind.start]: { $gt: new Date(now) } } as any,
-        { projection: { _id: 0, id: 1, patient_id: 1, [kind.start]: 1 }, batchSize: 200, maxTimeMS: 60_000 },
+        { ...kind.owner(p), ...kind.confirmed, ...(kind.start ? { [kind.start]: { $gt: new Date(now) } } : {}) } as any,
+        { projection: { _id: 0, id: 1, patient_id: 1, ...(kind.start ? { [kind.start]: 1 } : {}) }, batchSize: 200, maxTimeMS: 60_000 },
       );
       for await (const b of bookings as any) {
-        if (!shouldCancelForLapse(new Date(b[kind.start]).getTime(), now, lapse.getTime())) continue;
+        // no scheduled time (a pharmacy order the pharmacy has not started): it "starts now", so only the 24 h grace after the lapse keeps it
+        const startMs = kind.start ? new Date(b[kind.start]).getTime() : now + 1;
+        if (!shouldCancelForLapse(startMs, now, lapse.getTime())) continue;
         const event: LicenceLapseCancelEvent = { kind: kind.kind, booking_id: b.id, patient_id: b.patient_id, provider_profile_id: p.id, lapse_at: lapse.toISOString() };
         this.events?.emit(LICENCE_LAPSE_CANCEL_EVENT, event);
         requested++;

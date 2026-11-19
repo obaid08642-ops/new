@@ -56,10 +56,10 @@ describe('licence lapse sweep (D2)', () => {
     }
   });
 
-  it('only the provider types with a booking kind are selected (pharmacy and hospital are not covered yet)', async () => {
+  it('only the provider types with a booking kind are selected (hospital and clinic are not covered)', async () => {
     const { queries } = await run([], []);
     const [, pq] = queries.find(([n]) => n === 'provider_profiles');
-    expect(pq.type.$in.sort()).toEqual(['doctor', 'home_care', 'lab', 'nurse', 'nursing', 'radiology']);
+    expect(pq.type.$in.sort()).toEqual(['doctor', 'home_care', 'lab', 'nurse', 'nursing', 'pharmacy', 'radiology']);
   });
   it('home care (D2 part 3): nurse / nursing / home_care providers; the booking\'s provider_id is the ACCOUNT id; CONFIRMED or PROVIDER_ASSIGNED and in the future; same 24 h rule', async () => {
     for (const type of ['home_care', 'nursing', 'nurse']) {
@@ -70,5 +70,16 @@ describe('licence lapse sweep (D2)', () => {
       const [, q] = queries.find(([n]) => n === 'homecarebookings');
       expect(q).toMatchObject({ provider_id: { $in: ['acc-1', 'usr-1'] }, state: { $in: ['CONFIRMED', 'PROVIDER_ASSIGNED'] }, scheduled_at: { $gt: new Date(now) } });
     }
+  });
+  it('pharmacy (D2 part 4): the allocations of the pharmacy ACCOUNT it has not started have no schedule, so they are kept for the first 24 h after the lapse and sent after that', async () => {
+    const rows = [{ id: 'al1', patient_id: 'p1' }, { id: 'al2', patient_id: 'p2' }];
+    const prof = profile({ id: 'ph-1', type: 'pharmacy', account_id: 'acc-ph', user_id: 'usr-ph' });
+    const within = await run([prof], rows);                      // lapsed 15 h ago: grace
+    expect(within.r).toEqual({ profiles: 1, cancel_requested: 0 });
+    const after = await run([prof], rows, lapsedAt + 25 * H);    // lapsed 25 h ago
+    expect(after.r).toEqual({ profiles: 1, cancel_requested: 2 });
+    expect(after.emitted.map((e) => [e[1].kind, e[1].booking_id, e[1].provider_profile_id])).toEqual([['pharmacy_allocation', 'al1', 'ph-1'], ['pharmacy_allocation', 'al2', 'ph-1']]);
+    const [, q] = after.queries.find(([n]) => n === 'pharmacy_allocations');
+    expect(q).toEqual({ pharmacy_account_id: { $in: ['acc-ph', 'usr-ph'] }, status: { $in: ['pending_review', 'partially_confirmed', 'confirmed'] } });
   });
 });
