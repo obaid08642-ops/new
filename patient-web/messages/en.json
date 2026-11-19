@@ -3969,6 +3969,7 @@
     "cycleLength": "Cycle length (days)",
     "regularity": "Regularity",
     "setupRequired": "Enter the required date to complete the profile.",
+    "lmpFuture": "The first day of your last period cannot be in the future.",
     "setupFailed": "The profile could not be saved.",
     "connectionFailed": "Could not connect. Please try again.",
     "setupNotice": "Tracking is educational. It does not replace medical advice and is not contraception.",

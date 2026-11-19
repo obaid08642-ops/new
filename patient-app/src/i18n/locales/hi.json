@@ -2177,6 +2177,8 @@
   "care.mat.cycleRegularity": "चक्र की नियमितता",
   "care.mat.cycleSetup": "अंतिम मासिक धर्म और दर्ज चक्र लंबाई लिखें",
   "care.mat.dateFormat": "प्रारूप: वर्ष-माह-दिन, जैसे 2026-09-20",
+  "care.mat.dateInvalid": "तारीख वर्ष-माह-दिन के रूप में लिखें, जैसे 2026-09-20।",
+  "care.mat.lmpFuture": "आख़िरी माहवारी का पहला दिन भविष्य में नहीं हो सकता।",
   "care.mat.dayLabel": "{total} दिन के चक्र का दिन {day}",
   "care.mat.dayOfCycle": "चक्र का दिन",
   "care.mat.days": "{count} दिन",

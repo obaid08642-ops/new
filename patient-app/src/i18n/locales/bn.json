@@ -2177,6 +2177,8 @@
   "care.mat.cycleRegularity": "চক্রের নিয়মিততা",
   "care.mat.cycleSetup": "শেষ মাসিক ও নথিভুক্ত চক্রের দৈর্ঘ্য দিন",
   "care.mat.dateFormat": "বিন্যাস: বছর-মাস-দিন, যেমন 2026-09-20",
+  "care.mat.dateInvalid": "তারিখ বছর-মাস-দিন আকারে লিখুন, যেমন 2026-09-20।",
+  "care.mat.lmpFuture": "শেষ মাসিকের প্রথম দিন ভবিষ্যতে হতে পারে না।",
   "care.mat.dayLabel": "{total} দিনের চক্রের {day} নম্বর দিন",
   "care.mat.dayOfCycle": "চক্রের দিন",
   "care.mat.days": "{count} দিন",

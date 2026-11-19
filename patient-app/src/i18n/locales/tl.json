@@ -2177,6 +2177,8 @@
   "care.mat.cycleRegularity": "Regularidad ng siklo",
   "care.mat.cycleSetup": "Ilagay ang huling regla at naitalang haba ng cycle",
   "care.mat.dateFormat": "Format: taon-buwan-araw, hal. 2026-09-20",
+  "care.mat.dateInvalid": "Ilagay ang petsa bilang taon-buwan-araw, hal. 2026-09-20.",
+  "care.mat.lmpFuture": "Hindi puwedeng nasa hinaharap ang unang araw ng huling regla.",
   "care.mat.dayLabel": "Araw {day} ng {total}-araw na siklo",
   "care.mat.dayOfCycle": "Araw ng siklo",
   "care.mat.days": "{count} araw",
