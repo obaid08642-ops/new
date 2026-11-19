@@ -162,7 +162,7 @@ The `[client]` lines that were still `open` in `docs/design/needs-review/*.json`
 | 97 | `patient-app/app/payments/result.tsx:59` | Verify only with our id | **NOT A PROBLEM** | `POST /payments/verify/:txn` takes our own transaction id only (`payments.module.ts:791`); with only the gateway id the screen reads `GET /payments/status/:ref` (accepts both) and the webhook settles it | code |
 | 98 | `patient-app/app/pharmacy/payment.tsx:99` | Pay button | **FIXED HERE** | choosing another payment method now drops the kept idempotency key (`pharmacy/payment.tsx`), so a different body never reuses a key | code |
 | 99 | `patient-web/lib/map/explorer-browser.ts:29` | Centre of the map when the position is not allowed | **DEFERRED** | owner / reviewer decision | line |
-| 100 | `patient-app/app/(tabs)/consultations/index.tsx:323` | Doctors filtered by the Arabic specialty name | **OPEN** | client change, not done in this pass | line |
+| 100 | `patient-app/app/(tabs)/consultations/index.tsx:323` | Doctors filtered by the Arabic specialty name | **FIXED** | the chosen specialty is kept by its slug and a doctor matches on slug, Arabic or English name (`doctorHasSpecialty`, the rule `/care/specialties` counts by); web already sends the specialty to the server | line |
 | 101 | `patient-app/src/components/account/SupportViews.tsx:113` | Attachment pending badge | **OPEN** | client change, not done in this pass | line |
 | 102 | `patient-app/src/components/account/ReturnsViews.tsx:374` | Return photo pending badge | **OPEN** | client change, not done in this pass | line |
 | 103 | `provider-app/src/screens/radiology/RadiologyDashboard.tsx:432` | Report file upload | **OPEN** | client change, not done in this pass | line |

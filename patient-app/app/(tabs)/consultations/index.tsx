@@ -20,7 +20,7 @@ import { pickLocalized } from '../../../src/utils/localize';
 import { dateLocaleFor } from '../../../src/utils/dates';
 import { sortFromParam } from '../../../src/utils/doctorSearch';
 import { SpecialtyRow } from '../../../src/components/consult/SpecialtyTiles';
-import { specialtyNameKey, specialtyTileModels } from '../../../src/utils/consultSpecialties';
+import { doctorHasSpecialty, specialtyNameKey, specialtyTileModels } from '../../../src/utils/consultSpecialties';
 import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
 
 /**
@@ -230,13 +230,13 @@ export default function Consultations() {
     };
   }, [doctorsPath, reload]);
 
-  const arabicNames = useMemo(() => Object.fromEntries(specialties.flatMap((row) => (row.slug ? [[row.slug, row.name_ar]] : []))) as Record<string, string | undefined>, [specialties]);
   const specialtyTiles = useMemo(
     () => specialtyTileModels(specialties, (slug, nameAr, nameEn) => { const key = specialtyNameKey(slug); return key ? k(key) : pickLocalized(nameAr, nameEn) || ''; }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [specialties, lang],
   );
-  const activeSlug = activeSpec ? specialtyTiles.find((tile) => arabicNames[tile.slug] === activeSpec)?.slug ?? '' : '';
+  // the chosen specialty is kept by its slug (not by its Arabic name: a profile may store the slug, the Arabic or the English name)
+  const activeSlug = activeSpec;
 
   useEffect(() => {
     // Real specialties (names + live doctor counts) and real active offers
@@ -327,7 +327,7 @@ export default function Consultations() {
         }
 
         // Filter by specialty
-        const matchesSpec = !activeSpec || d.specialty_ar === activeSpec || (d.sp && d.sp.includes(activeSpec));
+        const matchesSpec = !activeSpec || doctorHasSpecialty(d.specialty, specialties.find((row) => row.slug === activeSpec));
 
         // Modal filters — real fields only (no name-based gender guessing)
         const matchesGender = filterGender === 'all' || !d.gender || (filterGender === 'male' ? d.gender === 'male' : d.gender === 'female');
@@ -342,7 +342,7 @@ export default function Consultations() {
         if (filterSort === 'wait') { const wa = waitOf(a); const wb = waitOf(b); return wa === wb ? 0 : wa - wb; }
         return (b.rating || Number(b.r || 0)) - (a.rating || Number(a.r || 0));
       });
-  }, [doctors, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterSort, doctorsPath]);
+  }, [doctors, specialties, searchQuery, activeVt, activePay, activeSpec, insCompany, insClass, filterGender, filterTitle, filterSort, doctorsPath]);
 
   const openDoctor = (d: Doc) => router.push((d.id ? `/consultations/doctor/${d.id}` : '/consultations/doctor-search') as Href);
   const nameOf = (n: Named) => pickLocalized(n.name_ar, n.name_en || n.name) || n.code || '';
@@ -466,7 +466,7 @@ export default function Consultations() {
               moreLabel={k('consult.hub.specMore')}
               activeSlug={activeSlug}
               onAll={() => setActiveSpec('')}
-              onSelect={(tile) => setActiveSpec(activeSlug === tile.slug ? '' : arabicNames[tile.slug] || '')}
+              onSelect={(tile) => setActiveSpec(activeSlug === tile.slug ? '' : tile.slug)}
               onMore={() => router.push('/consultations/specialty-select' as Href)}
             />
           </Section>
