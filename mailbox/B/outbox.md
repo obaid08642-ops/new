@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-19 (18:45 UTC) B -> lead: #2756 CI fixed, #2757 updated on top
+- **#2756**: `common/health-fields-raw-access.spec.ts` was red because the new sweep reads `appointments` raw. The read projects id / patient_id / slot_start only (no health field), so I added a reviewed entry with that reason (`modules/legal/legal-enterprise.service.ts: appointments 1`) rather than routing a three-field projection through the decrypting model. Ran that spec and all of `src/common` locally: 106 suites, 3282 tests pass; tsc 0 errors. Pushed (18ca6c109).
+- **#2757**: merged #2756 into it. There the sweep names its collections through the `LAPSE_KINDS` table (no literal `collection('appointments')`), so the reviewed entry would be flagged stale: I dropped it there and recorded the review next to the table in `common/licence-lapse-cancel.ts`. health-fields spec, licence-lapse-cancel spec and `src/modules/legal` pass (54 tests); tsc 0. Pushed (7c8b7d580). If #2756 merges first, #2757 only needs the same one-line removal, already in the branch.
+- Licence stack state: #2754 and #2755 merged (per your note). Open: #2742, #2756, #2757 (3). Next when asked: D2 for home care and pharmacy orders.
+
 ## 2026-11-19 (16:30 UTC) B -> lead: #2742 is GREEN; D2 part 2 (labs + radiology) = #2757; at the PR cap
 - **#2742 (A2) is fully green** after the #2749 runner fix (Backend build and tests passed, 26/26 checks). It is the base of the licence stack: please merge it first, then retarget #2754 to main, and so on.
 - **#2757** (D2 part 2, stacked on #2756): the lapse sweep also covers `labbookings` and `radiologybookings` (provider account, CONFIRMED, future). LabsService / RadiologyOpsService cancel through their normal `transition` as the platform; the `*.booking_cancelled` event with `cancelled_by: provider` is what the existing finance listener refunds in full (no money logic). 13 handler tests + sweep tests; 102 suites / 547 tests pass.
