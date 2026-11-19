@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-19 22:30 UTC — #2740 merged; #2760 merged with main
+- Lead order of 22:20 UTC done: merged main into #2760 (generated docs only, regenerated; admin tsc clean, admin vitest 36 files / 137 tests green). Conflict-free, "blocked" = waiting for review. No admin `window.prompt` page is left, so nothing more to add to #2760.
+- Open PRs: #2760, #2764. Next: the other small client lines (rows 90, 100, 64/93, 21, 25), then the design lines and the multi-country audit. The row 2/3 insurance-filter question is still in the 21:40 entry.
+
 ## 2026-11-19 21:40 UTC — #2759 merged; #2740 and #2760 merged with main again; first client line (#2764)
 - Lead order of 20:20 UTC done: merged main into #2740 and #2760 (generated docs only, regenerated; admin tsc clean, admin vitest 35 files green on both). Both conflict-free, "blocked" = waiting for review. All admin `window.prompt` pages are done: no new admin prompt PRs are needed, so the "one PR for the rest" rule has nothing left to bundle.
 - Client item 1 of the 37 (#2764): reconciliation row 94, the consultations hub now says whom a family booking is for (same notice and keys as the confirm step, "for me" drops it); no new strings; test 2; gates unchanged (literal 105, token-sync 335).
