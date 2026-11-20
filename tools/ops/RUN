@@ -1,5 +1,5 @@
-# 2026-11-20 run 139 = deploy main@3049927f (supersedes 137/138, whose notes wrongly listed the licence work): licence expiry A2-D2 on main via #2768 (restricted account keeps login, renewal date moves only after approval, lapse cancels future bookings for all provider types with 100% refund), markets steps 1-2 (#2761 #2765, SA values unchanged), market clock (#2735), admin reasons in ConfirmDialog. Then read-only 96r 96j 96h. Never 03:00-05:00 UTC.
-release:3049927f7b2fd7363866c9c602c9c5f25577bbbd
+# 2026-11-20 run 140 = deploy main@34674b99: markets step 3 (#2766 MarketContext per request, cached; backfill NOT run), radiology centre lapse (#2770), patient-app rows 94/100/64/93/90 (#2764 #2767 #2774 #2773), admin segments (#2760). Then read-only 96r 96j 96h. Never 03:00-05:00 UTC.
+release:34674b9952d4447575544593d0caac7f5b904eb7
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
