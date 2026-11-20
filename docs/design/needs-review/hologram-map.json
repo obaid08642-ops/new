@@ -4,11 +4,11 @@
   "app": "patient-app",
   "screen": "/map",
   "suspect": "route pending",
-  "review_status": "open",
+  "review_status": "fixed",
   "element": "hospital sheet link",
   "file": "patient-app/src/components/account/ProvidersMapView.tsx",
-  "line": 236,
-  "found": "[client] hospital sheet still opens /consultations/clinic/[id]; /facility/[id] does not exist yet (only app/facility/[slug].tsx, a link resolver); relink when the facility session lands"
+  "line": 297,
+  "found": "[client] resolved: /consultations/clinic/[id] is the facility page (GET /care/facilities/:id); app/facility/[slug].tsx only resolves links to it; no relink needed"
  },
  {
   "batch": "hologram-map",
