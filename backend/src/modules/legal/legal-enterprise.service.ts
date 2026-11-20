@@ -285,7 +285,7 @@ export class LegalEnterpriseService {
    * D2 (owner 2026-11-17): every hour, for each provider whose licence has lapsed (profile suspended for `license_expired`, the stored date still past under rule A2), the confirmed FUTURE bookings
    * are cancelled, except what starts inside the next 24 h while the lapse is under 24 h old (common/licence-lapse-cancel.ts). This only FINDS the bookings and emits one event per booking; the
    * module that owns the booking cancels it with its own provider-cancel path, which is also what refunds 100% (no money logic here). Idempotent: a cancelled booking is not found again.
-   * Covered: doctors' consultations (`appointments`), labs (`labbookings`), radiology (`radiologybookings` and the older `radiologycenterbookings`), home care (`homecarebookings`) and pharmacy (`pharmacy_allocations`, the pharmacy's part of an order). The older radiology "center" bookings
+   * Covered: doctors' consultations (`appointments`, and the ones of the doctors who work for a lapsed hospital or clinic), labs (`labbookings`), radiology (`radiologybookings` and the older `radiologycenterbookings`), home care (`homecarebookings`) and pharmacy (`pharmacy_allocations`, the pharmacy's part of an order).
    */
   @Cron('0 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
@@ -318,8 +318,10 @@ export class LegalEnterpriseService {
       profiles++;
       // one provider type can have several kinds of booking (a radiology centre: the ops bookings and the older centre bookings)
       for (const kind of kinds.filter((k) => k.types.includes(p.type))) {
+        const owner = kind.resolve ? await kind.resolve(this.conn as any, p) : kind.owner(p);
+        if (!owner) continue;   // e.g. a hospital with no doctors
         const bookings = this.conn.collection(kind.collection).find(
-          { ...kind.owner(p), ...kind.confirmed, ...(kind.start ? { [kind.start]: { $gt: new Date(now) } } : {}) } as any,
+          { ...owner, ...kind.confirmed, ...(kind.start ? { [kind.start]: { $gt: new Date(now) } } : {}) } as any,
           { projection: { _id: 0, id: 1, patient_id: 1, ...(kind.start ? { [kind.start]: 1 } : {}) }, batchSize: 200, maxTimeMS: 60_000 },
         );
         for await (const b of bookings as any) {

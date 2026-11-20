@@ -19,7 +19,8 @@ import { PatientProfileRepository } from "./repositories/patientprofile.reposito
 import { RedisService } from '../redis/redis.service';
 import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
-import { normalizeDigits } from './checkout-contact.service';
+import { SA_PLUGINS } from '../markets/plugins/registry';
+import { normalizeDigits } from '../markets/plugins/digits';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
 import { Logger } from '@nestjs/common';
@@ -434,14 +435,7 @@ export class AuthService {
    * already uses rather than adding a second digit table.
    */
   static normalizePhone(raw: string): string {
-    const digits = normalizeDigits(raw).replace(/[\s\-().]/g, '');
-    if (/^\+\d{7,15}$/.test(digits)) return digits;
-    const bare = digits.replace(/^\+/, '');
-    if (/^00\d{7,14}$/.test(bare)) return `+${bare.slice(2)}`;
-    if (/^0\d{9}$/.test(bare)) return `+966${bare.slice(1)}`;
-    if (/^966\d{9}$/.test(bare)) return `+${bare}`;
-    if (/^5\d{8}$/.test(bare)) return `+966${bare}`;
-    return raw.trim();
+    return SA_PLUGINS.phone.canonicalise(raw);
   }
 
   private otpKey(identifier: string) {

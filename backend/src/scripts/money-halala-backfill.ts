@@ -3,6 +3,7 @@
  * node dist/scripts/money-halala-backfill.js --apply      writes the shadow fields; needs MONEY_BACKFILL_CONFIRM=<the database name>
  *   --include-ledger   also fills platformledgerentries (append-only by convention; only adds derived fields)
  *   --collection=<name>[,<name>]   only these collections (the runbook backfills ONE collection per run)
+ *   --wallet-owed   read only: counts-only answer to "is any wallet balance money owed to a patient?" (R11 wallet plan, step 3); nothing else runs
  * Every --apply run logs the ids it fills (ids only) under a run id it prints (`RUN_ID ...`); to undo that run before the doubles are dropped:
  *   node dist/scripts/money-halala-backfill.js --rollback=<run id>            dry run: counts what would be unset
  *   MONEY_BACKFILL_CONFIRM=<db> node dist/scripts/money-halala-backfill.js --rollback=<run id> --apply   removes exactly the shadow fields that run wrote (only where the double is still there)
@@ -11,6 +12,7 @@
 import { mongo } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { applyBackfill, planBackfill, rollbackBackfill } from '../modules/finance-integrity/halala-backfill';
+import { walletOwedCounts } from '../modules/finance-integrity/wallet-owed';
 
 (async () => {
   const url = process.env.MONGO_URL; const name = process.env.DB_NAME;
@@ -20,6 +22,7 @@ import { applyBackfill, planBackfill, rollbackBackfill } from '../modules/financ
   const client = await mongo.MongoClient.connect(url);
   try {
     const db = client.db(name);
+    if (process.argv.includes('--wallet-owed')) { console.log('WALLET_OWED', JSON.stringify(await walletOwedCounts(db))); return; }
     const arg = (k: string) => process.argv.find((a) => a.startsWith(`--${k}=`))?.slice(k.length + 3);
     const rollback = arg('rollback');
     if (rollback) {

@@ -24,6 +24,7 @@ esac
 FAKE_SUDO = '#!/bin/bash\n[ "$1" = -n ] && shift\nexec "$@"\n'
 PLAN = ('PLAN [\n {\n  "collection": "transactions",\n  "field": "amount",\n  "to_fill": 12,\n  "unclean": 1,\n  "unclean_sample": [\n   {\n    "id": "SECRET-ID-1",\n    "value": 12.345\n   }\n  ]\n }\n]\n'
         'dry run only: nothing was written')
+OWED = 'WALLET_OWED {"rows":8,"zero_rows":5,"positive_rows":3,"negative_rows":0,"not_a_number_rows":0,"positive_total_sar":152.5,"positive_without_activity_rows":1,"positive_newest_activity_months_max":9,"activity_checked":true}'
 APPLIED = 'RUN_ID 11111111-2222-3333-4444-555555555555\nAPPLIED {"written":12,"skipped_unclean":1}'
 
 
@@ -102,6 +103,51 @@ class HalalaBackfillTask(unittest.TestCase):
         _, log = run(sets={"ROLLBACK_RUN": "abc", "APPLY": "yes", "CONFIRM": "abc"})
         self.assertIn("--rollback=abc", log)
         self.assertIn("--apply", log)
+
+    def test_orders_apply_passes_the_exact_flags_and_never_asks_about_wallets(self):
+        out, log = run(sets={"APPLY": "yes", "COLLECTION": "orders", "CONFIRM": "orders"}, out=APPLIED)
+        self.assertIn("--collection=orders", log)
+        self.assertIn("--apply", log)
+        self.assertIn("MONEY_BACKFILL_CONFIRM=nabd_test", log)
+        self.assertNotIn("--wallet-owed", log)
+        self.assertNotIn("wallet-owed:", out)
+        self.assertIn("RUN_ID 11111111-2222-3333-4444-555555555555", out)
+
+    def test_wallets_dry_run_prints_the_owed_money_counts_only(self):
+        out, log = run(sets={"COLLECTION": "wallets"}, out=OWED + "\n" + PLAN)
+        self.assertIn("--wallet-owed", log)
+        self.assertIn("--collection=wallets", log)
+        self.assertNotIn("--apply", log)
+        for part in ("rows:8", "positive_rows:3", "positive_total_sar:152.5", "positive_newest_activity_months_max:9"):
+            self.assertIn("wallet-owed: ", out)
+            self.assertIn(part, out)
+        self.assertNotIn("SECRET-ID-1", out)
+
+    def test_a_dry_run_with_no_collection_also_prints_the_owed_counts(self):
+        out, log = run(out=OWED + "\n" + PLAN)
+        self.assertIn("wallet-owed: ", out)
+        self.assertIn("positive_rows:3", out)
+        self.assertNotIn("--apply", log)
+
+    def test_wallets_apply_needs_the_owners_owed_money_decision(self):
+        ok = {"APPLY": "yes", "COLLECTION": "wallets", "CONFIRM": "wallets"}
+        out, log = run(sets=ok, out=OWED + "\n" + APPLIED)
+        self.assertIn("money owed to a patient", out)
+        self.assertIn("REFUSE", out)
+        self.assertNotIn("--apply", log)
+        self.assertNotIn("money-halala-backfill.js", log)
+        out, log = run(sets=dict(ok, WALLET_OWED_OK="yes"), out=OWED + "\n" + APPLIED)
+        self.assertNotIn("REFUSE", out)
+        self.assertIn("wallet-owed: ", out)
+        self.assertIn("--collection=wallets", log)
+        self.assertIn("--apply", log)
+        self.assertIn("RUN_ID 11111111-2222-3333-4444-555555555555", out)
+
+    def test_other_collections_do_not_need_the_wallet_decision_and_a_rollback_never_reads_wallets(self):
+        out, _ = run(sets={"APPLY": "yes", "COLLECTION": "transactions", "CONFIRM": "transactions"}, out=APPLIED)
+        self.assertNotIn("money owed", out)
+        out, log = run(sets={"ROLLBACK_RUN": "abc"}, out='ROLLBACK []\ndry run only: nothing was changed')
+        self.assertNotIn("--wallet-owed", log)
 
 
 if __name__ == "__main__":

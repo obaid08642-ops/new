@@ -7,7 +7,7 @@ describe('halala backfill (expand phase)', () => {
   let mongod: MongoMemoryServer; let conn: Connection; let db: any;
   beforeAll(async () => { mongod = await MongoMemoryServer.create(); conn = await mongoose.createConnection(mongod.getUri()).asPromise(); db = conn.getClient().db(conn.name); });
   afterAll(async () => { await conn.close(); await mongod.stop(); });
-  beforeEach(async () => { for (const c of [RUN_LOG_COLLECTION, 'transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests', 'wallets', 'wallet_transactions']) await db.collection(c).deleteMany({}); });
+  beforeEach(async () => { for (const c of [RUN_LOG_COLLECTION, 'transactions', 'moyasar_payments', 'platformledgerentries', 'einvoices', 'refundrequests', 'wallets', 'wallet_transactions', 'orders']) await db.collection(c).deleteMany({}); });
 
   const seed = async () => {
     await db.collection('transactions').insertMany([
@@ -117,5 +117,31 @@ describe('halala backfill (expand phase)', () => {
       await seed();
       expect(await rollbackBackfill(db, 'nope', { apply: true })).toEqual([]);
     });
+  });
+  it('orders (R11 P3, one collection per run): every money field of the order gets its shadow, unclean values are listed and never written, and the run can be undone exactly', async () => {
+    await db.collection('orders').insertMany([
+      { id: 'o1', subtotal: 100, delivery_fee: 15, total: 115, wallet_applied: 0, coupon_discount: 5.5, insurance_copay: 20, status: 'delivered' },
+      { id: 'o2', subtotal: 0.1 + 0.2, total: 10 },                                   // float drift in subtotal: must not be written; total is clean
+      { id: 'o3', total: 40, total_halalas: 4000 },                                   // already filled
+    ]);
+    await db.collection('transactions').insertOne({ id: 't1', amount: 9 });         // another collection: untouched by an `only: ['orders']` run
+    const plan = (await planBackfill(db)).filter((p) => p.collection === 'orders');
+    expect(plan.find((p) => p.field === 'subtotal')).toMatchObject({ to_fill: 1, unclean: 1 });
+    expect(plan.find((p) => p.field === 'total')).toMatchObject({ to_fill: 2, unclean: 0 });
+    expect(plan.find((p) => p.field === 'coupon_discount')).toMatchObject({ to_fill: 1, unclean: 0 });
+    const res = await applyBackfill(db, { only: ['orders'], runId: 'run-orders' });
+    expect(res).toMatchObject({ skipped_unclean: 1 });
+    expect(await db.collection('orders').findOne({ id: 'o1' })).toMatchObject({ subtotal_halalas: 10000, delivery_fee_halalas: 1500, total_halalas: 11500, wallet_applied_halalas: 0, coupon_discount_halalas: 550, insurance_copay_halalas: 2000, subtotal: 100, total: 115 });
+    const o2 = await db.collection('orders').findOne({ id: 'o2' });
+    expect(o2.subtotal_halalas).toBeUndefined();     // the unclean double is not rounded silently
+    expect(o2.total_halalas).toBe(1000);
+    expect((await db.collection('orders').findOne({ id: 'o3' })).total_halalas).toBe(4000);
+    expect((await db.collection('transactions').findOne({ id: 't1' })).amount_halalas).toBeUndefined();
+    expect((await applyBackfill(db, { only: ['orders'] })).written).toBe(0);     // a re-run changes nothing
+    const rolled = await rollbackBackfill(db, 'run-orders', { apply: true });
+    expect(rolled.reduce((n, r) => n + r.logged, 0)).toBeGreaterThan(0);
+    expect((await db.collection('orders').findOne({ id: 'o1' })).total_halalas).toBeUndefined();
+    expect((await db.collection('orders').findOne({ id: 'o1' })).total).toBe(115);                     // the double is never touched
+    expect((await db.collection('orders').findOne({ id: 'o3' })).total_halalas).toBe(4000);            // a shadow this run did not write stays
   });
 });

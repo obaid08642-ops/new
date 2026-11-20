@@ -24,6 +24,8 @@ export interface PhoneConfig {
   national_number_pattern: string;
   /** Domestic trunk prefix people type before the number, '' if none. */
   trunk_prefix: string;
+  /** Digits of a national number without the trunk prefix (SA 9). */
+  national_length: number;
 }
 
 export interface BrandingConfig {

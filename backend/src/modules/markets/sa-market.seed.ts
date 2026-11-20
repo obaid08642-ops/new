@@ -16,7 +16,7 @@ export const SA_CONFIG_V1: MarketConfig = {
   timezone: 'Asia/Riyadh',
   calendar: { weekend: ['friday', 'saturday'] },
   locales: { default: 'ar', enabled: ['ar', 'en', 'ur', 'hi', 'bn', 'fil'] },
-  phone: { default_dial: '+966', national_number_pattern: '^5\\d{8}$', trunk_prefix: '0' },
+  phone: { default_dial: '+966', national_number_pattern: '^5\\d{8}$', trunk_prefix: '0', national_length: 9 },
   emergency_numbers: { ambulance: '997' },
   branding: { operated_by: null },
 };

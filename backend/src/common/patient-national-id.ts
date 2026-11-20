@@ -6,34 +6,19 @@
 import { BadRequestException } from '@nestjs/common';
 import type { Connection } from 'mongoose';
 import { fieldCrypto } from './pdpl-compliance.module';
+import { SA_PLUGINS } from '../modules/markets/plugins/registry';
 
 const IDENTITY = 'patient_identity';
 
-/** Arabic-Indic and Persian digits become ASCII; spaces and dashes go. */
-function asciiDigits(raw: string): string {
-  return raw
-    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
-    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
-    .replace(/[\s-]/g, '');
-}
-
-/** Saudi national ID (starts 1) or iqama (starts 2): 10 digits and the Luhn-style check digit. Throws `national_id_invalid`. */
+/** The launch market's national ID / iqama rule (`markets/plugins/identity.plugin.ts`). Throws `national_id_invalid`. */
 export function normaliseNationalId(raw: unknown): string {
-  const v = typeof raw === 'string' ? asciiDigits(raw.trim()) : '';
-  if (!/^[12]\d{9}$/.test(v)) throw new BadRequestException('national_id_invalid');
-  let sum = 0;
-  for (let i = 0; i < 10; i++) {
-    const d = Number(v[i]);
-    if (i % 2 === 0) { const t = d * 2; sum += t > 9 ? t - 9 : t; } else sum += d;
-  }
-  if (sum % 10 !== 0) throw new BadRequestException('national_id_invalid');
+  const v = SA_PLUGINS.identity.normalise(raw);
+  if (v === null) throw new BadRequestException('national_id_invalid');
   return v;
 }
 
 export function maskId(id: string | null | undefined): string | null {
-  const s = typeof id === 'string' ? id.trim() : '';
-  if (!s) return null;
-  return s.length <= 3 ? '*'.repeat(s.length) : '*'.repeat(s.length - 3) + s.slice(-3);
+  return SA_PLUGINS.identity.mask(id);
 }
 
 /** The number in clear text, or null when the patient never gave one. */
