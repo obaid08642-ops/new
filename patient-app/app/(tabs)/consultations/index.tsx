@@ -22,6 +22,8 @@ import { sortFromParam } from '../../../src/utils/doctorSearch';
 import { SpecialtyRow } from '../../../src/components/consult/SpecialtyTiles';
 import { specialtyNameKey, specialtyTileModels } from '../../../src/utils/consultSpecialties';
 import { GuaranteeLine, useLateGuarantee } from '../../../src/components/consult/Differentiators';
+import { Notice } from '../../../src/components/pharmacy/OfferKit';
+import { setBookingFor, useBookingFor } from '../../../src/utils/bookingFor';
 
 /**
  * Consultations hub — board Consult (canvas/Consult.dc.html): the header with the appointments button, the search with
@@ -127,6 +129,8 @@ const priceOf = (d: Doc): number => d.consultation_fee || Number(String(d.p ?? '
 
 export default function Consultations() {
   const { theme, t, c, flow, dir, lang, k, num, money } = useScreenUi();
+  // issue 684: a booking started from a family member's page says whom it is for here too (not only at the confirm step); "for me" drops it
+  const bookingFor = useBookingFor();
   const newOutcomes = useNewOutcomesCount();
   const barHeight = useTabBarHeight();
   const [activePay, setActivePay] = useState<PayF>('all');
@@ -427,6 +431,7 @@ export default function Consultations() {
   return (
     <Screen theme={theme} direction={dir} header={header} scroll edges={['start', 'end']} testID="consultations-hub">
       <View style={{ ...COLUMN, paddingHorizontal: 16, paddingTop: 8, paddingBottom: barHeight + 40, gap: 16 }}>
+        {bookingFor ? <Notice tone="info" text={k('consult.confirm.bookingFor', { name: bookingFor.name })} actionLabel={k('consult.confirm.bookingForMe')} onAction={() => setBookingFor(null)} /> : null}
         <View accessibilityRole="radiogroup" accessibilityLabel={k('consult.hub.visitType')} style={{ flexDirection: 'row', gap: 8 }}>
           {VISIT_CARDS.map(({ mode, tone, sub }) => {
             const on = activeVt === mode;
