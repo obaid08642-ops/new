@@ -20,8 +20,11 @@ import { ScfhsLicenseModule, ScfhsLicenseService } from '../provider/services/sc
 import * as bcrypt from '../../common/password-hash';
 import { v4 as uuidv4 } from 'uuid';
 import { escapeRegex } from '../../common/slug.util';
-import { StartDto, SubmitDto } from './provider-onboarding.dto';
+import { StartDto, SubmitDto, FieldSetQueryDto } from './provider-onboarding.dto';
 import { PROVIDER_PUBLIC_PROJECTION } from './provider-private-fields';
+import { currentMarketContext } from '../markets/market-context';
+import { onboardingFieldSet } from '../markets/licences/onboarding-field-sets';
+import { licenceTypesFor } from '../markets/licences/licence-types';
 
 import { Permission, RequirePermissions } from '../../common/permissions';
 import { enforcePasswordPolicy } from '../../common/password-security.service';
@@ -609,6 +612,16 @@ export class ProviderOnboardingController {
 
   @Public() @Post('start')
   start(@Body() b: StartDto) { return this.svc.start(b); }
+
+  /** The registration form for this market and provider type, as data (the market comes from the server-resolved MarketContext; SA when none). */
+  @Public() @Get('field-set')
+  fieldSet(@Query() q: FieldSetQueryDto) {
+    const ctx = currentMarketContext();
+    const market = ctx?.market_id ?? 'SA';
+    const set = onboardingFieldSet(market, q.type);
+    if (!set) throw new NotFoundException('onboarding_field_set_not_found');
+    return { market_id: market, provider_type: q.type, fields: set.fields, licence_types: licenceTypesFor(market, q.type) };
+  }
 
   @UseGuards(JwtAuthGuard) @Get('my-profile')
   myProfile(@CurrentUser() u: any) { return this.svc.getMyProfile(u); }
