@@ -56,10 +56,10 @@ describe('licence lapse sweep (D2)', () => {
     }
   });
 
-  it('only the provider types with a booking kind are selected (hospital and clinic are not covered)', async () => {
+  it('only the provider types with a booking kind are selected', async () => {
     const { queries } = await run([], []);
     const [, pq] = queries.find(([n]) => n === 'provider_profiles');
-    expect(pq.type.$in.sort()).toEqual(['doctor', 'home_care', 'lab', 'nurse', 'nursing', 'pharmacy', 'radiology']);
+    expect(pq.type.$in.sort()).toEqual(['clinic', 'doctor', 'home_care', 'hospital', 'lab', 'nurse', 'nursing', 'pharmacy', 'radiology']);
   });
   it('home care (D2 part 3): nurse / nursing / home_care providers; the booking\'s provider_id is the ACCOUNT id; CONFIRMED or PROVIDER_ASSIGNED and in the future; same 24 h rule', async () => {
     for (const type of ['home_care', 'nursing', 'nurse']) {

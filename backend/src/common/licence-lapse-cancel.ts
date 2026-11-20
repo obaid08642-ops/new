@@ -39,10 +39,12 @@ export function shouldCancelForLapse(startMs: number, nowMs: number, lapseMs: nu
 export interface LapseKind {
   kind: LicenceLapseCancelEvent['kind']; types: string[]; collection: string; start: string | null;
   owner: (p: { id?: string; account_id?: string; user_id?: string }) => Record<string, unknown>;
+  /** When the owner filter needs a lookup (a hospital's bookings are its doctors'): resolves it, or null when there is nothing to look for. Replaces `owner`. */
+  resolve?: (conn: { collection: (n: string) => any }, p: { id?: string; account_id?: string; user_id?: string }) => Promise<Record<string, unknown> | null>;
   confirmed: Record<string, unknown>;
 }
 const accountIds = (p: { account_id?: string; user_id?: string }) => [p.account_id, p.user_id].filter((v): v is string => typeof v === 'string' && !!v);
-export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology' | 'radiology_center' | 'home_care' | 'pharmacy_allocation', LapseKind> = {
+export const LAPSE_KINDS: Record<'appointment' | 'facility_appointment' | 'lab' | 'radiology' | 'radiology_center' | 'home_care' | 'pharmacy_allocation', LapseKind> = {
   appointment: { kind: 'appointment', types: ['doctor'], collection: 'appointments', start: 'slot_start', owner: (p) => ({ doctor_id: p.id }), confirmed: { status: 'CONFIRMED' } },
   lab: { kind: 'lab', types: ['lab'], collection: 'labbookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
   radiology: { kind: 'radiology', types: ['radiology'], collection: 'radiologybookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
@@ -52,6 +54,21 @@ export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology' | 'radiolog
   // starting NOW: kept for the first 24 h after the lapse (the same grace as a visit inside the next 24 h), cancelled after that. The unit is the pharmacy's ALLOCATION of the order (`booking_id` is the
   // allocation id); the allocation's own cancel cancels the order when it was the only live one.
   pharmacy_allocation: { kind: 'pharmacy_allocation', types: ['pharmacy'], collection: 'pharmacy_allocations', start: null, owner: (p) => ({ pharmacy_account_id: { $in: accountIds(p) } }), confirmed: { status: { $in: ['pending_review', 'partially_confirmed', 'confirmed'] } } },
+  // Hospitals and clinics: the consultations booked with the DOCTORS who work for the facility (their provider account has `facility_id` = the facility's account id). The appointment carries the doctor's PROFILE
+  // id in `doctor_id` (the indexed field), so the facility's doctors are resolved first: account -> doctor profile ids. The event kind is `appointment`: AppointmentsService cancels any confirmed consultation.
+  facility_appointment: {
+    kind: 'appointment', types: ['hospital', 'clinic'], collection: 'appointments', start: 'slot_start', owner: () => ({}), confirmed: { status: 'CONFIRMED' },
+    resolve: async (conn, p) => {
+      const facilityIds = accountIds(p);
+      if (!facilityIds.length) return null;
+      const staff: any[] = await conn.collection('provider_accounts').find({ facility_id: { $in: facilityIds } }, { projection: { id: 1, user_id: 1 }, limit: 500, maxTimeMS: 30_000 }).toArray();
+      const staffIds = staff.flatMap((r) => [r.id, r.user_id]).filter((v): v is string => typeof v === 'string' && !!v);
+      if (!staffIds.length) return null;
+      const doctors: any[] = await conn.collection('provider_profiles').find({ type: 'doctor', $or: [{ account_id: { $in: staffIds } }, { user_id: { $in: staffIds } }] }, { projection: { id: 1 }, limit: 500, maxTimeMS: 30_000 }).toArray();
+      const doctorIds = doctors.map((d) => d.id).filter((v): v is string => typeof v === 'string' && !!v);
+      return doctorIds.length ? { doctor_id: { $in: doctorIds } } : null;
+    },
+  },
   // Radiology CENTRE bookings (the older system, `radiologycenterbookings`): no scheduled time (so, as for a pharmacy allocation, what the centre has not started counts as starting now: kept for the first 24 h
   // after the lapse, cancelled after), the centre is an ObjectId in `radiology_center_id` (the provider's user/account id), accepted bookings are ACCEPTED (or CONFIRMED in the ops vocabulary the schema also allows).
   radiology_center: { kind: 'radiology_center', types: ['radiology'], collection: 'radiologycenterbookings', start: null, owner: (p) => ({ radiology_center_id: { $in: accountIds(p).filter((v) => Types.ObjectId.isValid(v) && String(new Types.ObjectId(v)) === v).map((v) => new Types.ObjectId(v)) } }), confirmed: { status: { $in: ['ACCEPTED', 'CONFIRMED'] } } },
