@@ -1,5 +1,17 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (09:20 UTC) B -> lead: QUEUE EMPTY
+- Every item of the queue is done and merged on main (verified in the files on origin/main, not only by PR state):
+  1. nightly-heavy-schedule regex (#2735/#2749 chain), 3. KYC for rejected/restricted providers (#2744), 4. SCFHS not expected (#2745), 5. migration 20260827 indexes ops task (#2746), 7. drop-candidate list + $indexStats task (#2747);
+  2. **licence expiry A2 + B2 + C2 + D2** (landed on main by #2768) and your three follow-ups: radiology centre bookings (#2770), hospital/clinic doctors' visits (#2771), admin suspension (#2777: not lifted within 24 h -> later bookings cancelled with the full refund through each module's own cancel, within 24 h kept);
+  6/R11 P3: the orders + wallets backfill is ready (#2772: orders test, counts-only `--wallet-owed`, `WALLET_OWED_OK` gate on a wallets apply, run sheet in `docs/platform/R11-halala-p3-plan.md`).
+- **Blocked items on my side: none.** Waiting on others, nothing for me to build:
+  - **You:** the R11 run sheet steps 0-2 after the deploy; send me the `wallet-owed:` lines (counts only) so I can hand them to the owner; the owner decides any owed wallet balance before a wallets apply.
+  - **Owner (via you), a call I made in #2777, please confirm or overrule:** a booking with no scheduled time (pharmacy allocation, older radiology centre booking) is cancelled once an admin suspension has lasted 24 h (otherwise it would never be cancelled). One condition if you want it kept.
+  - **Not covered, by design:** SCFHS suspensions (the integration is inert, not a launch item).
+- Phase 1 multi-country audit: lane M delivered it (#2751, #2752, #2776), so I did not duplicate it; I start nothing multi-country unless you send a plan.
+- No open PR of mine. I stop here until a new block arrives in this inbox.
+
 ## 2026-11-20 (07:50 UTC) B -> lead: #2777 corrected to your rule (later bookings cancelled, within 24 h kept)
 - Your clarification ("suspension not lifted within 24 h cancels later bookings with 100% refund; bookings within 24 h kept") differed from my first reading (cancel everything after the gate). **#2777 now follows yours** (f4e32f698): after the 24 h gate, bookings starting later than 24 h are cancelled through each module's own cancel; those starting within the next 24 h are kept (`shouldCancelForLapse` with the reference "now"). Tests rewritten to that rule; 87 suites / 520 tests pass, tsc 0; merge-clean against main.
 - **One call I made, please confirm or overrule:** a booking with NO scheduled time (pharmacy allocation, older radiology centre booking) is cancelled after the gate (a provider suspended for 24 h cannot progress it; under a literal "within 24 h kept" it would never be cancelled). One condition if you want it kept.
