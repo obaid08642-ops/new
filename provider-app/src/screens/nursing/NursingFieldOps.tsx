@@ -9,6 +9,8 @@ import { FS, FW, SP } from '../../constants';
 import { MAX_VISIT_FILES, PickedVisitFile, buildVisitReportBody, pickVisitFile, uploadVisitFiles } from './visitFiles';
 import { useUploadsEnabled } from '../../hooks/useUploadsEnabled';
 import { UploadsUnavailable } from '../../components/UploadsUnavailable';
+import { announceScan } from '../../components/ScanStatusBadge';
+import { scanOfStored, scanStateOfRequestError } from '../../utils/scanRegistry';
 
 /**
  * THE single home-visit flow of the nursing app. Every entry point (home cards, quick actions, orders tab, checklist)
@@ -130,13 +132,16 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
       setBusy(true);
       try {
         const attachments = await uploadVisitFiles(files);
+        // a file the scan has not passed yet is told to the provider (the visit report still goes through; the patient sees it once it passes)
+        for (const att of attachments) announceScan(show, lang, scanOfStored(att.storage_id));
         await client.post(`/home-care/bookings/${visitId}/visit-report`,
           buildVisitReportBody({ attachments, vitals, notes, followUp, signature }));
         show(tt('nfo.cffe9758'), 'success');
         setSignature(null); setNotes(''); setBp(''); setGlucose(''); setPulse(''); setTemp(''); setFollowUp(''); setFiles([]);
         onRefresh(); void load();
       } catch (error) {
-        show(errMsg(error, tt('nfo.b560e711')), 'error');
+        if (scanStateOfRequestError(error) === 'rejected') announceScan(show, lang, 'rejected');
+        else show(errMsg(error, tt('nfo.b560e711')), 'error');
       } finally {
         setBusy(false);
       }

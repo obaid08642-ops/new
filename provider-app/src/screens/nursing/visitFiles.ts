@@ -1,3 +1,4 @@
+import { noteUploadScan } from '../../utils/scanRegistry';
 import client from '../../api/client';
 
 /** N1: result files a nurse attaches at the end of a home visit (max 10, the server limit of VisitReportDto). */
@@ -30,6 +31,7 @@ export async function uploadVisitFiles(files: PickedVisitFile[], read: (uri: str
     const res = await client.post('/storage/upload', { data_base64: base64, mime: f.mime, original_name: f.name });
     const id = res?.data?.id;
     if (!id) throw new Error('upload_failed');
+    noteUploadScan(id, res?.data); // UPLOAD_SCAN=defer: a file still being scanned is remembered as such
     out.push({ storage_id: String(id), name: f.name });
   }
   return out;
