@@ -72,3 +72,25 @@ Any `shadow_disagree>0`, `unclean>0`, a reconciliation difference, or a failed n
 1. Approve this plan (A-E), or change it.
 2. Say whether the ledger (`--include-ledger`) may be backfilled.
 3. Name the person who decides the `unclean` rows if any appear (finance/accountant).
+
+---
+## Run sheet 2026-11-20 (lane B): `orders` and `wallets`, ready for the ops runs
+The lead asked for the `orders.*` and `wallets.balance` shadows. The writer is `tools/ops/tasks/98s-halala-backfill.sh`; both collections are in its target list (`orders` = the ten `ORDER_HALALA_FIELDS`, `wallets` = `balance`). What this change adds: a test of the orders backfill (every field, unclean left alone, re-run changes nothing, exact rollback), and for wallets a counts-only **owed-money check** plus a gate, because a wallet balance above zero is money owed to a patient (owner decision 2026-11-09: no wallet), so it is the owner's decision, not just a halala fill (`R11-wallet-balances-plan.md`).
+
+Every step below is one ops run; every write variable is set in the task file for that run only (the repo copy keeps them empty). Always dry run first.
+
+| Run | Variables in `98s-halala-backfill.sh` | What it prints / does |
+|---|---|---|
+| 0 | `96i-halala-counts.sh` (read only) | the `halala-counts:` lines; gates `unclean=0`, `shadow_disagree=0` for `orders.*` and `wallets.balance`; paste the lines to the lead |
+| 1 | everything empty | DRY RUN: gates and the PLAN as counts for every collection, plus `wallet-owed:` counts. `to_fill` of each `orders.*` field and of `wallets.balance` must equal that field's `missing_shadow` in 96i, else stop |
+| 2 | `COLLECTION=orders` | DRY RUN of the orders only (no wallet lookup) |
+| 3 | `APPLY=yes COLLECTION=orders CONFIRM=orders` | writes the missing `orders.*_halalas` (the doubles are never touched); prints `RUN_ID <uuid>`: keep it |
+| 4 | `96i-halala-counts.sh` | `orders.*`: `missing_shadow=0`, `shadow_disagree=0` |
+| 5 | `COLLECTION=wallets` | DRY RUN of the wallets: PLAN for `wallets.balance` (expect `to_fill` = 8 clean) and `wallet-owed:` COUNTS: `rows`, `zero_rows`, `positive_rows`, `negative_rows`, `positive_total_sar` (one number), `positive_without_activity_rows`, `positive_newest_activity_months_max`. No id, no owner, no row value |
+| 6 | the owner reads run 5 | `positive_rows=0`: nothing owed. `positive_rows>0`: the owner decides per `R11-wallet-balances-plan.md` step 4 (refund through `RefundExecutor` and zero through the ledger, or keep until claimed) BEFORE run 7 |
+| 7 | `APPLY=yes COLLECTION=wallets CONFIRM=wallets WALLET_OWED_OK=yes` | the gate refuses without `WALLET_OWED_OK=yes`; with it, writes the missing `wallets.balance_halalas`; prints `RUN_ID` |
+| 8 | `96i-halala-counts.sh` | `wallets.balance`: `missing_shadow=0`, `shadow_disagree=0` |
+| undo | `ROLLBACK_RUN=<run id>` (dry), then `ROLLBACK_RUN=<id> APPLY=yes CONFIRM=<id>` | removes exactly the shadows that run wrote, only where the double is still there |
+
+Gates the apply runs refuse on (unchanged): backend container running and under 80 % memory, today's nightly dump present and at least 50 MB, not 03:00 to 05:00 UTC. One collection per run, the node process is capped at 160 MB and 20 minutes.
+Stopping rules (unchanged, section 4): any `unclean>0` or `shadow_disagree>0` stops the run; report the collection.field and the count, never a value.
