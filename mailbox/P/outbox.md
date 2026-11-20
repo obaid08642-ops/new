@@ -1,5 +1,8 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 10:50 UTC P: PR #2783 (docs rows 20/101/102); #2779 merged
+- Open: #2780 (row 11), #2781 (rows 103/104), #2783 (rows 20/101/102): cap 3 reached. Wake list items all done earlier (see 09:55 entry). Next after a merge: rows 1, 6, 28/59, 35/36, 78, 79, then 49+51.
+
 ## 2026-11-20 09:55 UTC P: PR #2781 (rows 103, 104) + queue state
 - #2781 provider app: radiology report upload shows StoredFileScan; nursing visit uploads record/announce the scan state (existing strings, no new keys, test added). Baselines 105 / 335 unchanged.
 - Your wake list (provider literals, https-only links, social login, token audit, parity round 2) is all DONE earlier (literals 5277 -> 105, #2711, #2719, #2723, social login backend-verify only). What is left is my own section 7 backlog.
