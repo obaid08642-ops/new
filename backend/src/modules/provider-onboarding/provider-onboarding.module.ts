@@ -34,6 +34,10 @@ import { enforcePasswordPolicy } from '../../common/password-security.service';
  *
  * Then admin review queue (existing /providers admin endpoints) approves.
  */
+/** Live = approved and working (active) or hidden by a lapse/suspension: not a wizard in progress (pending) and not a rejected one that is being corrected. */
+const isLiveProfile = (status: unknown): boolean => status === ProviderStatus.ACTIVE || status === ProviderStatus.SUSPENDED;
+const sameLicenceDay = (a: unknown, b: Date): boolean => !!a && new Date(a as any).toISOString().slice(0, 10) === b.toISOString().slice(0, 10);
+
 @Injectable()
 export class ProviderOnboardingService {
   constructor(
@@ -159,6 +163,9 @@ export class ProviderOnboardingService {
     if (body.license_expiry_date !== undefined) {
       const d = new Date(body.license_expiry_date);
       if (Number.isNaN(d.getTime())) throw new BadRequestException('invalid_license_expiry_date');
+      // C2 (owner 2026-11-17): the licence date of a provider who is already live (approved, restricted or suspended) moves only after an admin approved the renewed document: through PATCH /provider/profile (a
+      // reviewed credential change with its proof), never by this wizard step. The same date again is accepted (an app that re-sends the whole step).
+      if (isLiveProfile(profile.status) && !sameLicenceDay((profile as any).license_expiry_date, d)) throw new ConflictException('license_expiry_change_requires_review');
       (profile as any).license_expiry_date = d;
     }
     const lat = Number(body?.location?.lat), lng = Number(body?.location?.lng);

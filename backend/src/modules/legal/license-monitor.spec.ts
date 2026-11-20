@@ -43,20 +43,21 @@ describe('licence monitor', () => {
     expect(gone.notes).toHaveLength(1);
   });
 
-  it('expired: the provider ACCOUNT is suspended too (login refused, open session ended), for any provider type', async () => {
+  it('expired (B2): the provider ACCOUNT is restricted (login keeps working, session not ended), for any provider type', async () => {
     for (const type of ['pharmacy', 'lab', 'radiology', 'nursing', 'hospital']) {
       const gone = await run({ _id: 1, id: 'p1', type, account_id: 'acc-1', user_id: 'u1', license_expiry_date: new Date(Date.now() - DAY) });
       expect(gone.accountUpdates).toHaveLength(1);
-      expect(gone.accountUpdates[0].u.$set.status).toBe('suspended');
-      expect(gone.accountUpdates[0].u.$inc).toEqual({ token_version: 1 });
+      expect(gone.accountUpdates[0].u.$set.status).toBe('restricted');
+      expect(gone.accountUpdates[0].u.$inc).toBeUndefined();
     }
-    const already = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: new Date(Date.now() - DAY) }, { id: 'acc-1', status: 'suspended' });
+    const already = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: new Date(Date.now() - DAY) }, { id: 'acc-1', status: 'restricted' });
     expect(already.accountUpdates).toEqual([]);
   });
 
   it('PV-08/09: the provider is also told in the app (bell and push) when the warning goes out and when the account is suspended', async () => {
     const warn = await run({ _id: 1, id: 'p1', account_id: 'acc-1', user_id: 'u1', license_expiry_date: inDays(6) });
-    expect(warn.emitted).toEqual([['provider.license_expiring', expect.objectContaining({ account_id: 'acc-1', profile_id: 'p1', days_left: 6, bucket: 7 })]]);
+    // A2 (2026-11-17): a licence is valid through the end of its expiry day (Riyadh), so a date ~6 days ahead has up to 7 days left, counting the expiry day itself
+    expect(warn.emitted).toEqual([['provider.license_expiring', expect.objectContaining({ account_id: 'acc-1', profile_id: 'p1', days_left: 7, bucket: 7 })]]);
     const exp6 = inDays(6);
     const again = await run({ _id: 1, id: 'p1', account_id: 'acc-1', license_expiry_date: exp6, license_warn_7d: true, license_warn_expiry: exp6.toISOString() });
     expect(again.emitted).toEqual([]);

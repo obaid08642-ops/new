@@ -187,10 +187,10 @@ def staff_invite(doctor):
     step('a revoked member is no longer active', row.get('status') != 'active', row)
 
 
-def licence_expiry(admin, doctor):
-    """PV-08 / PV-09: a licence close to its end warns the provider; an expired one suspends the account and its login."""
+def licence_expiry(admin, doctor, pat):
+    """PV-08 / PV-09: a licence close to its end warns the provider; an expired one (rule A2, B2): new bookings are refused at once, then the profile is hidden and the account RESTRICTED, and the login keeps working."""
     import datetime, db_raw
-    journey('PV-08/PV-09: licence expiry warning, then suspension')
+    journey('PV-08/PV-09: licence expiry warning, then restriction (A2 + B2)')
     me = doctor.get('/auth/me')
     uid = me.get('id') or me.get('user', 'id')
     step('the provider account is known', me.ok and uid, me)
@@ -208,12 +208,29 @@ def licence_expiry(admin, doctor):
     step('PV-08: the account is still active after the warning', r.ok, r)
     past = (datetime.datetime.utcnow() - datetime.timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
     step('test setup: licence ended yesterday', db_raw.set_raw('provider_profiles', flt, {'license_expiry_date': {'$date': past}}) == 1)
+    # A2: valid through the end of the expiry day (Riyadh); from the next instant NEW business is refused, before the monitor has run at all.
+    profile_id = doctor.get('/provider-onboarding/my-profile').get('id')
+    spec = doctor.get('/provider/profile').get('specialty') or 'cardiology'
+    slot = (datetime.datetime.utcnow() + datetime.timedelta(days=2)).strftime('%Y-%m-%dT09:00:00.000Z')
+    book = {'doctor_id': profile_id, 'service_type': 'clinic', 'slot_start': slot, 'payment_method': 'cash'}
+    r = pat.post('/care/appointments', book, headers={'Idempotency-Key': f'licence-expiry-{profile_id}-before-monitor'})
+    step('PV-09 (A2): a new booking is refused the moment the licence has lapsed (before the monitor runs)', r.status == 400 and 'license_expired' in str(r.body), r)
     r = admin.post('/admin/admin/providers/license-monitor/run', {})
     step('admin runs the licence monitor again', r.ok, r)
-    r = doctor.get('/provider/profile')
-    step('PV-09: the provider profile is suspended', (not r.ok) or r.get('status') == 'suspended', r)
+    # B2: the account is RESTRICTED, not suspended: hidden and not bookable, but the login keeps working to finish existing work and upload the renewed licence.
+    prof = (db_raw.find_raw('provider_profiles', flt, 1) or [{}])[0]
+    step('PV-09 (B2): the provider profile is suspended and hidden from search', prof.get('status') == 'suspended' and prof.get('suspended_reason') == 'license_expired' and prof.get('public_eligibility') is False, prof)
+    acc = (db_raw.find_raw('provider_accounts', {'$or': [{'id': uid}, {'user_id': uid}]}, 1) or [{}])[0]
+    step('PV-09 (B2): the provider ACCOUNT is restricted (not suspended)', acc.get('status') == 'restricted', acc.get('status'))
     r = doctor.get('/auth/me')
-    step('PV-09: the login no longer works', not r.ok, r)
+    step('PV-09 (B2): the login still works (200)', r.ok, r)
+    r = doctor.get('/provider/profile')
+    step('PV-09 (B2): the provider can still open their own profile to renew the licence', r.ok, r)
+    r = pat.get(f'/care/doctors?specialty={spec}&limit=50')
+    listed = [x for x in (r.body if isinstance(r.body, list) else r.items()) if x.get('id') in (profile_id, uid)]
+    step('PV-09 (B2): the doctor is no longer listed in the patient search', r.ok and not listed, r)
+    r = pat.post('/care/appointments', book, headers={'Idempotency-Key': f'licence-expiry-{profile_id}-after-monitor'})
+    step('PV-09 (B2): a new booking is still refused after the restriction', not r.ok, r)
 
 
 if __name__ == '__main__':
@@ -240,5 +257,5 @@ if __name__ == '__main__':
     review_reply(pat, doc, doctor_account())
     low_star_moderation(pat, doc, admin)
     staff_invite(doc)
-    licence_expiry(admin, doctor_account())
+    licence_expiry(admin, doctor_account(), pat)
     summary()
