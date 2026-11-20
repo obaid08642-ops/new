@@ -1,4 +1,5 @@
 import React from 'react';
+import { Share } from 'react-native';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -22,6 +23,8 @@ jest.mock('react-native-view-shot', () => ({ captureRef: (...a: unknown[]) => mo
 const mockSave = jest.fn(async () => undefined);
 const mockAllow = jest.fn(async () => ({ granted: true }));
 jest.mock('expo-media-library', () => ({ requestPermissionsAsync: (...a: unknown[]) => mockAllow(...(a as [])), saveToLibraryAsync: (...a: unknown[]) => mockSave(...(a as [])) }));
+const mockShareFile = jest.fn(async () => undefined);
+jest.mock('../../utils/shareFile', () => ({ shareFile: (...a: unknown[]) => mockShareFile(...(a as [])) }));
 const mockCopy = jest.fn(async () => true);
 jest.mock('expo-clipboard', () => ({ setStringAsync: (...a: unknown[]) => mockCopy(...(a as [])) }));
 
@@ -77,6 +80,24 @@ describe('the receipt screen', () => {
     expect(mockAllow).toHaveBeenCalledWith(true);
     expect(mockCapture).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ format: 'png' }));
     expect(showLocalizedAlert).toHaveBeenCalledWith(k('receipt.saveImage'), k('receipt.imageSaved'));
+  });
+
+  it('Share sends the receipt as an image (the card captured), not text (row 14)', async () => {
+    const text = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' } as never);
+    await render(wrap(<ReceiptScreen />));
+    await act(async () => { fireEvent.press(await screen.findByText(k('receipt.share'))); });
+    await waitFor(() => expect(mockShareFile).toHaveBeenCalledWith('file:///tmp/receipt.png', 'image/png', expect.any(String)));
+    expect(mockCapture).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ format: 'png' }));
+    expect(text).not.toHaveBeenCalled();
+  });
+
+  it('Share falls back to the text lines when the card cannot be captured', async () => {
+    mockCapture.mockRejectedValueOnce(new Error('capture_failed'));
+    const text = jest.spyOn(Share, 'share').mockResolvedValue({ action: 'sharedAction' } as never);
+    await render(wrap(<ReceiptScreen />));
+    await act(async () => { fireEvent.press(await screen.findByText(k('receipt.share'))); });
+    await waitFor(() => expect(text).toHaveBeenCalledTimes(1));
+    expect(mockShareFile).not.toHaveBeenCalled();
   });
 
   it('does not capture when the photos permission is refused', async () => {
