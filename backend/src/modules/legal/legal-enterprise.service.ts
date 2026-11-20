@@ -19,7 +19,7 @@ import { ScheduledOnce } from '../../common/scheduled-once';
 import { roundSar } from '../../common/money';
 import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 import { licenceDaysLeft, licenceLapseInstant, isLicenceLapsed } from '../../common/provider-licence';
-import { LICENCE_LAPSE_CANCEL_EVENT, LAPSE_KINDS, shouldCancelForLapse, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
+import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_KEEP_MS, LAPSE_KINDS, shouldCancelForLapse, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 
 @Injectable()
 export class LegalEnterpriseService {
@@ -286,22 +286,35 @@ export class LegalEnterpriseService {
    * are cancelled, except what starts inside the next 24 h while the lapse is under 24 h old (common/licence-lapse-cancel.ts). This only FINDS the bookings and emits one event per booking; the
    * module that owns the booking cancels it with its own provider-cancel path, which is also what refunds 100% (no money logic here). Idempotent: a cancelled booking is not found again.
    * Covered: doctors' consultations (`appointments`), labs (`labbookings`), radiology (`radiologybookings` and the older `radiologycenterbookings`), home care (`homecarebookings`) and pharmacy (`pharmacy_allocations`, the pharmacy's part of an order). The older radiology "center" bookings
-   * (`radiologycenterbookings`: no scheduled time, ObjectId owners) have no "future" to test and are not covered.
    */
   @Cron('0 * * * *', { timeZone: 'UTC' })
   @ScheduledOnce()
-  async licenceLapseSweepScheduled() { await this.licenceLapseSweep(); }
+  async licenceLapseSweepScheduled() { await this.licenceLapseSweep(); await this.licenceLapseSweep(Date.now(), 'admin'); }
 
-  async licenceLapseSweep(now: number = Date.now()): Promise<{ profiles: number; cancel_requested: number }> {
+  /**
+   * `source` 'licence' (default): providers whose licence lapsed, the reference time is the lapse instant (rule A2). `source` 'admin' (lead decision 2026-11-19): providers an ADMIN suspended
+   * (`suspended_reason: admin_suspended`, `suspended_at`), the same rule with the suspension time as the reference, acting only on a suspension that was NOT lifted within 24 h (a reactivation sets the
+   * profile active, so it drops out of the selection): after 24 h every future booking is cancelled (the "starting within 24 h is kept" clause no longer applies to a reference older than 24 h).
+   */
+  async licenceLapseSweep(now: number = Date.now(), source: 'licence' | 'admin' = 'licence'): Promise<{ profiles: number; cancel_requested: number }> {
     let profiles = 0; let requested = 0;
     const kinds = Object.values(LAPSE_KINDS);
+    const types = { $in: [...new Set(kinds.flatMap((k) => k.types))] };
     const cursor = this.conn.collection('provider_profiles').find(
-      { status: 'suspended', suspended_reason: 'license_expired', type: { $in: [...new Set(kinds.flatMap((k) => k.types))] }, license_expiry_date: { $ne: null, $lte: new Date(now) } } as any,
-      { projection: { id: 1, type: 1, account_id: 1, user_id: 1, license_expiry_date: 1 }, batchSize: 100, maxTimeMS: 60_000 },
+      (source === 'admin'
+        ? { status: 'suspended', suspended_reason: 'admin_suspended', type: types, suspended_at: { $ne: null, $lte: new Date(now - LICENCE_LAPSE_KEEP_MS) } }
+        : { status: 'suspended', suspended_reason: 'license_expired', type: types, license_expiry_date: { $ne: null, $lte: new Date(now) } }) as any,
+      { projection: { id: 1, type: 1, account_id: 1, user_id: 1, license_expiry_date: 1, suspended_at: 1 }, batchSize: 100, maxTimeMS: 60_000 },
     );
     for await (const p of cursor as any) {
-      if (!isLicenceLapsed(p.license_expiry_date, now)) continue;   // renewed since: the date moved
-      const lapse = licenceLapseInstant(p.license_expiry_date) as Date;
+      let lapse: Date;
+      if (source === 'admin') {
+        lapse = new Date(p.suspended_at);
+        if (Number.isNaN(lapse.getTime())) continue;
+      } else {
+        if (!isLicenceLapsed(p.license_expiry_date, now)) continue;   // renewed since: the date moved
+        lapse = licenceLapseInstant(p.license_expiry_date) as Date;
+      }
       profiles++;
       // one provider type can have several kinds of booking (a radiology centre: the ops bookings and the older centre bookings)
       for (const kind of kinds.filter((k) => k.types.includes(p.type))) {
