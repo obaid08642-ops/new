@@ -7,6 +7,7 @@ import { Card, EmptyState, Input, Segmented } from '../../../../packages/ui-nati
 import { Gate, Section, useConsultFormat } from '../consult/ConsultKit';
 import { HealthTabs, Notice, Panel, Pill, Row, bodyOf, useRemote, useTab } from '../health/HealthKit';
 import { step as scale, useScreenUi } from '../screen/ScreenKit';
+import { maternityDateProblem } from '../../utils/maternityDates';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { parseMaternityContent } from '../../utils/maternityWeek';
@@ -195,6 +196,12 @@ export function MaternitySetupView() {
   const save = async () => {
     if (!lmp.trim() || (mode === 'cycle' && !cycleLength.trim())) {
       setError(k('care.mat.profileRequired'));
+      return;
+    }
+    // the dates are typed as text: a real day in year-month-day form, the last period not in the future (the due date is optional)
+    const problem = maternityDateProblem(lmp, mode === 'pregnancy' ? dueDate : '');
+    if (problem) {
+      setError(k(problem === 'lmpFuture' ? 'care.mat.lmpFuture' : 'care.mat.dateInvalid'));
       return;
     }
     setSaving(true);

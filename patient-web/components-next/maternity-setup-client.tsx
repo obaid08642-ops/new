@@ -7,6 +7,7 @@ import { Button } from "@/components-next/ui-generated/components/Button";
 import { ChoiceGroup, TextField } from "@/components-next/care/care-fields";
 import { Notice } from "@/components-next/consult/consult-parts";
 import forms from "@/components-next/consult/consult.module.css";
+import { isAfterToday } from "@/lib/maternity-dates";
 
 /**
  * The maternity profile form (canvas/CareHub setup): the cycle path or the pregnancy path, then POST /api/patient/maternity/profile
@@ -26,6 +27,11 @@ export function MaternitySetupClient({ locale }: { locale: string }) {
   async function save() {
     if (!lmp.trim() || (mode === "cycle" && !cycleLength.trim())) {
       setError(t("setupRequired"));
+      return;
+    }
+    // the date input gives a real day; the last period cannot be after today (local calendar day, as the app checks it)
+    if (isAfterToday(lmp)) {
+      setError(t("lmpFuture"));
       return;
     }
     setSaving(true);

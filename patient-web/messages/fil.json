@@ -3969,6 +3969,7 @@
     "cycleLength": "Haba ng cycle (araw)",
     "regularity": "Regularidad",
     "setupRequired": "Ilagay ang kinakailangang petsa para makumpleto ang profile.",
+    "lmpFuture": "Hindi puwedeng nasa hinaharap ang unang araw ng huling regla.",
     "setupFailed": "Hindi ma-save ang profile.",
     "connectionFailed": "Hindi makakonekta. Pakisubukan muli.",
     "setupNotice": "Pang-edukasyon lamang ang pagsubaybay. Hindi ito kapalit ng payong medikal at hindi contraception.",

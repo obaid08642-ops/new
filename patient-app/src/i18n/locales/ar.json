@@ -2177,6 +2177,8 @@
   "care.mat.cycleRegularity": "انتظام الدورة",
   "care.mat.cycleSetup": "أدخلِي تاريخ آخر دورة وطول دورتك المسجل",
   "care.mat.dateFormat": "الصيغة: سنة-شهر-يوم، مثال 2026-09-20",
+  "care.mat.dateInvalid": "اكتبي التاريخ بصيغة سنة-شهر-يوم، مثال 2026-09-20.",
+  "care.mat.lmpFuture": "لا يمكن أن يكون أول يوم من آخر دورة في المستقبل.",
   "care.mat.dayLabel": "اليوم {day} من دورة {total} يومًا",
   "care.mat.dayOfCycle": "يوم الدورة",
   "care.mat.days": "{count} أيام",

@@ -2177,6 +2177,8 @@
   "care.mat.cycleRegularity": "Cycle regularity",
   "care.mat.cycleSetup": "Enter the last period date and your recorded cycle length",
   "care.mat.dateFormat": "Format: year-month-day, e.g. 2026-09-20",
+  "care.mat.dateInvalid": "Enter the date as year-month-day, e.g. 2026-09-20.",
+  "care.mat.lmpFuture": "The first day of your last period cannot be in the future.",
   "care.mat.dayLabel": "Day {day} of a {total}-day cycle",
   "care.mat.dayOfCycle": "Cycle day",
   "care.mat.days": "{count} days",

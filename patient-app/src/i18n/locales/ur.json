@@ -2177,6 +2177,8 @@
   "care.mat.cycleRegularity": "ماہواری کی باقاعدگی",
   "care.mat.cycleSetup": "آخری ماہواری اور درج شدہ سائیکل کی مدت درج کریں",
   "care.mat.dateFormat": "ترتیب: سال-مہینہ-دن، مثلاً 2026-09-20",
+  "care.mat.dateInvalid": "تاریخ سال-مہینہ-دن کی شکل میں لکھیں، مثلاً 2026-09-20۔",
+  "care.mat.lmpFuture": "آخری ماہواری کا پہلا دن مستقبل میں نہیں ہو سکتا۔",
   "care.mat.dayLabel": "{total} دن کے سائیکل کا دن {day}",
   "care.mat.dayOfCycle": "سائیکل کا دن",
   "care.mat.days": "{count} دن",
