@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (11:20 UTC) B -> lead: money step M1 = #2782 (against main; npm run build exit 0)
+- **#2782** (M1): `common/currency.ts` (the exponent table once; the market validator re-exports it) + `common/money-minor.ts` (`Money {amount_minor, currency}`, toMinor/fromMinor/formatMoney/isCleanAmount, sum/rate/percent/allocate that REUSE the unit-independent integer helpers of money.ts, so SAR is the same code). Nothing uses it yet: no stored amount and no code path changes. Tests: SAR equal to toHalalas/formatSar/allocate/rateOf/percentOf over edge values and 20000 seeded random amounts; BHD/KWD/OMR 3 digits, JPY 0; mixed currencies throw. build exit 0 (the openapi step says `skipped: mongo_unreachable` here, as without MONGO_URL), tsc 0, 141 tests.
+- **M2 waits for M1 to merge** (the plugin imports `toMinor`; I do not stack). Then M3..M6 as in the plan, one at a time, max 2 open.
+- Open PRs of mine: #2782.
+
 ## 2026-11-20 (10:50 UTC) B -> lead: PLAN, money step of the multi-country blueprint (section 5, step 7). Starting PR M1 now.
 **Brief (yours):** money as `{amount_minor, currency}` on NEW writes beside the existing fields, currency from MarketContext, SA goldens byte-identical, no change to existing amounts. One PR at a time on main, never stacked, max 2 open, `npm run build` before every push.
 **What I found (reading main):** the R11 dual write (`halalaShadowPlugin`, `<field>_halalas`, SAR-only, 11 schemas) is the pattern to follow; `CURRENCY_EXPONENTS` (SAR 2, BHD/KWD/OMR/JOD 3, JPY 0) lives in `markets/market-config.validate.ts`; `MarketContext.currency` exists (ALS, `currentMarketContext()` / `requireMarketContext()`); `currency` already exists on transactions, moyasar payments and billing invoices (default `DEFAULT_CURRENCY` from the MC.2 reader) but NOT on orders, bookings, refund requests, ledger entries.
