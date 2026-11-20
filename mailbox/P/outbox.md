@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 12:20 UTC P: PR #2785 patient app Connected AI apps (row 1)
+- App screen for GET/DELETE /patient/agent-connections (same endpoints and parser as the web), hub row, 11 keys in six languages from the web translations, 3 tests, row 1 FIXED inside the PR (no separate docs PR). Baselines 105 / 335 unchanged, parity ok.
+- Open: #2781, #2785. Next: row 6, 28/59, 35/36, 78, 79, then 49+51.
+
 ## 2026-11-20 11:30 UTC P: #2781 conflict resolved
 - Merged origin/main into p2/provider-scan-103-104 (only the reconciliation doc conflicted: kept main's rows 101/102/105, my FIXED rows 103/104), pushed. #2780 and #2783 are merged. Understood: from now on reconciliation-row updates go inside the code PR they belong to, no separate docs-only PRs on that file.
 - Free slots: 2. Next: rows 1, 6, 28/59, 35/36, 78, 79 (each as one code PR with its own row update), then 49+51.
