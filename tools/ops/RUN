@@ -1,5 +1,5 @@
-# 2026-11-19 run 138 = deploy main@18067746 (supersedes run 137, not approved): + D2 home care/pharmacy (#2762 #2763), markets step 1-2 (#2761 #2765, SA values unchanged), admin #2740; licence expiry A2-D2 (#2754 #2755 #2756 #2757: restricted account, renewal approval, lapse cancels future bookings with 100% refund), market clock helper (#2735), admin reasons in ConfirmDialog (#2742-#2759), CI chunk fix. Then read-only 96r 96j 96h. Outside 03:00-05:00 UTC.
-release:18067746f9cded260d53a0cc0382bbc77120aeb5
+# 2026-11-20 run 139 = deploy main@3049927f (supersedes 137/138, whose notes wrongly listed the licence work): licence expiry A2-D2 on main via #2768 (restricted account keeps login, renewal date moves only after approval, lapse cancels future bookings for all provider types with 100% refund), markets steps 1-2 (#2761 #2765, SA values unchanged), market clock (#2735), admin reasons in ConfirmDialog. Then read-only 96r 96j 96h. Never 03:00-05:00 UTC.
+release:3049927f7b2fd7363866c9c602c9c5f25577bbbd
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
