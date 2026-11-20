@@ -17,19 +17,18 @@ export function facilityLicenseProblems(p: { type?: string; license_expiry_date?
 }
 
 /**
- * A lapsed licence suspends the profile (the cron does that); the account must follow, or the provider keeps logging in and working. Returns the
- * update for provider_accounts: status suspended with its history entry, and a token_version bump so a session already open ends.
+ * A lapsed licence hides the profile (the cron does that) and RESTRICTS the account (B2, owner 2026-11-17): the provider is not bookable and not listed, but the login keeps working so they can finish
+ * existing work and upload the renewed licence. Returns the update for provider_accounts: status restricted with its history entry. No token_version bump: the open session stays valid.
  */
 export function lapsedAccountUpdate(reason: string, from: string, at = new Date()): Record<string, unknown> {
   return {
-    $set: { status: 'suspended', updatedAt: at },
-    $push: { status_history: { from, to: 'suspended', by_user_id: 'system', by_role: 'system', at, note: reason } },
-    $inc: { token_version: 1 },
+    $set: { status: 'restricted', updatedAt: at },
+    $push: { status_history: { from, to: 'restricted', by_user_id: 'system', by_role: 'system', at, note: reason } },
   };
 }
 
-/** Suspend the provider ACCOUNT behind a profile whose licence lapsed (only an approved account: an account already suspended, rejected or still in review is left alone). Returns whether it was changed. */
-export async function suspendAccountForLicense(conn: { collection: (n: string) => any }, profile: { account_id?: string; user_id?: string }, reason: string): Promise<boolean> {
+/** Restrict the provider ACCOUNT behind a profile whose licence lapsed (only an approved account: an account already restricted, suspended, rejected or still in review is left alone). Returns whether it was changed. */
+export async function restrictAccountForLicense(conn: { collection: (n: string) => any }, profile: { account_id?: string; user_id?: string }, reason: string): Promise<boolean> {
   const id = profile?.account_id || profile?.user_id;
   if (!id) return false;
   const accounts = conn.collection('provider_accounts');

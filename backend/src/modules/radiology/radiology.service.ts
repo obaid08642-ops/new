@@ -2,7 +2,7 @@ import { MAX_SLOT_CAPACITY, confirmSeat, ensureSeatIndex, releaseSeat, reserveSe
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance, type RefundPolicyAcceptance } from '../../common/refund-policy-acceptance';
 import { resolveFamilyMemberId } from '../../common/family-member';
-import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException, Optional, ServiceUnavailableException, Logger } from '@nestjs/common';
 import { withholdLegacyBeforeAcceptance } from '../provider-jobs/provider-job-privacy';
 import { assertPaymentMethod } from '../../common/payment-policy';
 import { assertScanned } from '../storage/pending-scan';
@@ -27,6 +27,7 @@ import { RadiologyBooking } from './schemas/radiology-booking.schema';
 import { WorkflowEngineService } from '../workflow-engine/workflow-engine.module';
 import { InsuranceFlowService } from '../insurance-engine/insurance-engine.module';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_CANCEL_REASON, type LicenceLapseCancelEvent } from '../../common/licence-lapse-cancel';
 import { RedisService } from '../redis/redis.service';
 import { reviewUpdate, invalidateCatalogCache } from '../../common/catalog-review';
 import { getEffectiveRoles } from '../../common/auth.guard';
@@ -55,6 +56,7 @@ import { nearestFirst } from '../provider/services/nearest-first';
 import { NAME_PROJECTION, withItemNames, withScanNames } from '../../common/booking-names';
 import { riyadhDayStart, riyadhClockLabel } from '../../common/riyadh-slots';
 import { DEFAULT_CURRENCY } from '../../common/market-defaults';
+import { assertProviderLicenceCurrent } from '../../common/provider-licence';
 
 /** Public card for a provider in carousels and price lists: no contact or account details. */
 function publicProvider(p: any) {
@@ -205,6 +207,22 @@ export class RadiologyOpsService {
   }
 
   /** Verified card payment confirms a new radiology booking. */
+  /**
+   * D2 (owner 2026-11-17): the centre's licence lapsed and the legal module's hourly sweep names a confirmed future booking. Cancelled through the normal `transition` as the platform (admin role): it emits
+   * `radiology.booking_cancelled` with `cancelled_by: 'provider'`, which the existing finance listener refunds in full. Nothing is refunded here. A booking no longer CONFIRMED is left alone.
+   */
+  @OnEvent(LICENCE_LAPSE_CANCEL_EVENT)
+  async onLicenceLapseCancel(e: LicenceLapseCancelEvent): Promise<void> {
+    if (e?.kind !== 'radiology' || !e.booking_id) return;
+    try {
+      const b: any = await this.bkgModel.findOne({ id: String(e.booking_id) }, { state: 1 }).lean();
+      if (!b || b.state !== RadiologyBookingState.CONFIRMED) return;
+      await this.transition(String(e.booking_id), RadiologyBookingState.CANCELLED, { id: 'system', role: 'admin' }, LICENCE_LAPSE_CANCEL_REASON);
+    } catch (err: any) {
+      new Logger('LicenceLapse').error(`licence lapse cancel failed for radiology booking ${e.booking_id}: ${err?.message || err}`);
+    }
+  }
+
   @OnEvent('payment.completed')
   async confirmPaidBooking(event: any) {
     if (event?.booking_kind !== 'radiology' || !event?.booking_id) return;
@@ -696,6 +714,7 @@ export class RadiologyOpsService {
       if (!providerId) throw new BadRequestException('provider_not_found');
     }
     if (!providerId && !isAdmin) throw new BadRequestException('provider_account_id_required');
+    await assertProviderLicenceCurrent(this.svcModel.db, providerId);   // A2: no new booking for a lapsed licence (all provider types)
     if (providerId && !isAdmin) {
       // a centre may perform the scan by its equipment, or by having declared it in its ordering catalogue (what a quote lists)
       const ok = (await this.compatibleProviders([svc.id])).some((p: any) => p.id === providerId)

@@ -42,7 +42,21 @@ describe('provider admin: reject a bank account, licence expiry list (gap 8)', (
     expect(Math.round((filter.license_expiry_date.$lte.getTime() - Date.now()) / day)).toBe(60);
     expect(filter.type).toEqual({ $eq: 'lab' });
     expect(rows.map((r: any) => [r.id, r.expired])).toEqual([['p1', true], ['p2', false]]);
-    expect(rows[1].days_left).toBe(10);
+    // A2: the expiry day itself counts (valid through its end in Riyadh time), so a date ~10 days ahead has up to 11 days left.
+    expect(rows[1].days_left).toBeGreaterThanOrEqual(10);
+    expect(rows[1].days_left).toBeLessThanOrEqual(11);
     await expect(svc.licenseExpiryList({ id: 'u', role: 'lab' }, {})).rejects.toBeInstanceOf(ForbiddenException);
+  });
+  it('licence expiry list follows A2: a licence whose expiry day is TODAY (Riyadh) is not expired yet (1 day left); yesterday\'s is', async () => {
+    const { marketParts } = require('../../../common/market-time');
+    const ymd = (offset: number) => new Date(Date.parse(`${marketParts(new Date()).date}T00:00:00Z`) + offset * 86400000);
+    const { svc } = make({ profiles: [
+      { id: 'yesterday', type: 'lab', license_expiry_date: ymd(-1) },
+      { id: 'today', type: 'lab', license_expiry_date: ymd(0) },
+    ] });
+    const rows = await svc.licenseExpiryList(ADMIN, {});
+    expect(rows.map((r: any) => [r.id, r.expired])).toEqual([['yesterday', true], ['today', false]]);
+    expect(rows.find((r: any) => r.id === 'today').days_left).toBe(1);
+    expect(rows.find((r: any) => r.id === 'yesterday').days_left).toBeLessThanOrEqual(0);
   });
 });

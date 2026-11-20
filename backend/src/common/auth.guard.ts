@@ -256,10 +256,11 @@ export class JwtAuthGuard implements CanActivate {
       );
       if (!account) throw new UnauthorizedException('provider_account_not_found');
       const path = String((req as any).path || (req as any).originalUrl || (req as any).url || '').split('?')[0];
+      // B2: a restricted account (lapsed licence) keeps its login to finish existing work and upload the renewed licence; new bookings/orders/offers are refused by assertProviderLicenceCurrent.
       const status = String(account.status || '').toLowerCase();
       const method = String((req as any).method || 'GET').toUpperCase();
       const replacementRoute = DOC_REPLACEMENT_STATUSES.has(status) && DOC_REPLACEMENT_ROUTES.some((r) => r.method === method && r.path.test(path));
-      if (status !== 'approved' && !PENDING_PROVIDER_ONBOARDING_PATH.test(path) && !replacementRoute) {
+      if (status !== 'approved' && status !== 'restricted' && !PENDING_PROVIDER_ONBOARDING_PATH.test(path) && !replacementRoute) {
         throw new ForbiddenException('provider_approval_required');
       }
     }
