@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 06:10 UTC — #2767 merged; rows 13, 14, 21, 25 (#2775)
+- #2767 merged (row 100 + rows 2/3 "after launch"). #2773 (row 90) and #2774 (rows 64/93) are conflict-free, waiting for review.
+- #2775: row 14 (app Share now sends the receipt as a PNG of the card, text only as fallback) and row 13 (web Save as image now embeds the @font-face files in the SVG; verified in Chromium: the saved PNG is pixel-identical to the card on screen, the old code's PNG was not). Rows 21 (doctor-order card on the item page) and 25 ("Use this split") are marked NOT A FIX in the doc with the reason: both are new features that need a spec/board and basket rules (for 25 the two-booking When picker), not defects. Tests 2 app + 2 web; gates unchanged (literal 105, token-sync 335, parity ok).
+- Open PRs: #2773, #2774, #2775 (cap). The lead's list of client rows (90, 100, 64/93, 21, 25) is done. Next: the other design lines of the 13 (rows 46, 47, 49, 51, 52, 57, 58, 60, 62, 63, 105 are board restyles that need render + board comparison), then the multi-country client audit (Phase 1, read-only). I take the multi-country audit first: it is read-only docs and needs no board images.
+
 ## 2026-11-20 03:40 UTC — client lines 4 and 5 (rows 64 and 93, #2774)
 - Rows 64 and 93 (#2774): "Share with your doctor" from a result now opens the share-reports screen with the result's kind and booking, and the screen ticks the medical report of that booking (`lab_booking_id` / `radiology_booking_id`); a result with no report yet ticks nothing as before. App only (the web has no share-with-doctor action on a result). Tests 5 new + orders-screens extended (22 green); gates unchanged (literal 105, token-sync 335, parity ok).
 - Open PRs: #2767, #2773, #2774 (cap). Next: rows 21 (doctor-order items pre-ticked), 25 ("Use this split"), then the design lines and the multi-country client audit.
