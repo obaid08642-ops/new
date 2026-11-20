@@ -72,7 +72,8 @@ export function ContextBar({ ctx }: { ctx: Ctx }) {
           {chip('who', 'user', WHO_TONE, 0.8, k('ordering.ctx.lblWho'), memberName ?? k('ordering.ctx.valMe'), false)}
         </View>
       </Card>
-      <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{changed ? k('ordering.ctx.toast') : k('ordering.ctx.hint')}</Text>
+      {/* the board draws nothing under the bar: the line shows only once a choice was changed (reconciliation row 47) */}
+      {changed ? <Text accessibilityLiveRegion="polite" style={{ ...scale(t, 'tag', 'regular'), color: c.text.secondary, ...flow }}>{k('ordering.ctx.toast')}</Text> : null}
       <Sheet open={open !== null} title={k('ordering.ctx.sheetTitle')} onClose={() => setOpen(null)} closeLabel={closeLabel}>
         {open === 'where' ? section(k('ordering.ctx.secWhere'), (
           <>
