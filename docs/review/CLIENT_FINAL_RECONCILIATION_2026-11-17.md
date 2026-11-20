@@ -63,7 +63,7 @@ The `[client]` lines that were still `open` in `docs/design/needs-review/*.json`
 
 | # | file:line | element | state | what | basis |
 |---:|---|---|---|---|---|
-| 1 | `backend/src/modules/agent-oauth/agent-oauth.controller.ts:100` | List and disconnect connected AI assistants | **OPEN** | web has Settings > Connected apps (`settings/connected-apps`); the APP has no screen for `GET /patient/agent-connections` + `DELETE` | code |
+| 1 | `backend/src/modules/agent-oauth/agent-oauth.controller.ts:100` | List and disconnect connected AI assistants | **FIXED** | the app has Settings > Connected AI apps (`app/settings/connected-apps.tsx`, `ConnectedAppsView`): `GET /patient/agent-connections`, scopes in words, disconnect with `DELETE /patient/agent-connections/:clientId`; a hub row in Settings; six languages; test `connected-apps.test.tsx` | code |
 | 2 | `patient-web/components-next/diagnostics/catalog-load.ts:67` | insurance filter is applied on the loaded rows | **AFTER LAUNCH** | lead decision 2026-11-19: keep today's catalogue-based rule (`insurance_availability`); the offer-based filter (`insurance=1`) waits for the insurance offers (decision 30, parked after launch), it would show nothing now | line |
 | 3 | `patient-app/app/(tabs)/diagnostics.tsx:157` | insurance filter on loaded rows | **AFTER LAUNCH** | lead decision 2026-11-19: keep today's catalogue-based rule (`insurance_availability`); the offer-based filter (`insurance=1`) waits for the insurance offers (decision 30, parked after launch), it would show nothing now | line |
 | 4 | `patient-web/components-next/diagnostics/notify-me-button.tsx:1` | notify-me confirmation and sign-in | **DEFERRED** | runtime / device check (nothing to fix in code) | line |

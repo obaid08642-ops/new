@@ -4090,5 +4090,16 @@
   "map.preview": "Map preview",
   "map.marker": "Map marker",
   "errors.resetLinkInvalid": "This reset link is invalid or has expired. Request a new one.",
-  "auth.guestName": "Guest"
+  "auth.guestName": "Guest",
+  "set.connectedApps": "Connected AI apps",
+  "set.connectedAppsHint": "Assistants you allowed into your account",
+  "set.apps.emptyTitle": "No connected apps",
+  "set.apps.empty": "You have not connected any AI assistant to your account.",
+  "set.apps.note": "A connected assistant can ask, not pay: you confirm and pay every order or booking on Nabd Plus.",
+  "set.apps.since": "Connected since {date}",
+  "set.apps.disconnect": "Disconnect",
+  "set.apps.failed": "Could not disconnect. Please try again.",
+  "set.apps.scopeRead": "See your own orders and bookings",
+  "set.apps.scopeOrder": "Send pharmacy requests for non-prescription items",
+  "set.apps.scopeBook": "Hold consultation, lab and nursing appointments for you"
 }

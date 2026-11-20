@@ -4090,5 +4090,16 @@
   "map.preview": "Preview ng mapa",
   "map.marker": "Marker ng mapa",
   "errors.resetLinkInvalid": "Hindi wasto o nag-expire na ang link na ito sa pag-reset. Humiling ng bago.",
-  "auth.guestName": "Bisita"
+  "auth.guestName": "Bisita",
+  "set.connectedApps": "Mga nakakonektang AI app",
+  "set.connectedAppsHint": "Mga assistant na pinayagan mo sa iyong account",
+  "set.apps.emptyTitle": "Walang nakakonektang app",
+  "set.apps.empty": "Wala ka pang ikinonektang AI assistant sa iyong account.",
+  "set.apps.note": "Ang nakakonektang assistant ay maaaring humiling, hindi magbayad: ikaw ang nagkukumpirma at nagbabayad ng bawat order o booking sa Nabd Plus.",
+  "set.apps.since": "Nakakonekta mula {date}",
+  "set.apps.disconnect": "Idiskonekta",
+  "set.apps.failed": "Hindi maidiskonekta. Pakisubukang muli.",
+  "set.apps.scopeRead": "Tingnan ang sarili mong mga order at booking",
+  "set.apps.scopeOrder": "Magpadala ng mga request sa botika para sa mga item na hindi kailangan ng reseta",
+  "set.apps.scopeBook": "Pansamantalang magreserba ng konsultasyon, lab at nursing na appointment para sa iyo"
 }
