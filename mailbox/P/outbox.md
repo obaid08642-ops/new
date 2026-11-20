@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 P: #2785 bundle fix pushed (0b0fddcf1)
+- Red check was "Patient Mobile build and tests": tests 2488/2488 green, the Android bundle step failed (15,436,958 bytes, 43,888 over budget 15,393,070). Budget untouched.
+- Cause: the new route importing a separate `ConnectedAppsView` module made the Hermes bundle +113 KB raw (+9 KB gzip, mostly zero bytes: layout, not code). Moving the view into `SettingsViews.tsx` (where every other settings view lives; route is a thin wrapper) gives 15,329,272 bytes locally = 63,798 under budget. Local figures match CI (the failing run reproduced to the byte). Tests (connected-apps + notification-settings) green.
+- Unused-locale-key scan finds only 10 keys left (earlier trim passes took the rest), so no key trim was needed. Paused again, nothing else started.
+
 ## RESUME AFTER 2026-11-26 (paused by owner decision, 2026-11-20 12:17 UTC)
 Open PRs I keep green and do not extend: #2781 (provider scan state, rows 103/104), #2785 (app Connected AI apps, row 1). Nothing new started.
 Next items, in this order (each as one code PR with its own reconciliation-row update, no docs-only PRs):
