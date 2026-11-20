@@ -4,6 +4,8 @@ Every screen, field or behaviour in patient-app, patient-web, provider-app and a
 
 How the rows were found: plain `grep -rnE` scans over the source of the four apps (tests, `node_modules`, locale catalogues, generated translation files excluded), then a read of every hit's surrounding code. The **complete** list of hits per concern and per app is in `ui-evidence.md` (625 hits in total); the rows below are the curated reading, grouped by concern. A row cites the lines that define the assumption; "also" lists further files with the same pattern, by name, with their lines in `ui-evidence.md`.
 
+Checks: every `file:line` citation in this file and in `client-journeys.md` and `provider-admin-matrix.md` (357 citations) was checked mechanically against the repository at the commit of this change: the file exists and has at least that many lines; the lines that carry a claim were read.
+
 Two findings apply to every row:
 
 - **No client has a market concept** (0 files mention `market`, `marketId`, `country_code`, `countryCode` or `MarketContext` in any of the four source trees). Each row below is therefore a constant, regex, formatter or literal, never a configuration value.
@@ -99,7 +101,7 @@ Two findings apply to every row:
 |---|---|---|---|---|---|---|
 | H1 | patient-app | Payment screens (5) | Gateway id carried as `moyasarId` | `app/insurance/copay.tsx:60`, `app/nursing/nurse-profile.tsx:190`, `app/diagnostics/confirm.tsx:166`, `app/diagnostics/insurance-approval.tsx:123`, `app/diagnostics/booking-status.tsx:231` | Gateway-neutral `paymentId` | 9 |
 | H2 | patient-app | Method list | Apple Pay as an iOS method in a fixed list | `src/constants/index.ts:61`, `src/types/index.ts:435` | Method list from the server per market | 9 |
-| H3 | patient-app | Hosted payment page | Only gateway hosts the backend uses are opened | `src/utils/pharmacyCheckout.ts:314` | Allow-list from market config | 9 |
+| H3 | patient-app | Hosted payment page | A route parameter may open a hosted page only on a trusted host: a fixed suffix list of `moyasar.com`, `tap.company`, `stripe.com`, `nabd.plus`, `nabdahplus.com` (a phishing guard, so it must stay an allow-list) | `src/utils/pharmacyCheckout.ts:318-329` (`PAYMENT_HOST_SUFFIXES`, `trustedPaymentUrl`) | Keep the guard; build the list from the market's gateways (from config) instead of a constant; the list already names Tap and Stripe, so a second gateway needs no new screen | 9 |
 | H4 | patient-app | Payment layer | A gateway interface exists (a seam) | `src/core/platform/payment/PaymentProvider.ts:24` ("Stripe, PayTabs, Moyasar, etc. MUST implement") | Use it as the plugin boundary | 9 |
 | H5 | patient-web | Checkout | Redirects to the hosted Moyasar page | `components-next/ordering/confirm-client.tsx:103`; agent and policy texts name Moyasar: `app/auth.md/route.ts:17`, `app/.well-known/acp.json/route.ts:26` | Redirect to the market's gateway; neutral wording | 9 |
 
