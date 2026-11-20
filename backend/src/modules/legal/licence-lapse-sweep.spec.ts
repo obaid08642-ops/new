@@ -103,17 +103,25 @@ describe('licence lapse sweep (D2)', () => {
     const { queries } = await run([profile({ id: 'rad-1', type: 'radiology', account_id: 'acc-1' })], []);
     expect(queries.map(([n]) => n).filter((n) => n !== 'provider_profiles').sort()).toEqual(['radiologybookings', 'radiologycenterbookings']);
   });
-  it('admin suspension (lead decision 2026-11-19): only a suspension that lasted 24 h or more is selected; then EVERY future confirmed booking is sent, even one starting within 24 h', async () => {
+  it('admin suspension (lead decision 2026-11-20): a suspension that lasted 24 h or more sends the bookings starting LATER than 24 h and keeps those starting within 24 h', async () => {
     const suspendedAt = new Date(now - 30 * H);
     const adminProfile = { id: 'doc-1', type: 'doctor', suspended_at: suspendedAt };
-    const { r, emitted, queries } = await run([adminProfile], [appt('far', now + 3 * 24 * H), appt('soon', now + 3 * H)], now, undefined, 'admin');
+    const { r, emitted, queries } = await run([adminProfile], [appt('far', now + 3 * 24 * H), appt('soon', now + 3 * H), appt('edge', now + 25 * H)], now, undefined, 'admin');
     expect(r).toEqual({ profiles: 1, cancel_requested: 2 });
-    expect(emitted.map((e) => e[1].booking_id)).toEqual(['far', 'soon']);
+    expect(emitted.map((e) => e[1].booking_id)).toEqual(['far', 'edge']);        // 'soon' (in 3 h) is kept even though the suspension is 30 h old (unlike a licence lapse)
     expect(emitted[0][1]).toMatchObject({ kind: 'appointment', provider_profile_id: 'doc-1', lapse_at: suspendedAt.toISOString() });
     const [, pq] = queries.find(([n]) => n === 'provider_profiles');
     expect(pq).toMatchObject({ status: 'suspended', suspended_reason: 'admin_suspended' });
     expect(pq.license_expiry_date).toBeUndefined();
     expect(pq.suspended_at).toEqual({ $ne: null, $lte: new Date(now - 24 * H) });     // a suspension lifted within 24 h (profile active again) or younger than 24 h is never selected
+  });
+
+  it('admin suspension: a booking with no scheduled time (a pharmacy allocation) is cancelled once the suspension lasted 24 h, where a licence lapse of 15 h keeps it', async () => {
+    const rows = [{ id: 'al1', patient_id: 'p1' }];
+    const admin = await run([{ id: 'ph-1', type: 'pharmacy', account_id: 'acc-ph', suspended_at: new Date(now - 30 * H) }], rows, now, undefined, 'admin');
+    expect(admin.r).toEqual({ profiles: 1, cancel_requested: 1 });
+    const lic = await run([profile({ id: 'ph-1', type: 'pharmacy', account_id: 'acc-ph' })], rows, now);          // lapsed 15 h ago: still inside the grace
+    expect(lic.r).toEqual({ profiles: 1, cancel_requested: 0 });
   });
 
   it('an admin-suspended profile with an unreadable suspended_at is skipped, and the licence source still reads its own filter', async () => {

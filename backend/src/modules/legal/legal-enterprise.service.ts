@@ -293,8 +293,8 @@ export class LegalEnterpriseService {
 
   /**
    * `source` 'licence' (default): providers whose licence lapsed, the reference time is the lapse instant (rule A2). `source` 'admin' (lead decision 2026-11-19): providers an ADMIN suspended
-   * (`suspended_reason: admin_suspended`, `suspended_at`), the same rule with the suspension time as the reference, acting only on a suspension that was NOT lifted within 24 h (a reactivation sets the
-   * profile active, so it drops out of the selection): after 24 h every future booking is cancelled (the "starting within 24 h is kept" clause no longer applies to a reference older than 24 h).
+   * (`suspended_reason: admin_suspended`, `suspended_at`), acting only on a suspension that was NOT lifted within 24 h (a reactivation sets the profile active, so it drops out of the selection). Then:
+   * bookings starting within the next 24 h are kept, later ones are cancelled with the full refund; a booking with no scheduled time (a pharmacy allocation, an older radiology centre booking) is cancelled.
    */
   async licenceLapseSweep(now: number = Date.now(), source: 'licence' | 'admin' = 'licence'): Promise<{ profiles: number; cancel_requested: number }> {
     let profiles = 0; let requested = 0;
@@ -326,8 +326,10 @@ export class LegalEnterpriseService {
         );
         for await (const b of bookings as any) {
           // no scheduled time (a pharmacy order the pharmacy has not started, an older radiology centre booking): it "starts now", so only the 24 h grace after the lapse keeps it
-          const startMs = kind.start ? new Date(b[kind.start]).getTime() : now + 1;
-          if (!shouldCancelForLapse(startMs, now, lapse.getTime())) continue;
+          // licence source: the reference is the lapse instant (a visit inside 24 h is kept for the first 24 h). Admin source (lead 2026-11-20): the 24 h wait is already over, and what STARTS WITHIN 24 h
+          // is kept while later bookings are cancelled: that is the same rule with the reference "now". A booking with no scheduled time is not "within 24 h of anything": after the gate it goes.
+          const startMs = kind.start ? new Date(b[kind.start]).getTime() : source === 'admin' ? now + LICENCE_LAPSE_KEEP_MS + 1 : now + 1;
+          if (!shouldCancelForLapse(startMs, now, source === 'admin' ? now : lapse.getTime())) continue;
           const event: LicenceLapseCancelEvent = { kind: kind.kind, booking_id: b.id, patient_id: b.patient_id ? String(b.patient_id) : undefined, provider_profile_id: p.id, lapse_at: lapse.toISOString() };
           this.events?.emit(LICENCE_LAPSE_CANCEL_EVENT, event);
           requested++;
