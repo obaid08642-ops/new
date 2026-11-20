@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, Share, Text, View } from 'react-native';
-import { router, type Href } from 'expo-router';
+import { router, useLocalSearchParams, type Href } from 'expo-router';
 
 import { Button, Card, FIcon, Input, type FillIconName } from '../../../packages/ui-native/src';
 import { ConsultList, ConsultScreen, Section, goBack, useConsultFormat } from '../../src/components/consult/ConsultKit';
@@ -12,6 +12,7 @@ import { apiFetch } from '../../src/utils/api';
 import { isOffline } from '../../src/utils/isOffline';
 import { logError } from '../../src/utils/logger';
 import { pickLocalized } from '../../src/utils/localize';
+import { parseResultKind, reportIdsForBooking } from '../../src/utils/shareReportPreselect';
 
 /**
  * Share a report with the doctor — board Consult's card list. The reports are GET /medical-reports/mine; the chosen
@@ -59,6 +60,9 @@ export default function ShareReportScreen() {
   const [reports, setReports] = useState<Report[]>([]);
   const [status, setStatus] = useState<'loading' | 'error' | 'offline' | 'ready'>('loading');
   const [selected, setSelected] = useState<string[]>([]);
+  // opened from a result: the report that belongs to that result's booking is ticked once the list has loaded (the patient can untick it)
+  const { kind: kindParam, booking: bookingParam } = useLocalSearchParams<{ kind?: string; booking?: string }>();
+  const preselected = useRef(false);
   const [sending, setSending] = useState(false);
   // Server-side sharing with a specific doctor (POST /medical-reports/:id/share).
   const [target, setTarget] = useState<Report | null>(null);
@@ -83,6 +87,13 @@ export default function ShareReportScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (status !== 'ready' || preselected.current) return;
+    preselected.current = true;
+    const ids = reportIdsForBooking(reports, parseResultKind(kindParam), typeof bookingParam === 'string' ? bookingParam : null);
+    if (ids.length > 0) setSelected(ids);
+  }, [status, reports, kindParam, bookingParam]);
 
   const toggle = (id: string) => setSelected((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
   const title = (r: Report) => pickLocalized(r.title_ar, r.title_en) || k('consult.share.reportFallback');

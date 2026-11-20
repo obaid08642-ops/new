@@ -104,7 +104,7 @@ export function ResultsPanel({ onSeen, testID }: { onSeen?: () => void; testID: 
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 <Button label={k('orders.results.view')} size="sm" onPress={() => open(item)} theme={theme} testID={`${testID}-${item.key}-view`} />
                 {item.pdfPath ? <Button label={k('diag.order.pdf')} size="sm" variant="outline" onPress={() => void pdf(item)} theme={theme} testID={`${testID}-${item.key}-pdf`} /> : null}
-                <Button label={k('orders.results.share')} size="sm" variant="outline" onPress={() => router.push('/consultations/share-report' as Href)} theme={theme} testID={`${testID}-${item.key}-share`} />
+                <Button label={k('orders.results.share')} size="sm" variant="outline" onPress={() => router.push({ pathname: '/consultations/share-report', params: { kind: item.kind, booking: item.bookingId ?? item.id } } as unknown as Href)} theme={theme} testID={`${testID}-${item.key}-share`} />
                 <Button label={k('orders.results.book')} size="sm" variant="outline" onPress={() => book(item)} theme={theme} testID={`${testID}-${item.key}-book`} />
               </View>
             </View>
