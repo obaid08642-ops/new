@@ -75,19 +75,19 @@ The `[client]` lines that were still `open` in `docs/design/needs-review/*.json`
 | 10 | `patient-app/src/components/views/DoctorSearchView.tsx:117` | Price band filter | **DEFERRED** | owner / reviewer decision | line |
 | 11 | `patient-app/src/components/account/ProvidersMapView.tsx:236` | hospital sheet link | **OPEN** | the hospital sheet still opens `/consultations/clinic/[id]`; `app/facility/` has only the `[slug].tsx` link resolver | code |
 | 12 | `patient-app/src/components/MapPrimitives.native.tsx:122` | hologram layers on device | **DEFERRED** | runtime / device check (nothing to fix in code) | line |
-| 13 | `patient-web/lib/receipt/capture.ts:30` | Save as image on the web: Readex Pro is not embedd | **OPEN (design)** | a visual or board difference, no behaviour defect: a restyle slice, not a fix | line |
-| 14 | `patient-app/app/receipts/[kind]/[bookingId].tsx:58` | App Share sends text, not the receipt file | **OPEN (design)** | a visual or board difference, no behaviour defect: a restyle slice, not a fix | line |
+| 13 | `patient-web/lib/receipt/capture.ts:30` | Save as image on the web: Readex Pro is not embedd | **FIXED** | the saved image carries the card's @font-face files as data URLs (`lib/receipt/capture.ts`); checked in Chromium: the saved PNG is pixel-identical to the card on screen, the old one differed (system font) | line |
+| 14 | `patient-app/app/receipts/[kind]/[bookingId].tsx:58` | App Share sends text, not the receipt file | **FIXED** | Share sends the receipt as an image (the card captured to a PNG, as Save as image does) and falls back to the text lines when it cannot be captured (`app/receipts/[kind]/[bookingId].tsx`) | line |
 | 15 | `patient-app/src/components/views/DoctorSearchView.tsx:122` | Sort and gender chip rows on the 'View all doctors | **DEFERRED** | owner / reviewer decision | line |
 | 16 | `patient-web/app/[locale]/diagnostics/page.tsx:225` | Payment filter option "Self-pay" | **DEFERRED** | owner / reviewer decision | line |
 | 17 | `patient-app/app/diagnostics/discuss.tsx:56` | Waiting state uses polling | **OPEN** | client change, not done in this pass | line |
 | 18 | `patient-app/app/diagnostics/lab-result.tsx:124` | Discuss button for results without a booking | **DEFERRED** | owner / reviewer decision | line |
 | 19 | `patient-app/src/components/ordering/OrderingKit.tsx:39` | First-ask for a new patient shows only on the 'set | **DEFERRED** | runtime / device check (nothing to fix in code) | line |
 | 20 | `patient-app/app/diagnostics/service-home.tsx:35` | Route is not linked | **OPEN** | `/diagnostics/service-home` is opened only from `booking-status` and a test; no hub entry points to it | code |
-| 21 | `patient-app/app/diagnostics/test-detail.tsx:107` | Doctor-order items pre-ticked / Later | **OPEN** | client change, not done in this pass | line |
+| 21 | `patient-app/app/diagnostics/test-detail.tsx:107` | Doctor-order items pre-ticked / Later | **NOT A FIX** | a new feature, not a defect: a doctor-order card on the item page (items pre-ticked, untick = later) wired into the basket needs the board, the basket rules for "later" and six-language strings; the screen `medical-orders/[id]` already handles the order. Needs a spec | line |
 | 22 | `patient-app/src/utils/useOrderingContext.ts:13` | Context not kept between screens | **OPEN** | client change, not done in this pass | line |
 | 23 | `patient-app/app/diagnostics/cart.tsx:52` | Choose a provider | **DEFERRED** | owner / reviewer decision | line |
 | 24 | `patient-app/app/diagnostics/lab-comparison.tsx:53` | Choose this provider | **OPEN** | client change, not done in this pass | line |
-| 25 | `patient-app/app/diagnostics/lab-comparison.tsx:86` | Use this split | **OPEN** | client change, not done in this pass | line |
+| 25 | `patient-app/app/diagnostics/lab-comparison.tsx:86` | Use this split | **NOT A FIX** | a new feature: booking two providers from the suggested split needs the When picker for two bookings (Ord06) and a two-booking basket rule; the split is shown, the button is left out on purpose. Needs a spec | line |
 | 26 | `patient-web/app/[locale]/nursing/catalog/page.tsx:100` | Nursing entry: item page link | **DEFERRED** | owner / reviewer decision | line |
 | 27 | `patient-web/lib/ordering/server.ts:15` | Quote needs a saved address with coordinates | **OPEN** | client change, not done in this pass | line |
 | 28 | `patient-web/components-next/ordering/ordering-context.tsx:12` | 'For whom' (family member) in the context | **OPEN** | client change, not done in this pass | line |

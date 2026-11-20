@@ -11,6 +11,8 @@ import { showLocalizedAlert } from '../../../src/components/LocalizedAlert';
 import { useScreenUi } from '../../../src/components/screen/ScreenKit';
 import { apiFetch, downloadProtected } from '../../../src/utils/api';
 import { extractReceipt, isReceiptKind } from '../../../src/utils/receipt';
+import { shareFile } from '../../../src/utils/shareFile';
+import { logError } from '../../../src/utils/logger';
 import { Share, View } from 'react-native';
 
 /** One receipt: GET /billing/invoice/:kind/:id (issued for a paid booking or order), drawn as the thermal receipt. */
@@ -55,16 +57,30 @@ export default function ReceiptScreen() {
       setBusy(false);
     }
   };
-  const share = () => {
-    if (!receipt) return;
-    Share.share({ message: `${k('receipt.shareTitle', { no: receipt.invoiceNo })}\n${k('receipt.total')}: ${k('pharmacy.price', { n: money(receipt.total) })}` }).catch(() => undefined);
+  /** Share: the receipt itself (the card on screen as a PNG), the text lines only when the card cannot be captured. */
+  const share = async () => {
+    if (!receipt || busy) return;
+    setBusy(true);
+    let sharedImage = false;
+    try {
+      if (card.current) {
+        const uri = await captureRef(card, { format: 'png', quality: 1, result: 'tmpfile' });
+        await shareFile(uri, 'image/png', k('receipt.shareTitle', { no: receipt.invoiceNo }));
+        sharedImage = true;
+      }
+    } catch (e) {
+      logError('receipt:shareImage', e);
+    } finally {
+      setBusy(false);
+    }
+    if (!sharedImage) await Share.share({ message: `${k('receipt.shareTitle', { no: receipt.invoiceNo })}\n${k('receipt.total')}: ${k('pharmacy.price', { n: money(receipt.total) })}` }).catch(() => undefined);
   };
 
   return (
     <ConsultScreen title={k('receipt.title')} onBack={() => router.back()} testID="receipt-screen">
       <Gate status={status} onRetry={() => void reload()}>
         {receipt ? (
-          <ReceiptPaper receipt={receipt} busy={busy} cardRef={card} onDownload={() => void download()} onShare={share} onSaveImage={() => void saveImage()}>
+          <ReceiptPaper receipt={receipt} busy={busy} cardRef={card} onDownload={() => void download()} onShare={() => void share()} onSaveImage={() => void saveImage()}>
             {isReceiptKind(kind) && receipt.type !== 'credit_note' ? <ReceiptLinks kind={kind} bookingId={receipt.bookingId} /> : null}
           </ReceiptPaper>
         ) : null}
