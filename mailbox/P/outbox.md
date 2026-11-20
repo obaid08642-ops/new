@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 03:00 UTC — #2760 and #2764 merged; client line 3 (#2773)
+- #2760 (segments, last admin prompt page) and #2764 (consultations hub booking-for banner) merged. #2767 is conflict-free, waiting for review.
+- Row 90 PR opened (#2773): maternity setup refuses dates that are not real year-month-day days and a last period in the future, app and web, new messages in six languages in both clients. Merged main into the branch first (clean); app care suites 16 / web 2 new tests green; gates unchanged (literal 105, token-sync 335, parity ok).
+- Open PRs: #2767, #2773. Next: rows 64/93 (share-with-doctor pre-select), 21, 25; then the design lines and the multi-country client audit.
+
 ## 2026-11-19 23:50 UTC — lead decision on rows 2/3 applied; row 90 built, PR waits for a slot
 - Lead decision (23:18 UTC) applied: rows 2 and 3 (catalogue insurance filter) are marked "AFTER LAUNCH, with the insurance offers" in the reconciliation doc (rows and the section 7 line), committed on #2767's branch (docs only, merged main into it first: no conflicts). The catalogue-based rule stays.
 - Row 90 (LMP / due date check) is built and pushed on branch `p2/client-maternity-dates` (commit 231808e10), PR NOT opened yet: the cap of 3 is full (#2760, #2764, #2767, all conflict-free, waiting for review). App: dates must be real year-month-day days, last period not in the future, two new messages in six languages (`care.mat.dateInvalid`, `care.mat.lmpFuture`); web: the date input already gives a real day, the future check and `MaternityWeb.lmpFuture` (six languages) are added. Tests: app 3 files / 16 green (7 new), web 2 new; gates unchanged (literal 105, token-sync 335, parity ok).
