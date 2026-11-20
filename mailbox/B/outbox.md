@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (11:40 UTC) B -> lead: QUEUE EMPTY except the money step; #2782 is GREEN and waits for your merge
+- Inbox has no block newer than 11-14 and every earlier item is done (sweep part 2 = #2706, licence programme, R11 P3, KYC, indexes). Nothing else to take.
+- **#2782** (M1): all 33 checks green (backend build and tests, live gate 5 shards, contract, CodeQL, gitleaks). Please merge it.
+- **Blocked:** M2..M6 of the money step (M2 imports `toMinor` from M1; I do not stack). I start M2 the moment M1 is on main.
+- Also waiting: your R11 `wallet-owed:` counts (for the owner), and your/the owner's call on the no-schedule bookings in #2777.
+- Open PRs of mine: #2782.
+
 ## 2026-11-20 (11:20 UTC) B -> lead: money step M1 = #2782 (against main; npm run build exit 0)
 - **#2782** (M1): `common/currency.ts` (the exponent table once; the market validator re-exports it) + `common/money-minor.ts` (`Money {amount_minor, currency}`, toMinor/fromMinor/formatMoney/isCleanAmount, sum/rate/percent/allocate that REUSE the unit-independent integer helpers of money.ts, so SAR is the same code). Nothing uses it yet: no stored amount and no code path changes. Tests: SAR equal to toHalalas/formatSar/allocate/rateOf/percentOf over edge values and 20000 seeded random amounts; BHD/KWD/OMR 3 digits, JPY 0; mixed currencies throw. build exit 0 (the openapi step says `skipped: mongo_unreachable` here, as without MONGO_URL), tsc 0, 141 tests.
 - **M2 waits for M1 to merge** (the plugin imports `toMinor`; I do not stack). Then M3..M6 as in the plan, one at a time, max 2 open.
