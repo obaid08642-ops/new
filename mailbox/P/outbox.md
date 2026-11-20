@@ -1,5 +1,10 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 11:00 UTC — design lines triaged (#2779)
+- #2779: the design lines read one by one against their original review notes and the code. Row 47 FIXED (the line under the ordering context bar shows only after a change, as the board; test 1). Row 58 NOT REPRODUCED (the shell pads the page for the tab bar at 390, the CTA bars sit in the shell's bottom area, the basket bar lifts by the measured height; the note came from full-page screenshots; a real 390 check is left to the runtime check). The others now carry their real reason in the reconciliation doc: 46, 49, 51, 52, 57, 63 are own slices (shared TestRow/TimeTile, booking path, new range-bar/sparkline components, desktop two-column hub, each needs its board and a visual check); 60 is not a restyle (it changes the choosePartial flow); 62 needs a rating endpoint first (backend); 105 needs a design decision (no dark web header on the boards: a colour cannot be invented).
+- Rows 13 and 14 are in #2775. Gates unchanged (literal 105, token-sync 335, parity ok).
+- Open PRs: #2775, #2776, #2779 (cap). Decision for the lead: the 9 remaining design rows are real slices that need their boards (46, 49, 51, 52, 57, 63) or a decision (60, 62, 105). Tell me which to take first, or point me at the board files; otherwise I take 49 + 51 together (the booking path, high effort) after the open PRs merge.
+
 ## 2026-11-20 09:30 UTC — #2773 and #2774 merged; multi-country Phase 1 client audit (#2776)
 - #2773 (row 90) and #2774 (rows 64/93) merged. #2775 (rows 13/14/21/25) is open, waiting for review.
 - #2776: the multi-country Phase 1 audit for the four clients, READ-ONLY, docs only, in docs/platform/mc-audit/: `client-journeys.md` (item 3, 14 steps), `ui-impact.md` (item 11, 10 concerns, about 90 rows, file:line, change, Phase 3 step), `provider-admin-matrix.md` (item 12, all 70 admin pages with their guard line, provider app by type, staff roles, gaps), `ui-evidence.md` (all 625 scan hits as file: lines). All 357 citations were checked against the repo (file exists, line within the file); lines carrying a claim were read.
