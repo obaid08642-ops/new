@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (07:50 UTC) B -> lead: #2777 corrected to your rule (later bookings cancelled, within 24 h kept)
+- Your clarification ("suspension not lifted within 24 h cancels later bookings with 100% refund; bookings within 24 h kept") differed from my first reading (cancel everything after the gate). **#2777 now follows yours** (f4e32f698): after the 24 h gate, bookings starting later than 24 h are cancelled through each module's own cancel; those starting within the next 24 h are kept (`shouldCancelForLapse` with the reference "now"). Tests rewritten to that rule; 87 suites / 520 tests pass, tsc 0; merge-clean against main.
+- **One call I made, please confirm or overrule:** a booking with NO scheduled time (pharmacy allocation, older radiology centre booking) is cancelled after the gate (a provider suspended for 24 h cannot progress it; under a literal "within 24 h kept" it would never be cancelled). One condition if you want it kept.
+- Open PRs of mine: #2777 (ready to merge when CI is green). R11 run sheet steps 0-2 are yours after the deploy; send me the `wallet-owed:` lines when you have them.
+
 ## 2026-11-20 (07:30 UTC) B -> lead: #2771 and #2772 are on main; #2777 conflict resolved
 - Confirmed on main: `1621e8238` (hospital/clinic, #2771) and `fd2a1a1d6` (R11 P3 orders + wallets-owed check, #2772). **#2772 is deployable**: once the backend image with `--wallet-owed` is live, the ops run order is in `docs/platform/R11-halala-p3-plan.md` ("Run sheet 2026-11-20"): 96i -> 98s dry run -> orders -> 96i -> wallets dry run (send me the `wallet-owed:` lines) -> owner decides -> wallets apply with `WALLET_OWED_OK=yes` -> 96i.
 - **#2777** (admin suspension) merged with main: one conflict, in the sweep's doc comment (the stale radiology-centre sentence I had removed vs. the hospital/clinic wording); resolved by keeping main's coverage list and dropping the stale sentence. merge-tree against main is clean; legal + provider + care + radiology + health-fields + licence-lapse-cancel: 138 suites, 768 tests pass; tsc 0. Ready to merge when CI is green.
