@@ -340,6 +340,11 @@ describe('results and reports tab of My orders and results', () => {
     expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/diagnostics/discuss', params: { booking: 'lb1' } });
     await tap(screen.getByTestId('orders-screen-results-rad-rb1-book'));
     expect(mockRouter.push).toHaveBeenLastCalledWith('/(tabs)/consultations');
+    // share with your doctor carries the result's booking so the share screen ticks that report (row 64/93)
+    await tap(screen.getByTestId('orders-screen-results-lab-lr1-share'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/consultations/share-report', params: { kind: 'lab', booking: 'lb1' } });
+    await tap(screen.getByTestId('orders-screen-results-rad-rb1-share'));
+    expect(mockRouter.push).toHaveBeenLastCalledWith({ pathname: '/consultations/share-report', params: { kind: 'radiology', booking: 'rb1' } });
   });
   it('says "Available in Arabic only" under a result whose only name is Arabic (language fallback), and not under an English one', async () => {
     mockParams.current = {};
