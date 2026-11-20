@@ -5,6 +5,9 @@
 #                             96i `missing_shadow` figures: they must be equal, else stop.
 #   APPLY=yes COLLECTION=<name> CONFIRM=<same name>: backfills that ONE collection (`--include-ledger` only when INCLUDE_LEDGER=yes, which the owner must have agreed for platformledgerentries).
 #                             Prints `RUN_ID <uuid>` and the written / skipped counts. Writes only the missing shadows; never changes or removes a double; a re-run changes nothing.
+#   COLLECTION=wallets: also prints `wallet-owed:` COUNTS (wallets, zero / positive / negative, ONE total in SAR of the positive ones, months since their newest transaction; no id, no owner, no value per row): a balance above zero is money owed
+#                             to a patient (the wallet is a removed feature, owner decision 2026-11-09). APPLY on wallets also needs WALLET_OWED_OK=yes, set only after the owner decided what happens to any owed balance
+#                             (docs/platform/R11-wallet-balances-plan.md step 4). A dry run with COLLECTION empty prints the same counts.
 #   ROLLBACK_RUN=<run id> [APPLY=yes CONFIRM=<same run id>]: undoes exactly that run (the shadows it wrote, only while the double is still there). Dry run unless APPLY=yes.
 # Gates (APPLY refuses, a dry run only reports): the backend container is running and below MAX_BACKEND_MEM_PERCENT (default 80) of its memory; the newest nightly dump is from today (UTC), after 03:00,
 # and not tiny (MIN_DUMP_MB, default 50); the time is outside 03:00-05:00 UTC (the backup window). The node process is capped at 160 MB and 20 minutes.
@@ -14,6 +17,7 @@ COLLECTION=""
 CONFIRM=""
 INCLUDE_LEDGER=""
 ROLLBACK_RUN=""
+WALLET_OWED_OK=""
 DK="sudo -n docker"
 CT=${OPS_BACKEND_CONTAINER:-nabdah-backend}
 B=${OPS_BACKUP_DIR:-/opt/nabdah/backups}
@@ -54,6 +58,7 @@ if [ "$APPLY" = yes ]; then
     [ -n "$COLLECTION" ] || refuse "APPLY needs ONE COLLECTION (one collection per run)"
     case "$COLLECTION" in *,*) refuse "one collection per run: COLLECTION must not be a list";; esac
     [ "$CONFIRM" = "$COLLECTION" ] || refuse "CONFIRM must equal COLLECTION"
+    [ "$COLLECTION" = wallets ] && [ "$WALLET_OWED_OK" != yes ] && refuse "wallets: a positive balance is money owed to a patient; set WALLET_OWED_OK=yes only after the owner decided it (R11-wallet-balances-plan.md step 4)"
   fi
   if [ "$problems" -gt 0 ]; then say "REFUSE: $problems gate(s) failed; nothing was written"; exit 0; fi
 elif [ "$problems" -gt 0 ]; then say "dry run: $problems gate(s) would refuse an APPLY now (reported only)"; fi
@@ -67,6 +72,11 @@ else
 fi
 [ "$APPLY" = yes ] && args+=("--apply")
 
+# wallets: the owed-money counts first (read only, counts only), for a dry run and for a wallets run
+if [ -z "$ROLLBACK_RUN" ] && { [ -z "$COLLECTION" ] || [ "$COLLECTION" = wallets ]; }; then
+  wo=$(timeout 300 $DK exec -e NODE_OPTIONS=--max-old-space-size=160 "$CT" node dist/scripts/money-halala-backfill.js --wallet-owed 2>&1 < /dev/null)
+  printf '%s\n' "$wo" | grep '^WALLET_OWED ' | sed -E 's/^WALLET_OWED //' | tr -d '{}"' | tr ',' ' ' | cut -c1-300 | while IFS= read -r l; do say "wallet-owed: $l"; done
+fi
 # the container's own DB_NAME is the confirm word the CLI wants for a write; the owner's gate is the variables above
 DBCONFIRM=""
 [ "$APPLY" = yes ] && DBCONFIRM=$($DK exec "$CT" sh -c 'printf %s "$DB_NAME"' 2>/dev/null < /dev/null)
