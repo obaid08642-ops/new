@@ -13,7 +13,8 @@ import { step as scale, useScreenUi } from '../screen/ScreenKit';
 import { LANGUAGES, useApp, type ThemeMode } from '../../context/AppContext';
 import { isValidNewPassword } from '../../utils/authSession';
 import { logout } from '../../store/slices/authSlice';
-import { getCalendarPref, onCalendarPrefChange, setCalendarPref, type CalendarPref } from '../../utils/dates';
+import { fmtDate, getCalendarPref, onCalendarPrefChange, setCalendarPref, type CalendarPref } from '../../utils/dates';
+import { AGENT_SCOPE_KEYS, parseAgentConnections, type AgentConnection } from '../../utils/agentConnections';
 import { apiFetch } from '../../utils/api';
 import { logError } from '../../utils/logger';
 import { AccountScreen, ToggleRow, useFlags } from './AccountKit';
@@ -58,6 +59,7 @@ export function SettingsHubView() {
         <Row icon="bell" tone={RX_TONE} title={k('set.notifications')} subtitle={k('set.notificationsHint')} onPress={go('/settings/notifications')} testID="settings-notifications" />
         <Row icon="lock" tone="violet" title={k('set.privacy')} subtitle={k('set.privacyHint')} onPress={go('/settings/privacy')} testID="settings-privacy" />
         <Row icon="shield-check" tone={CARE_TONE} title={k('set.security')} subtitle={k('set.securityHint')} onPress={go('/settings/security')} testID="settings-security" />
+        <Row icon="sparkle" tone="violet" title={k('set.connectedApps')} subtitle={k('set.connectedAppsHint')} onPress={go('/settings/connected-apps')} testID="settings-connected-apps" />
         <Row icon="globe" tone="blue" title={k('set.language')} subtitle={k('set.languageHint')} onPress={go('/settings/language')} testID="settings-language" />
         <Row icon="headset" tone="ink" title={k('set.helpPolicies')} subtitle={k('set.helpPoliciesHint')} onPress={go('/settings/help')} last testID="settings-help" />
       </Panel>
@@ -250,6 +252,66 @@ export function SecuritySettingsView() {
         <Button label={k('set.security.end')} variant="danger" size="lg" fullWidth loading={endBusy} onPress={() => void endSession()} theme={theme} testID="session-end-confirm" />
         <Button label={k('cancel')} variant="outline" size="lg" fullWidth onPress={() => setEnding(null)} theme={theme} testID="session-end-cancel" />
       </Dialog>
+    </AccountScreen>
+  );
+}
+
+/**
+ * `/settings/connected-apps`: the AI assistants the patient connected (GET /patient/agent-connections) with what each may do, and a
+ * disconnect (DELETE /patient/agent-connections/:clientId, which ends that assistant's tokens at once). Same screen as the website's.
+ */
+export function ConnectedAppsView() {
+  const { k, c, t, flow, theme } = useScreenUi();
+  const remote = useRemote(async () => parseAgentConnections(await apiFetch('/patient/agent-connections')), [], 'settings:connected-apps');
+  const [list, setList] = useState<AgentConnection[]>([]);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    if (remote.data) setList(remote.data);
+  }, [remote.data]);
+
+  const disconnect = async (clientId: string) => {
+    if (busy) return;
+    setBusy(clientId);
+    setFailed(false);
+    try {
+      await apiFetch(`/patient/agent-connections/${encodeURIComponent(clientId)}`, { method: 'DELETE' });
+      setList((rows) => rows.filter((row) => row.clientId !== clientId));
+    } catch (e) {
+      logError('settings:disconnect-app', e);
+      setFailed(true);
+    } finally {
+      setBusy(null);
+    }
+  };
+  const since = (iso?: string) => {
+    const d = iso ? new Date(iso) : null;
+    return d && !Number.isNaN(d.getTime()) ? k('set.apps.since', { date: fmtDate(d, { dateStyle: 'medium' }) }) : '';
+  };
+
+  return (
+    <AccountScreen title={k('set.connectedApps')} fallback={'/settings' as Href} testID="connected-apps-screen">
+      <Gate status={remote.status} onRetry={() => void remote.reload()}>
+        {failed ? <Notice tone="danger" text={k('set.apps.failed')} /> : null}
+        {list.length === 0 ? (
+          <Notice tone="info" text={`${k('set.apps.emptyTitle')}. ${k('set.apps.empty')}`} />
+        ) : (
+          <Panel testID="connected-apps-list">
+            {list.map((app, i) => (
+              <Row
+                key={app.clientId}
+                icon="sparkle"
+                tone="violet"
+                title={app.name ?? app.clientId}
+                subtitle={[app.scopes.map((s) => k(AGENT_SCOPE_KEYS[s])).join(' · '), since(app.connectedAt)].filter(Boolean).join('\n')}
+                trailing={<Button label={k('set.apps.disconnect')} variant="outline" size="sm" loading={busy === app.clientId} disabled={busy !== null} onPress={() => void disconnect(app.clientId)} theme={theme} testID={`connected-app-disconnect-${app.clientId}`} />}
+                last={i === list.length - 1}
+              />
+            ))}
+          </Panel>
+        )}
+        <Text style={{ ...scale(t, 'small', 'regular'), color: c.text.secondary, ...flow }}>{k('set.apps.note')}</Text>
+      </Gate>
     </AccountScreen>
   );
 }

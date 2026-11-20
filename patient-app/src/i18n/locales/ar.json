@@ -4090,5 +4090,16 @@
   "map.preview": "معاينة الخريطة",
   "map.marker": "علامة على الخريطة",
   "errors.resetLinkInvalid": "رابط إعادة التعيين غير صالح أو منتهي الصلاحية. اطلب رابطاً جديداً.",
-  "auth.guestName": "زائر"
+  "auth.guestName": "زائر",
+  "set.connectedApps": "التطبيقات الذكية المتصلة",
+  "set.connectedAppsHint": "المساعدات التي سمحت لها بحسابك",
+  "set.apps.emptyTitle": "لا تطبيقات متصلة",
+  "set.apps.empty": "لم تربط أي مساعد ذكي بحسابك.",
+  "set.apps.note": "المساعد المتصل يطلب ولا يدفع: كل طلب أو حجز تؤكده وتدفعه أنت على نبض بلس.",
+  "set.apps.since": "متصل منذ {date}",
+  "set.apps.disconnect": "قطع الاتصال",
+  "set.apps.failed": "تعذر قطع الاتصال. حاول مرة أخرى.",
+  "set.apps.scopeRead": "عرض طلباتك وحجوزاتك الخاصة",
+  "set.apps.scopeOrder": "إرسال طلبات صيدلية للأصناف التي لا تحتاج وصفة",
+  "set.apps.scopeBook": "حجز مبدئي لمواعيد الاستشارات والتحاليل والتمريض لك"
 }
