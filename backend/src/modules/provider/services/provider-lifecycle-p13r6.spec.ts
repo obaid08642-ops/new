@@ -45,6 +45,16 @@ describe('P13-R6 provider suspend/reactivate propagation', () => {
     expect(publication.refresh).toHaveBeenCalledWith(expect.objectContaining({ entityType: 'provider' }));
   });
 
+  it('suspend records why and when on the profile (the licence-lapse sweep acts on an admin suspension that lasts 24 h or more) and hides it', async () => {
+    const { svc, profileCol } = setup(ProviderAccountStatus.APPROVED);
+    const before = Date.now();
+    await svc.suspend(ADMIN as any, 'acc-1', { reason: 'complaint' });
+    const set = (profileCol.updateMany.mock.calls as unknown[][])[0][1] as any;
+    expect(set.$set).toMatchObject({ status: 'suspended', suspended_reason: 'admin_suspended', public_eligibility: false, indexing_eligibility: false });
+    expect(set.$set.suspended_at).toBeInstanceOf(Date);
+    expect(set.$set.suspended_at.getTime()).toBeGreaterThanOrEqual(before);
+  });
+
   it('suspend removes discovery: SEO deactivate + projection refresh', async () => {
     const { svc, seoPipeline, publication, profileCol } = setup(ProviderAccountStatus.APPROVED);
     await svc.suspend(ADMIN as any, 'acc-1', { reason: 'complaint' });

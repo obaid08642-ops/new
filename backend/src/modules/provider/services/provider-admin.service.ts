@@ -403,7 +403,8 @@ export class ProviderAdminService {
     await this.restrictLogin(a);
     await this.accounts.model.db.collection('provider_profiles').updateMany(
       { account_id: id, user_id: { $exists: true } },
-      { $set: { status: 'suspended', public_eligibility: false, indexing_eligibility: false } },
+      // D2 follow-up (lead 2026-11-19): when and why, so the licence-lapse sweep can cancel the future bookings of a suspension that lasts 24 h or more (common/licence-lapse-cancel.ts)
+      { $set: { status: 'suspended', suspended_reason: 'admin_suspended', suspended_at: new Date(), public_eligibility: false, indexing_eligibility: false } },
     );
     await this.audit.create({ provider_account_id: id, actor_id: user.id, actor_role: 'admin', action: 'admin.provider_suspended', after: { reason: body?.reason } });
 

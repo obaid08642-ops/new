@@ -9,7 +9,7 @@ describe('licence lapse sweep (D2)', () => {
   const lapsedAt = Date.parse('2026-11-30T21:00:00Z');   // 15 h before `now`
   const profile = (over: Record<string, unknown> = {}) => ({ id: 'doc-1', type: 'doctor', license_expiry_date: new Date(`${lapseDay}T00:00:00Z`), ...over });
 
-  function run(profiles: any[], appts: any[], at = now, only?: string) {
+  function run(profiles: any[], appts: any[], at = now, only?: string, source?: 'licence' | 'admin') {
     const queries: any[] = [];
     const iter = (rows: any[]) => ({ async *[Symbol.asyncIterator]() { for (const r of rows) yield r; } });
     const svc: any = Object.create(LegalEnterpriseService.prototype);
@@ -17,7 +17,7 @@ describe('licence lapse sweep (D2)', () => {
     svc.logger = { warn: jest.fn(), error: jest.fn() };
     const emitted: any[] = [];
     svc.events = { emit: (n: string, p: any) => emitted.push([n, p]) };
-    return svc.licenceLapseSweep(at).then((r: any) => ({ r, emitted, queries }));
+    return svc.licenceLapseSweep(at, source).then((r: any) => ({ r, emitted, queries }));
   }
   const appt = (id: string, startMs: number) => ({ id, patient_id: `pat-${id}`, slot_start: new Date(startMs) });
 
@@ -102,5 +102,34 @@ describe('licence lapse sweep (D2)', () => {
   it('a radiology provider is swept in BOTH of its booking systems (ops bookings and centre bookings)', async () => {
     const { queries } = await run([profile({ id: 'rad-1', type: 'radiology', account_id: 'acc-1' })], []);
     expect(queries.map(([n]) => n).filter((n) => n !== 'provider_profiles').sort()).toEqual(['radiologybookings', 'radiologycenterbookings']);
+  });
+  it('admin suspension (lead decision 2026-11-20): a suspension that lasted 24 h or more sends the bookings starting LATER than 24 h and keeps those starting within 24 h', async () => {
+    const suspendedAt = new Date(now - 30 * H);
+    const adminProfile = { id: 'doc-1', type: 'doctor', suspended_at: suspendedAt };
+    const { r, emitted, queries } = await run([adminProfile], [appt('far', now + 3 * 24 * H), appt('soon', now + 3 * H), appt('edge', now + 25 * H)], now, undefined, 'admin');
+    expect(r).toEqual({ profiles: 1, cancel_requested: 2 });
+    expect(emitted.map((e) => e[1].booking_id)).toEqual(['far', 'edge']);        // 'soon' (in 3 h) is kept even though the suspension is 30 h old (unlike a licence lapse)
+    expect(emitted[0][1]).toMatchObject({ kind: 'appointment', provider_profile_id: 'doc-1', lapse_at: suspendedAt.toISOString() });
+    const [, pq] = queries.find(([n]) => n === 'provider_profiles');
+    expect(pq).toMatchObject({ status: 'suspended', suspended_reason: 'admin_suspended' });
+    expect(pq.license_expiry_date).toBeUndefined();
+    expect(pq.suspended_at).toEqual({ $ne: null, $lte: new Date(now - 24 * H) });     // a suspension lifted within 24 h (profile active again) or younger than 24 h is never selected
+  });
+
+  it('admin suspension: a booking with no scheduled time (a pharmacy allocation) is cancelled once the suspension lasted 24 h, where a licence lapse of 15 h keeps it', async () => {
+    const rows = [{ id: 'al1', patient_id: 'p1' }];
+    const admin = await run([{ id: 'ph-1', type: 'pharmacy', account_id: 'acc-ph', suspended_at: new Date(now - 30 * H) }], rows, now, undefined, 'admin');
+    expect(admin.r).toEqual({ profiles: 1, cancel_requested: 1 });
+    const lic = await run([profile({ id: 'ph-1', type: 'pharmacy', account_id: 'acc-ph' })], rows, now);          // lapsed 15 h ago: still inside the grace
+    expect(lic.r).toEqual({ profiles: 1, cancel_requested: 0 });
+  });
+
+  it('an admin-suspended profile with an unreadable suspended_at is skipped, and the licence source still reads its own filter', async () => {
+    const bad = await run([{ id: 'doc-1', type: 'doctor', suspended_at: 'not a date' }], [appt('far', now + 3 * 24 * H)], now, undefined, 'admin');
+    expect(bad.r).toEqual({ profiles: 0, cancel_requested: 0 });
+    const lic = await run([profile()], [], now);
+    const [, pq] = lic.queries.find(([n]) => n === 'provider_profiles');
+    expect(pq).toMatchObject({ suspended_reason: 'license_expired' });
+    expect(pq.suspended_at).toBeUndefined();
   });
 });
