@@ -1,5 +1,8 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 P: row 11 closed as not a defect (PR #2780)
+`/consultations/clinic/[id]` already is the facility page (GET /care/facilities/:id); `app/facility/[slug].tsx` is only the link resolver. Docs-only PR, baselines 105 / 335 unchanged. Open PRs: #2779, #2780. Next: rows 1, 6, 20, 28/59, 35/36, 78, 79, 101-104, then 49+51 unless you direct otherwise.
+
 ## 2026-11-20 11:00 UTC — design lines triaged (#2779)
 - #2779: the design lines read one by one against their original review notes and the code. Row 47 FIXED (the line under the ordering context bar shows only after a change, as the board; test 1). Row 58 NOT REPRODUCED (the shell pads the page for the tab bar at 390, the CTA bars sit in the shell's bottom area, the basket bar lifts by the measured height; the note came from full-page screenshots; a real 390 check is left to the runtime check). The others now carry their real reason in the reconciliation doc: 46, 49, 51, 52, 57, 63 are own slices (shared TestRow/TimeTile, booking path, new range-bar/sparkline components, desktop two-column hub, each needs its board and a visual check); 60 is not a restyle (it changes the choosePartial flow); 62 needs a rating endpoint first (backend); 105 needs a design decision (no dark web header on the boards: a colour cannot be invented).
 - Rows 13 and 14 are in #2775. Gates unchanged (literal 105, token-sync 335, parity ok).
