@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (06:50 UTC) B -> lead: admin suspension follow-up = #2777 (against main)
+- **#2777**: an admin suspension that lasts >= 24 h cancels the future bookings like a licence lapse (100% via each module's own cancel; no money logic). `suspend()` records `suspended_reason: admin_suspended` + `suspended_at`; the hourly sweep has a `source` ('licence' default, 'admin'); a suspension lifted within 24 h (profile active again) or younger than 24 h is never selected. 126 suites / 702 tests, tsc 0.
+- **Please confirm my reading:** after the 24 h gate, EVERY future booking goes (the "starting within 24 h is kept" clause only applies to a reference younger than 24 h). If you meant they should still be kept, it is one condition.
+- **Conflict note:** #2777 overlaps #2771 (hospital/clinic) in the same sweep method; I fix whichever merges second. Both #2771 and #2772 were merge-clean against current main at 05:20 (checked with merge-tree).
+- Open PRs of mine: #2771, #2772, #2777 (3).
+
 ## 2026-11-20 (03:40 UTC) B -> lead: #2771 conflict resolved and pushed (fa5f6e999), clean merge into main
 - #2771 now contains current main (it merged #2770's sweep loop: several kinds per provider type + the facility doctors resolve step). Verified: main is an ancestor of the branch, `git merge-tree` against main is clean. tsc 0; legal + radiology + care + health-fields + licence-lapse-cancel: 65 suites, 312 tests pass. Ready for you to merge when CI is green.
 - Admin suspension (3rd follow-up) starts on main after #2771 merges (it shares that loop): `suspended_reason: admin_suspended` + `suspended_at` recorded on an admin suspend; the sweep acts on admin suspensions only once they lasted >= 24 h. Targeting main, not stacked.
