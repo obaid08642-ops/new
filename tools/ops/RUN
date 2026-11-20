@@ -1,5 +1,5 @@
-# 2026-11-20 run 140 = deploy main@34674b99: markets step 3 (#2766 MarketContext per request, cached; backfill NOT run), radiology centre lapse (#2770), patient-app rows 94/100/64/93/90 (#2764 #2767 #2774 #2773), admin segments (#2760). Then read-only 96r 96j 96h. Never 03:00-05:00 UTC.
-release:34674b9952d4447575544593d0caac7f5b904eb7
+# 2026-11-20 run 141 = deploy main@81868050 (supersedes 140, not approved): markets steps 3-5 (#2766 #2769 #2778; SA unchanged, backfill NOT run), licence lapse for radiology centres, hospitals/clinics and admin suspension (#2770 #2771 #2777), R11 P3 tooling (#2772, nothing written), patient-app/web fixes (#2764 #2767 #2773 #2774 #2775), admin segments (#2760). Then read-only 96r 96j 96h. Never 03:00-05:00 UTC.
+release:81868050ee487d5b4eb0064a40d54585d0f0cc77
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
