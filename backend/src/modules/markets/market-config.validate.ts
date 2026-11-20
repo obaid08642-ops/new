@@ -1,9 +1,9 @@
 import { MarketConfig, Weekday } from './market-config.types';
 
-/** ISO 4217 minor-unit digits for the currencies we expect to meet; unknown codes are refused until added here. */
-export const CURRENCY_EXPONENTS: Readonly<Record<string, number>> = {
-  SAR: 2, EGP: 2, AED: 2, USD: 2, EUR: 2, JOD: 3, BHD: 3, KWD: 3, OMR: 3, JPY: 0,
-};
+import { CURRENCY_EXPONENTS } from '../../common/currency';
+
+/** The exponent table now lives in `common/currency.ts` (one place for the money helpers and this validator); re-exported for the existing imports. */
+export { CURRENCY_EXPONENTS };
 
 const WEEKDAYS: readonly Weekday[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
