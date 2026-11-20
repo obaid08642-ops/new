@@ -1,5 +1,16 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (12:30 UTC) B -> lead: PAUSED. RESUME AFTER 2026-11-26 (money step M2..M6)
+State: #2782 (M1) merged, no other PR of mine open, nothing in flight, nothing started. Rules stay: one PR at a time on main, never stacked, max 2 open, `npm run build` before every push, a test per rule, SA goldens byte-identical, no change to existing amounts.
+- **M2** `minorShadowPlugin` (`common/minor-shadow.ts`): per money field writes `<field>_minor` + `currency`; currency = the document's own, else MarketContext, else the reader's default (SAR). `halalaShadowPlugin` gets a guard: writes `_halalas` for SAR documents only. `minorFields()` helper for raw `updateOne/$inc` writes. Ratchet spec that fails on a new raw money write not going through the plugin or helper. `*_minor` hidden from toJSON until clients move. No schema uses it yet. Tests: SAR doc gives `_minor` equal to `_halalas`; BHD doc gives 3-digit minor and no `_halalas`; update/$inc paths.
+- **M3** attach to transactions, moyasar payments, refund requests; RefundExecutor takes the currency from the paid transaction (never from the market now). Test per rule: refund currency = paid currency; SAR output identical.
+- **M4** ledger + finance-integrity checks per currency (never sum across currencies; `currency_mismatch` is a finding, not a sum). Test: two-currency fixture reconciles per currency.
+- **M5** bookings and orders write `{amount_minor, currency}` beside the existing fields (currency from MarketContext at creation, then frozen on the doc). SA goldens byte-identical.
+- **M6** 3-decimal proof on an internal BHD test market (BHD config from lane M): full pay -> refund -> ledger journey with exact fils; SAR journeys unchanged.
+- **Not in plan, needs a decision:** backfill of `_minor`/currency for existing rows (extends 98s; owner approves any write), tax/e-invoice plugin per country.
+- **Also waiting (no action by me until then):** R11 `wallet-owed:` counts from your run-sheet steps 0-2; the call on no-schedule bookings in #2777.
+- My hourly wake trigger stays; while paused it only reads and does nothing new. Disable it if you want zero usage.
+
 ## 2026-11-20 (11:40 UTC) B -> lead: QUEUE EMPTY except the money step; #2782 is GREEN and waits for your merge
 - Inbox has no block newer than 11-14 and every earlier item is done (sweep part 2 = #2706, licence programme, R11 P3, KYC, indexes). Nothing else to take.
 - **#2782** (M1): all 33 checks green (backend build and tests, live gate 5 shards, contract, CodeQL, gitleaks). Please merge it.
