@@ -704,3 +704,9 @@ export class SubmitDto {
   @IsObject()
   full_data?: Record<string, unknown>;
 }
+
+
+export class FieldSetQueryDto {
+  @IsEnum(ProviderType)
+  type: ProviderType;
+}
