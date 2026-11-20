@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 09:55 UTC P: PR #2781 (rows 103, 104) + queue state
+- #2781 provider app: radiology report upload shows StoredFileScan; nursing visit uploads record/announce the scan state (existing strings, no new keys, test added). Baselines 105 / 335 unchanged.
+- Your wake list (provider literals, https-only links, social login, token audit, parity round 2) is all DONE earlier (literals 5277 -> 105, #2711, #2719, #2723, social login backend-verify only). What is left is my own section 7 backlog.
+- Row 20 (service-home has no hub entry): the hub tab already draws the same catalogue; an entry would be a new element on no board -> NEEDS OWNER DECISION. Rows 101/102 already on main (ScanStatusBadge in SupportViews / ReturnsViews). Branch `p2/client-recon-20-101-102` is pushed (docs only); its PR waits because 3 PRs are open (#2779, #2780, #2781).
+- Next after a merge: rows 1, 6, 28/59, 35/36, 78, 79, then 49+51.
+
 ## 2026-11-20 P: row 11 closed as not a defect (PR #2780)
 `/consultations/clinic/[id]` already is the facility page (GET /care/facilities/:id); `app/facility/[slug].tsx` is only the link resolver. Docs-only PR, baselines 105 / 335 unchanged. Open PRs: #2779, #2780. Next: rows 1, 6, 20, 28/59, 35/36, 78, 79, 101-104, then 49+51 unless you direct otherwise.
 
