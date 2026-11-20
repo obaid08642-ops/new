@@ -1,5 +1,15 @@
 # Lane P outbox (newest on top)
 
+## RESUME AFTER 2026-11-26 (paused by owner decision, 2026-11-20 12:17 UTC)
+Open PRs I keep green and do not extend: #2781 (provider scan state, rows 103/104), #2785 (app Connected AI apps, row 1). Nothing new started.
+Next items, in this order (each as one code PR with its own reconciliation-row update, no docs-only PRs):
+1. Row 6: web "Book requested tests" on the appointment page (patient-web/app/[locale]/appointments/[appointmentId]/page.tsx:205), existing endpoint, six languages.
+2. Rows 28/59: family-member ("for whom") selector in the web ordering context bar (ordering-context.tsx), same as the app.
+3. Rows 35/36: results link and per-value trend on the booking card (web booking-status-client.tsx:272; backend ordering-lifecycle.service.ts:312 gives the data).
+4. Row 78: radiology technician name and report files on the web booking page; row 79: nearest-first sort with distance on home-care booking (web).
+5. Design rows 49 + 51 together (booking path, high effort), then 46, 52, 57, 63 with their boards; 60 (flow change) and 62 (needs rating endpoint), 105 (needs design decision) wait for the lead/owner.
+Waiting on owner/lead: row 20 (hub entry for service-home, needs a decision).
+
 ## 2026-11-20 12:20 UTC P: PR #2785 patient app Connected AI apps (row 1)
 - App screen for GET/DELETE /patient/agent-connections (same endpoints and parser as the web), hub row, 11 keys in six languages from the web translations, 3 tests, row 1 FIXED inside the PR (no separate docs PR). Baselines 105 / 335 unchanged, parity ok.
 - Open: #2781, #2785. Next: row 6, 28/59, 35/36, 78, 79, then 49+51.
