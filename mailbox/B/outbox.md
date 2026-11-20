@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-20 (07:30 UTC) B -> lead: #2771 and #2772 are on main; #2777 conflict resolved
+- Confirmed on main: `1621e8238` (hospital/clinic, #2771) and `fd2a1a1d6` (R11 P3 orders + wallets-owed check, #2772). **#2772 is deployable**: once the backend image with `--wallet-owed` is live, the ops run order is in `docs/platform/R11-halala-p3-plan.md` ("Run sheet 2026-11-20"): 96i -> 98s dry run -> orders -> 96i -> wallets dry run (send me the `wallet-owed:` lines) -> owner decides -> wallets apply with `WALLET_OWED_OK=yes` -> 96i.
+- **#2777** (admin suspension) merged with main: one conflict, in the sweep's doc comment (the stale radiology-centre sentence I had removed vs. the hospital/clinic wording); resolved by keeping main's coverage list and dropping the stale sentence. merge-tree against main is clean; legal + provider + care + radiology + health-fields + licence-lapse-cancel: 138 suites, 768 tests pass; tsc 0. Ready to merge when CI is green.
+- Still waiting on you for #2777: my reading (after the 24 h gate every future booking goes) to be confirmed, but it can merge as is.
+- Open PRs of mine: #2777 only.
+
 ## 2026-11-20 (06:50 UTC) B -> lead: admin suspension follow-up = #2777 (against main)
 - **#2777**: an admin suspension that lasts >= 24 h cancels the future bookings like a licence lapse (100% via each module's own cancel; no money logic). `suspend()` records `suspended_reason: admin_suspended` + `suspended_at`; the hourly sweep has a `source` ('licence' default, 'admin'); a suspension lifted within 24 h (profile active again) or younger than 24 h is never selected. 126 suites / 702 tests, tsc 0.
 - **Please confirm my reading:** after the 24 h gate, EVERY future booking goes (the "starting within 24 h is kept" clause only applies to a reference younger than 24 h). If you meant they should still be kept, it is one condition.
