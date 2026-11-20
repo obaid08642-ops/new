@@ -2,6 +2,7 @@ const mockPost = jest.fn();
 jest.mock('../../../api/client', () => ({ __esModule: true, default: { post: (...a: unknown[]) => mockPost(...a) } }));
 const read = async (uri: string) => `b64:${uri}`;
 
+import { scanOfStored } from '../../../utils/scanRegistry';
 import { MAX_VISIT_FILES, buildVisitReportBody, uploadVisitFiles } from '../visitFiles';
 
 describe('N1 visit result files', () => {
@@ -29,5 +30,12 @@ describe('N1 visit result files', () => {
     const body = buildVisitReportBody({ attachments: many, vitals: { pulse: 70 }, notes: ' ok ', followUp: ' rest ', signature: 'sig' });
     expect(body).toEqual({ complete: true, attachments: many.slice(0, MAX_VISIT_FILES), vitals: { pulse: 70 }, clinical_notes: 'ok', recommendations: 'rest', signature: 'sig' });
     expect(buildVisitReportBody({ attachments: [{ storage_id: 'a' }] })).toEqual({ complete: true, attachments: [{ storage_id: 'a' }] });
+  });
+
+  it('remembers an upload the scan has not passed yet, so the screen can tell the provider', async () => {
+    mockPost.mockResolvedValueOnce({ data: { id: 'p1', scan_status: 'pending_scan' } }).mockResolvedValueOnce({ data: { id: 'p2' } });
+    await uploadVisitFiles([{ uri: 'u1', name: 'a.pdf', mime: 'application/pdf' }, { uri: 'u2', name: 'b.pdf', mime: 'application/pdf' }], read);
+    expect(scanOfStored('p1')).toBe('pending');
+    expect(scanOfStored('p2')).toBe('ok');
   });
 });

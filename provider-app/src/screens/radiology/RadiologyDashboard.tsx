@@ -14,6 +14,7 @@ import { IBg, I } from '../../components/icons';
 import { SP, R, FS, FW, C } from '../../constants';
 import { ProviderWalletScreen, WithdrawalWorkflow, MedicalJobsScreen, MedicalDrugIndexScreen } from '../shared/SharedScreens';
 import { InsuranceRequestsScreen } from '../shared/InsuranceRequestsScreen';
+import { StoredFileScan } from '../../components/StoredFileScan';
 import { MyServicesScreen } from '../shared/MyServicesScreen';
 import { orderingStackScreens, ORDERING_ENTRY } from '../ordering';
 
@@ -423,6 +424,8 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
   const [reportFile, setReportFile] = useState<any | null>(null);
   const [dicomFile, setDicomFile] = useState<any | null>(null);
   const [pdfUploaded, setPdfUploaded] = useState(Boolean(order.report_storage_object_id));
+  // the stored report's id: a file still being scanned shows "being checked" under the button until it passes
+  const [reportObjectId, setReportObjectId] = useState<string | null>(order.report_storage_object_id ? String(order.report_storage_object_id) : null);
   const [findings, setFindings] = useState(order.clinical_impression_report || '');
   const [reportStatus, setReportStatus] = useState(order.report_status || 'draft');
 
@@ -454,6 +457,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
         findings: findings.trim(),
       });
       setPdfUploaded(true); setReportStatus('draft');
+      if (typeof reportStorageObjectId === 'string') setReportObjectId(reportStorageObjectId);
       show(tt('raddash.ba4df1d7'), 'success');
     } catch (e: any) { show(e?.response?.status === 423 ? (tt('raddash.a237e338')) : (e?.response?.data?.message || e.message), 'error'); } finally { setLoading(false); }
   };
@@ -497,6 +501,7 @@ function ReportingScreen({ order, onBack }: { order: any; onBack: () => void }) 
         {uploadsOn ? (
 <NBtn label={pdfUploaded ? (tt('raddash.96f339ca')) : (tt('raddash.b90bda3e'))} loading={loading} onPress={handleUploadPdf} style={{ backgroundColor: pdfUploaded ? tokens.success : tokens.mintDeep }} />
 ) : null}
+        {pdfUploaded && reportObjectId ? <StoredFileScan id={reportObjectId} onReupload={() => pickFile('report')} style={{ marginTop: SP.sm }} /> : null}
         {!pdfUploaded && <Text style={{ fontSize: FS.xs, color: tokens.error, textAlign: AR ? 'right' : 'left', marginTop: SP.sm }}>{tt('raddash.ded2413b')}</Text>}
       </NCard>
 
