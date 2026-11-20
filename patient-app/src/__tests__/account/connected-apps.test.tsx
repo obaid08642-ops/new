@@ -2,7 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { ConnectedAppsView } from '../../components/account/ConnectedAppsView';
+import { ConnectedAppsView } from '../../components/account/SettingsViews';
 import { message } from '../../components/screen/ScreenKit';
 import { parseAgentConnections } from '../../utils/agentConnections';
 
@@ -13,6 +13,9 @@ jest.mock('react-native-localize', () => ({ getLocales: () => [], findBestLangua
 jest.mock('../../context/AppContext', () => ({ useApp: () => ({ isDark: false, lang: 'en', isRTL: false }) }));
 jest.mock('../../utils/api', () => ({ ...jest.requireActual('../../utils/api'), apiFetch: (...a: unknown[]) => mockApi(...a) }));
 jest.mock('../../utils/logger', () => ({ logError: jest.fn() }));
+jest.mock('../../components/NabdLogo', () => ({ NabdLogo: () => null }));
+jest.mock('../../components/NotificationAsk', () => ({ NotificationAsk: () => null }));
+jest.mock('../../utils/isOffline', () => ({ isOffline: jest.fn(async () => false) }));
 
 const metrics = { frame: { x: 0, y: 0, width: 390, height: 844 }, insets: { top: 47, bottom: 34, left: 0, right: 0 } };
 const k = (key: string) => message('en', key);
