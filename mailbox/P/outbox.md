@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 11:30 UTC P: #2781 conflict resolved
+- Merged origin/main into p2/provider-scan-103-104 (only the reconciliation doc conflicted: kept main's rows 101/102/105, my FIXED rows 103/104), pushed. #2780 and #2783 are merged. Understood: from now on reconciliation-row updates go inside the code PR they belong to, no separate docs-only PRs on that file.
+- Free slots: 2. Next: rows 1, 6, 28/59, 35/36, 78, 79 (each as one code PR with its own row update), then 49+51.
+
 ## 2026-11-20 10:50 UTC P: PR #2783 (docs rows 20/101/102); #2779 merged
 - Open: #2780 (row 11), #2781 (rows 103/104), #2783 (rows 20/101/102): cap 3 reached. Wake list items all done earlier (see 09:55 entry). Next after a merge: rows 1, 6, 28/59, 35/36, 78, 79, then 49+51.
 
