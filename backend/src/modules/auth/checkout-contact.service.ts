@@ -12,6 +12,7 @@ import { parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
+import { normalizeDigits } from '../markets/plugins/digits';
 
 export interface NormalizedPhone {
   e164: string;
@@ -78,12 +79,7 @@ export async function assertUnverifiedCodAllowed(db: Connection, accountId: stri
   if (amount > limits.max_value) throw new BadRequestException('cod_value_limit_for_unverified_customer');
 }
 
-/** Arabic-Indic (٠-٩) and Eastern Arabic-Indic (۰-۹) to Latin. */
-export function normalizeDigits(input: string): string {
-  return input
-    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
-    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
-}
+export { normalizeDigits };
 
 @Injectable()
 export class CheckoutContactService {
