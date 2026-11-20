@@ -45,11 +45,23 @@ export class MarketsService implements OnModuleInit {
     );
   }
 
+  private marketCache = new Map<string, { at: number; value: MarketInfo | null }>();
+
+  /** Hot path (the middleware calls it per request): positive and not-found answers are both cached for 60 s, so N requests = 1 read. */
   async getMarket(id: string): Promise<MarketInfo> {
+    const hit = this.marketCache.get(id);
+    if (hit && Date.now() - hit.at < TTL_MS) {
+      if (hit.value) return hit.value;
+      throw new NotFoundException('market_not_found');
+    }
     const m = await this.markets.findOne({ id }).lean<MarketInfo | null>();
-    if (m) return { id: m.id, country: m.country, operator_id: m.operator_id, status: m.status };
-    if (id === SA_MARKET_ID) return SA_MARKET; // DB not seeded yet (fresh test DB): SA is always known
-    throw new NotFoundException('market_not_found');
+    let value: MarketInfo | null;
+    if (m) value = { id: m.id, country: m.country, operator_id: m.operator_id, status: m.status };
+    else if (id === SA_MARKET_ID) value = SA_MARKET; // DB not seeded yet (fresh test DB): SA is always known
+    else value = null;
+    this.marketCache.set(id, { at: Date.now(), value });
+    if (!value) throw new NotFoundException('market_not_found');
+    return value;
   }
 
   /** `at` omitted = "now" (cached for 60 s). An explicit `at` (past or future) always reads the database and never touches the cache. */
