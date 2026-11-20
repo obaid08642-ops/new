@@ -1,5 +1,9 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-20 03:40 UTC — client lines 4 and 5 (rows 64 and 93, #2774)
+- Rows 64 and 93 (#2774): "Share with your doctor" from a result now opens the share-reports screen with the result's kind and booking, and the screen ticks the medical report of that booking (`lab_booking_id` / `radiology_booking_id`); a result with no report yet ticks nothing as before. App only (the web has no share-with-doctor action on a result). Tests 5 new + orders-screens extended (22 green); gates unchanged (literal 105, token-sync 335, parity ok).
+- Open PRs: #2767, #2773, #2774 (cap). Next: rows 21 (doctor-order items pre-ticked), 25 ("Use this split"), then the design lines and the multi-country client audit.
+
 ## 2026-11-20 03:00 UTC — #2760 and #2764 merged; client line 3 (#2773)
 - #2760 (segments, last admin prompt page) and #2764 (consultations hub booking-for banner) merged. #2767 is conflict-free, waiting for review.
 - Row 90 PR opened (#2773): maternity setup refuses dates that are not real year-month-day days and a last period in the future, app and web, new messages in six languages in both clients. Merged main into the branch first (clean); app care suites 16 / web 2 new tests green; gates unchanged (literal 105, token-sync 335, parity ok).
