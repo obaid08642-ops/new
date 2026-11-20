@@ -213,10 +213,15 @@ export class RadiologyOpsService {
    */
   @OnEvent(LICENCE_LAPSE_CANCEL_EVENT)
   async onLicenceLapseCancel(e: LicenceLapseCancelEvent): Promise<void> {
-    if (e?.kind !== 'radiology' || !e.booking_id) return;
+    const centre = e?.kind === 'radiology_center';
+    if ((e?.kind !== 'radiology' && !centre) || !e.booking_id) return;
     try {
-      const b: any = await this.bkgModel.findOne({ id: String(e.booking_id) }, { state: 1 }).lean();
-      if (!b || b.state !== RadiologyBookingState.CONFIRMED) return;
+      // The ops bookings keep their lifecycle in `state` (CONFIRMED); the older centre bookings in `status` (ACCEPTED, or CONFIRMED of the ops vocabulary). Nothing else is cancelled.
+      const b: any = centre
+        ? await this.centerBkgModel.findOne({ id: String(e.booking_id) }, { status: 1 }).lean()
+        : await this.bkgModel.findOne({ id: String(e.booking_id) }, { state: 1 }).lean();
+      const confirmed = centre ? ['ACCEPTED', 'CONFIRMED'].includes(String(b?.status)) : b?.state === RadiologyBookingState.CONFIRMED;
+      if (!b || !confirmed) return;
       await this.transition(String(e.booking_id), RadiologyBookingState.CANCELLED, { id: 'system', role: 'admin' }, LICENCE_LAPSE_CANCEL_REASON);
     } catch (err: any) {
       new Logger('LicenceLapse').error(`licence lapse cancel failed for radiology booking ${e.booking_id}: ${err?.message || err}`);

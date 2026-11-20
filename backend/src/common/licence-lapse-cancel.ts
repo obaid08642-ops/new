@@ -3,13 +3,15 @@
  * with a 100% refund (the existing "provider cancels" refund path of every service; no money logic here), the patient is told and can rebook. A visit that starts inside the next 24 hours is kept
  * only while the licence lapsed less than 24 hours ago (a short, bounded grace for the patient already on the way); after that it is cancelled too.
  */
+import { Types } from 'mongoose';
+
 export const LICENCE_LAPSE_CANCEL_EVENT = 'provider.licence_lapse_cancel';
 export const LICENCE_LAPSE_CANCEL_REASON = 'provider_license_expired';
 export const LICENCE_LAPSE_KEEP_MS = 24 * 3600_000;
 
 /** What the sweep emits for ONE booking; the module that owns the booking handles it with its own cancel (and so its own refund). */
 export interface LicenceLapseCancelEvent {
-  kind: 'appointment' | 'lab' | 'radiology' | 'home_care' | 'pharmacy_allocation';
+  kind: 'appointment' | 'lab' | 'radiology' | 'radiology_center' | 'home_care' | 'pharmacy_allocation';
   booking_id: string;
   patient_id?: string;
   provider_profile_id: string;
@@ -40,7 +42,7 @@ export interface LapseKind {
   confirmed: Record<string, unknown>;
 }
 const accountIds = (p: { account_id?: string; user_id?: string }) => [p.account_id, p.user_id].filter((v): v is string => typeof v === 'string' && !!v);
-export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology' | 'home_care' | 'pharmacy_allocation', LapseKind> = {
+export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology' | 'radiology_center' | 'home_care' | 'pharmacy_allocation', LapseKind> = {
   appointment: { kind: 'appointment', types: ['doctor'], collection: 'appointments', start: 'slot_start', owner: (p) => ({ doctor_id: p.id }), confirmed: { status: 'CONFIRMED' } },
   lab: { kind: 'lab', types: ['lab'], collection: 'labbookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
   radiology: { kind: 'radiology', types: ['radiology'], collection: 'radiologybookings', start: 'scheduled_at', owner: (p) => ({ provider_account_id: { $in: accountIds(p) } }), confirmed: { state: 'CONFIRMED' } },
@@ -50,4 +52,7 @@ export const LAPSE_KINDS: Record<'appointment' | 'lab' | 'radiology' | 'home_car
   // starting NOW: kept for the first 24 h after the lapse (the same grace as a visit inside the next 24 h), cancelled after that. The unit is the pharmacy's ALLOCATION of the order (`booking_id` is the
   // allocation id); the allocation's own cancel cancels the order when it was the only live one.
   pharmacy_allocation: { kind: 'pharmacy_allocation', types: ['pharmacy'], collection: 'pharmacy_allocations', start: null, owner: (p) => ({ pharmacy_account_id: { $in: accountIds(p) } }), confirmed: { status: { $in: ['pending_review', 'partially_confirmed', 'confirmed'] } } },
+  // Radiology CENTRE bookings (the older system, `radiologycenterbookings`): no scheduled time (so, as for a pharmacy allocation, what the centre has not started counts as starting now: kept for the first 24 h
+  // after the lapse, cancelled after), the centre is an ObjectId in `radiology_center_id` (the provider's user/account id), accepted bookings are ACCEPTED (or CONFIRMED in the ops vocabulary the schema also allows).
+  radiology_center: { kind: 'radiology_center', types: ['radiology'], collection: 'radiologycenterbookings', start: null, owner: (p) => ({ radiology_center_id: { $in: accountIds(p).filter((v) => Types.ObjectId.isValid(v) && String(new Types.ObjectId(v)) === v).map((v) => new Types.ObjectId(v)) } }), confirmed: { status: { $in: ['ACCEPTED', 'CONFIRMED'] } } },
 };
