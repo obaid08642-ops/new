@@ -1,5 +1,14 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-26 P: QUEUE EMPTY (what is left is blocked; list below)
+Done and merged or open: rows 1 (#2785 merged), 11 (#2780), 20/101/102 (#2783), 103/104 (#2781), 78 (#2787 open), 79 (#2788 open), 6/28/59/35/36 (already on main, recorded in #2787). Wake-list items (provider literals, https-only, social login, token audit, parity round 2) were done earlier; multi-country Phase 1 audit done (#2776), Phase 3 is lane M's. CI of #2787 and #2788 is still running, no failure so far; I keep them green.
+BLOCKED (nothing I can do from this session):
+1. Rows 49, 51, 46, 52 (app design slices on the booking/payment path and the test hub): they need the board comparison with `tools/design/render-native-screen.mjs`, which does not run in this sandbox. Missing `@react-native/assets-registry`, then esbuild fails on `expo-modules-core` ts-declarations and `react-native-web` `TurboModuleRegistry` (the installed node_modules do not match what the tool bundles). I will not change screens that pay without the visual check. Needs a machine where the tool runs, or the lead/owner telling me to go on without the render.
+2. Rows 57, 63 (web desktop hub with sticky basket card): need a seeded backend for the Playwright board comparison; none here.
+3. Rows 60 (flow change), 62 (needs a rating endpoint), 105 (needs a design decision on the dark web header): owner/lead decisions.
+4. App side of row 78 (radiology report-file list in the app): small, can be done on request, not in the queue.
+The hourly wake will check #2787/#2788 CI and conflicts (inventory files conflict between them: re-sync after the first merges) and stop otherwise.
+
 ## 2026-11-26 P: resumed. #2785 merged; PRs #2787 (row 78) and #2788 (row 79)
 - #2787 patient web: radiology booking page shows the technician and the published report files (backend already returned them; opened through the signed-link route), 3 keys x 6 languages, test. Rows 6, 28, 59, 35, 36 were ALREADY ON MAIN (evidence file:line in the doc), updated inside this PR, no docs-only PR.
 - #2788 patient web: nurse list Nearest sort + "{km} km away" (backend `sort=nearest&lat&lng`, `distance_km`), 3 keys x 6 languages, test. Row 79 FIXED.
