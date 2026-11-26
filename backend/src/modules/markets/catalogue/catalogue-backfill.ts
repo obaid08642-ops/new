@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import type { mongo } from 'mongoose';
 import { CatalogueKind } from './catalogue-registration.schema';
 
@@ -34,8 +35,9 @@ export async function planRegistrationBackfill(db: Db, market: string, sources: 
  * Registers every existing concept in `market` (the launch market, SA). Idempotent: an existing registration is never changed, so a re-run is safe and a
  * later `retire` is not undone. `effective_from` = epoch so SA behaviour is "always offered" exactly as today. Dry run is `planRegistrationBackfill`.
  */
-export async function applyRegistrationBackfill(db: Db, market: string, opts: { sources?: readonly Source[]; batch?: number } = {}): Promise<{ written: number }> {
+export async function applyRegistrationBackfill(db: Db, market: string, opts: { sources?: readonly Source[]; batch?: number; runId?: string } = {}): Promise<{ written: number; run_id: string }> {
   const batch = opts.batch ?? 500;
+  const runId = opts.runId ?? randomUUID();
   let written = 0;
   for (const s of opts.sources ?? CATALOGUE_SOURCES) {
     const col = db.collection('catalogue_registrations');
@@ -47,10 +49,25 @@ export async function applyRegistrationBackfill(db: Db, market: string, opts: { 
     for await (const d of db.collection(s.collection).find({}, { projection })) {
       const id = idOf(d);
       const code = s.code_field && typeof d[s.code_field] === 'string' && (d[s.code_field] as string).trim() ? (d[s.code_field] as string).trim() : null;
-      ops.push({ updateOne: { filter: { kind: s.kind, concept_id: id, market_id: market }, update: { $setOnInsert: { kind: s.kind, concept_id: id, market_id: market, local_code: code, status: inactiveIds.has(id) ? 'retired' : 'active', effective_from: new Date(0), created_by: 'backfill' } }, upsert: true } });
+      ops.push({ updateOne: { filter: { kind: s.kind, concept_id: id, market_id: market }, update: { $setOnInsert: { kind: s.kind, concept_id: id, market_id: market, local_code: code, status: inactiveIds.has(id) ? 'retired' : 'active', effective_from: new Date(0), created_by: `backfill:${runId}` } }, upsert: true } });
       if (ops.length >= batch) await flush();
     }
     await flush();
   }
-  return { written };
+  return { written, run_id: runId };
+}
+
+export interface RegistrationRollbackRow { kind: string; written: number }
+
+/** Undoes exactly one run: deletes the registration rows that run created (`created_by = backfill:<run id>`). Dry run (counts) unless `apply`. */
+export async function rollbackRegistrationBackfill(db: Db, runId: string, opts: { apply?: boolean } = {}): Promise<RegistrationRollbackRow[]> {
+  const col = db.collection('catalogue_registrations');
+  const rows: RegistrationRollbackRow[] = [];
+  for (const s of CATALOGUE_SOURCES) {
+    const filter = { kind: s.kind, created_by: `backfill:${runId}` };
+    const written = await col.countDocuments(filter);
+    if (opts.apply && written > 0) await col.deleteMany(filter);
+    rows.push({ kind: s.kind, written });
+  }
+  return rows;
 }

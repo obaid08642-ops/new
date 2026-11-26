@@ -1,5 +1,5 @@
 import { isOffered, CatalogueRegistrationService, RegistrationView } from './catalogue-registration.service';
-import { applyRegistrationBackfill, planRegistrationBackfill, CATALOGUE_SOURCES } from './catalogue-backfill';
+import { applyRegistrationBackfill, planRegistrationBackfill, rollbackRegistrationBackfill, CATALOGUE_SOURCES } from './catalogue-backfill';
 import { CATALOGUE_KINDS, CatalogueRegistrationSchema } from './catalogue-registration.schema';
 
 const reg = (o: Partial<RegistrationView>): RegistrationView => ({ kind: 'medicine', concept_id: 'm1', market_id: 'SA', local_code: null, status: 'active', effective_from: new Date(0), ...o });
@@ -39,6 +39,8 @@ function fakeDb(data: Record<string, Array<Record<string, any>>>) {
     const docs = data[name] ?? (data[name] = []);
     return {
       find: (f: Record<string, any> = {}) => { const rows = docs.filter((d) => match(d, f)); return { toArray: async () => rows, [Symbol.asyncIterator]: async function* () { for (const r of rows) yield r; } }; },
+      countDocuments: async (f: Record<string, any>) => docs.filter((d) => match(d, f)).length,
+      deleteMany: async (f: Record<string, any>) => { for (let i = docs.length - 1; i >= 0; i--) if (match(docs[i], f)) docs.splice(i, 1); },
       bulkWrite: async (ops: Array<{ updateOne: { filter: Record<string, any>; update: { $setOnInsert: Record<string, any> } } }>) => {
         let upsertedCount = 0;
         for (const { updateOne: u } of ops) if (!docs.some((d) => match(d, u.filter))) { docs.push({ ...u.update.$setOnInsert }); upsertedCount++; }
@@ -74,7 +76,7 @@ describe('registration backfill', () => {
     expect(by('l1')).toMatchObject({ local_code: 'CBC', status: 'active' });
     expect(by('l2').status).toBe('retired');
     expect(by('spec-cardio').local_code).toBe('cardio');
-    expect(regs.every((x) => x.effective_from.getTime() === 0 && x.created_by === 'backfill')).toBe(true);
+    expect(regs.every((x) => x.effective_from.getTime() === 0 && /^backfill:[0-9a-f-]{36}$/.test(x.created_by))).toBe(true);
   });
   it('is idempotent and never undoes a later retire', async () => {
     const d = data();
@@ -91,6 +93,20 @@ describe('registration backfill', () => {
     await applyRegistrationBackfill(db, 'SA');
     expect((await applyRegistrationBackfill(db, 'EG')).written).toBe(6);
     expect(d.catalogue_registrations).toHaveLength(12);
+  });
+});
+
+describe('registration rollback', () => {
+  it('deletes exactly the rows one run created (dry run counts first), leaving other runs and manual rows', async () => {
+    const d = { medicines: [{ _id: 1, id: 'm1' }], lab_services: [{ _id: 2, id: 'l1', active: true }], radiology_services: [], nursing_services: [], specialties: [] } as Record<string, Array<Record<string, any>>>;
+    const db = fakeDb(d);
+    d.catalogue_registrations = [{ kind: 'medicine', concept_id: 'manual', market_id: 'SA', created_by: 'admin' }];
+    const run = await applyRegistrationBackfill(db, 'SA', { runId: 'r1' });
+    expect(run.written).toBe(2);
+    expect(await rollbackRegistrationBackfill(db, 'r1')).toEqual([{ kind: 'medicine', written: 1 }, { kind: 'lab_test', written: 1 }, { kind: 'radiology_service', written: 0 }, { kind: 'nursing_service', written: 0 }, { kind: 'specialty', written: 0 }]);
+    expect(d.catalogue_registrations).toHaveLength(3);
+    await rollbackRegistrationBackfill(db, 'r1', { apply: true });
+    expect(d.catalogue_registrations).toEqual([{ kind: 'medicine', concept_id: 'manual', market_id: 'SA', created_by: 'admin' }]);
   });
 });
 
