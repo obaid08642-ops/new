@@ -3700,7 +3700,10 @@
     "showResultsMore": "Show more than {count} results",
     "filterCounting": "Counting…",
     "filterClearAll": "Clear all",
-    "catPackages": "Packages"
+    "catPackages": "Packages",
+    "technicianLabel": "Technician",
+    "openDicom": "Open the scan study (DICOM)",
+    "openScanImageN": "Open scan image {n}"
   },
   "OrderContext": {
     "forLabel": "For whom",

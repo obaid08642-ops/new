@@ -3700,7 +3700,10 @@
     "showResultsMore": "{count} से ज़्यादा नतीजे दिखाएँ",
     "filterCounting": "गिनती हो रही है…",
     "filterClearAll": "सब हटाएँ",
-    "catPackages": "पैकेज"
+    "catPackages": "पैकेज",
+    "technicianLabel": "टेक्नीशियन",
+    "openDicom": "स्कैन स्टडी खोलें (DICOM)",
+    "openScanImageN": "स्कैन इमेज {n} खोलें"
   },
   "OrderContext": {
     "forLabel": "किसके लिए",

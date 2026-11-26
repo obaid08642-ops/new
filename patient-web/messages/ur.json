@@ -3700,7 +3700,10 @@
     "showResultsMore": "{count} سے زیادہ نتائج دکھائیں",
     "filterCounting": "گنتی ہو رہی ہے…",
     "filterClearAll": "سب صاف کریں",
-    "catPackages": "پیکجز"
+    "catPackages": "پیکجز",
+    "technicianLabel": "ٹیکنیشن",
+    "openDicom": "اسکین اسٹڈی کھولیں (DICOM)",
+    "openScanImageN": "اسکین تصویر {n} کھولیں"
   },
   "OrderContext": {
     "forLabel": "کس کے لیے",
