@@ -1,5 +1,8 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-26 P: #2788 conflict resolved (#2787 merged)
+- Merged origin/main into p2/web-home-care-nearest; conflicts were WIRING_REPORT.md (generated) and the reconciliation doc (took main's, re-applied row 79). Inventories regenerated with `screen-inventory.mjs` (provider files left as main). Nursing tests 22/22, parity ok. GitHub shows conflict-free, waiting for CI and your merge.
+
 ## 2026-11-26 P: QUEUE EMPTY (what is left is blocked; list below)
 Done and merged or open: rows 1 (#2785 merged), 11 (#2780), 20/101/102 (#2783), 103/104 (#2781), 78 (#2787 open), 79 (#2788 open), 6/28/59/35/36 (already on main, recorded in #2787). Wake-list items (provider literals, https-only, social login, token audit, parity round 2) were done earlier; multi-country Phase 1 audit done (#2776), Phase 3 is lane M's. CI of #2787 and #2788 is still running, no failure so far; I keep them green.
 BLOCKED (nothing I can do from this session):
