@@ -1,10 +1,12 @@
-# 2026-11-26 run 142 = deploy main@34f2b949: markets step 6 catalogue registration (#2784), money step M1 helpers (#2782), patient-app #2785 #2779, provider-app #2781 (nothing new is written to the database by these). Then READ-ONLY R11 gate counts (96i) and the DRY RUN of the halala backfill (98s, every write variable empty: counts + wallet-owed counts only), then 96r 96j 96h. Never 03:00-05:00 UTC.
-release:34f2b949d15ba43e27d013f2363a0953901bd8f8
+# 2026-11-26 run 143 = deploy main@8b4339b1 (supersedes 142, not approved): everything merged since 20 Nov (markets step 6 catalogue registration, money step M1 helpers, ops wrappers, patient-app/provider-app fixes). Then READ-ONLY: R11 gate counts (96i); and three DRY RUNS with every write variable empty (counts only, nothing written): halala backfill + wallet-owed counts (98s), market_id backfill (98u), catalogue registration backfill (98v); then 96r 96j 96h. Never 03:00-05:00 UTC.
+release:8b4339b1ddfccc83f4948bd2acc8e21bccac2838
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
 96i-halala-counts
 98s-halala-backfill
+98u-market-id-backfill
+98v-catalogue-registration-backfill
 96r-mongod-kill-window
 96j-mongo-cache-check
 96h-mongo-restarts
