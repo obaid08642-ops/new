@@ -6,10 +6,12 @@
  *  - a number written with `$set` (or at the top of an update) gets its shadow in the same write;
  *  - a number moved with `$inc` raises the shadow by the halalas of the delta;
  *  - a value that is not a whole number of halalas (float drift) is NOT rounded silently: its shadow is left unset, so the integrity check lists it.
+ * `_halalas` is a SAR-only shadow: a document or update whose resolved currency (`resolveWriteCurrency`) is not SAR gets no `_halalas` (money step M2).
  * Writes that bypass Mongoose (a raw `collection()` call) must add the shadow themselves with `shadowFields`.
  */
 import { Schema } from 'mongoose';
 import { isCleanSar, toHalalas } from './money';
+import { resolveWriteCurrency } from './minor-shadow';
 
 const shadowName = (field: string) => `${field}_halalas`;
 
@@ -27,10 +29,11 @@ export function halalaShadowPlugin(schema: Schema, fields: string[]): void {
 
   schema.pre('save', function (next) {
     const doc = this as any;
+    const sar = resolveWriteCurrency(doc.get('currency')) === 'SAR';
     for (const f of fields) {
       if (!doc.isNew && !doc.isModified(f)) continue;
       const v = doc.get(f);
-      if (isCleanSar(v)) doc.set(shadowName(f), toHalalas(v));
+      if (sar && isCleanSar(v)) doc.set(shadowName(f), toHalalas(v));
       else doc.set(shadowName(f), undefined);
     }
     next();
@@ -41,11 +44,12 @@ export function halalaShadowPlugin(schema: Schema, fields: string[]): void {
     if (!update || Array.isArray(update)) return next();   // pipeline updates are not rewritten
     const set: Record<string, unknown> = { ...(update.$set || {}) };
     for (const f of fields) if (f in update && !f.startsWith('$')) set[f] = update[f];
-    const shadowSet: Record<string, number> = shadowFields(set, fields);
+    const sar = resolveWriteCurrency(set.currency ?? update.currency) === 'SAR';
+    const shadowSet: Record<string, number> = sar ? shadowFields(set, fields) : {};
     const shadowInc: Record<string, number> = {};
     for (const f of fields) {
       const d = update.$inc?.[f];
-      if (typeof d === 'number' && isCleanSar(d)) shadowInc[shadowName(f)] = toHalalas(d);
+      if (sar && typeof d === 'number' && isCleanSar(d)) shadowInc[shadowName(f)] = toHalalas(d);
     }
     if (Object.keys(shadowSet).length) this.setUpdate({ ...update, $set: { ...(update.$set || {}), ...shadowSet } });
     if (Object.keys(shadowInc).length) {
