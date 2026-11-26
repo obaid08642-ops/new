@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import type { mongo } from 'mongoose';
 import { SA_MARKET } from './sa-market.seed';
 
@@ -36,17 +37,22 @@ export async function planMarketBackfill(db: Db, collections: readonly string[] 
   return rows;
 }
 
+/** Written on every stamped document so exactly that run can be undone. */
+export const RUN_FIELD = 'market_backfill_run';
+
 /**
  * Stamps `market_id` (and `operator_id`) = the launch market on documents that lack it. Idempotent: documents that already have a
  * market are never touched, so it is safe to re-run and safe next to live writes. Batched by `_id` so no collection is locked for long.
+ * Every stamped document also gets `market_backfill_run = runId`, so `rollbackMarketBackfill(runId)` removes exactly what this run wrote.
  * Dry run is `planMarketBackfill`; take a backup before `--apply` (same discipline as the R11 halala backfill).
  */
 export async function applyMarketBackfill(
   db: Db,
-  opts: { collections?: readonly string[]; batch?: number; market?: { id: string; operator_id: string } } = {},
-): Promise<{ written: number; per_collection: MarketBackfillRow[] }> {
+  opts: { collections?: readonly string[]; batch?: number; market?: { id: string; operator_id: string }; runId?: string } = {},
+): Promise<{ written: number; run_id: string; per_collection: MarketBackfillRow[] }> {
   const market = opts.market ?? { id: SA_MARKET.id, operator_id: SA_MARKET.operator_id };
   const batch = opts.batch ?? 1000;
+  const runId = opts.runId ?? randomUUID();
   let written = 0;
   const per: MarketBackfillRow[] = [];
   for (const c of opts.collections ?? MARKET_BACKFILL_COLLECTIONS) {
@@ -55,12 +61,26 @@ export async function applyMarketBackfill(
     for (;;) {
       const ids = (await col.find(MISSING, { projection: { _id: 1 } }).limit(batch).toArray()).map((d) => d._id);
       if (ids.length === 0) break;
-      const r = await col.updateMany({ _id: { $in: ids }, ...MISSING }, { $set: { market_id: market.id, operator_id: market.operator_id } });
+      const r = await col.updateMany({ _id: { $in: ids }, ...MISSING }, { $set: { market_id: market.id, operator_id: market.operator_id, [RUN_FIELD]: runId } });
       n += r.modifiedCount;
       if (r.modifiedCount === 0) break; // nothing changed: another writer got there first, do not spin
     }
     written += n;
     per.push({ collection: c, missing: n });
   }
-  return { written, per_collection: per };
+  return { written, run_id: runId, per_collection: per };
+}
+
+export interface MarketRollbackRow { collection: string; stamped: number }
+
+/** Undoes exactly one run: unsets market_id, operator_id and the run stamp on the documents that run wrote. Dry run (counts) unless `apply`. */
+export async function rollbackMarketBackfill(db: Db, runId: string, opts: { apply?: boolean; collections?: readonly string[] } = {}): Promise<MarketRollbackRow[]> {
+  const rows: MarketRollbackRow[] = [];
+  for (const c of opts.collections ?? MARKET_BACKFILL_COLLECTIONS) {
+    const col = db.collection(c);
+    const stamped = await col.countDocuments({ [RUN_FIELD]: runId });
+    if (opts.apply && stamped > 0) await col.updateMany({ [RUN_FIELD]: runId }, { $unset: { market_id: '', operator_id: '', [RUN_FIELD]: '' } });
+    rows.push({ collection: c, stamped });
+  }
+  return rows;
 }

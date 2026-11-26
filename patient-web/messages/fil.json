@@ -3700,7 +3700,10 @@
     "showResultsMore": "Ipakita ang higit sa {count} resulta",
     "filterCounting": "Binibilang…",
     "filterClearAll": "I-clear lahat",
-    "catPackages": "Mga package"
+    "catPackages": "Mga package",
+    "technicianLabel": "Tekniko",
+    "openDicom": "Buksan ang scan study (DICOM)",
+    "openScanImageN": "Buksan ang scan image {n}"
   },
   "OrderContext": {
     "forLabel": "Para kanino",
