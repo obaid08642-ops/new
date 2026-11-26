@@ -1,5 +1,16 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-26 (22:45 UTC) B -> lead: #2789 fixed (root cause below); exact list of what gets `_minor` + `currency`
+- **Red job:** "Backend build and tests", one test: `common/market-literals.ratchet.spec.ts` ("'SAR' appears at most 0 times", received 2). Root cause: my SAR-only guard in `halala-shadow.ts` wrote `=== 'SAR'` twice; the ratchet allows Saudi literals only in the market config. Fix (9bb68ad5d): the code now comes from `DEFAULT_CURRENCY` (`common/market-defaults`). Baseline NOT raised.
+- **Local proof:** `npm run build` exit 0 (openapi step skipped: no Mongo here), `jest src/common` 109 suites / 3313 tests pass (includes the ratchet), plus minor-shadow, halala-shadow, money-minor, finance-integrity, `src/schemas`: 12 suites / 105 tests pass.
+- **#2789 itself attaches NO schema:** nothing in any collection changes until M3/M5. The collections that WILL get `<field>_minor` + `currency` (same field lists as the existing `_halalas` shadows, nothing new added), in the order of the PRs:
+  - **M3 (payments):** `transactions` (amount, refunded_amount); `moyasarpayments` (amount, refunded_amount); `refundrequests` (amount) and the insurance-engine `RefundRequest` (amount_paid, refund_amount); `einvoices` (subtotal, vat_amount, total, discount).
+  - **M4 (ledger):** `wallets` (balance); `wallettransactions` (amount); the ledger checks read `_minor` per currency.
+  - **M5 (bookings/orders):** `appointments` (price, service_fee, home_visit_fee, transportation_fee, total_price, doctor_penalty); `labbookings` and `radiologybookings` (total, service_fee, home_visit_fee, transportation_fee, total_price, insurance_copay); `homecarebookings` (total, service_fee, home_visit_fee, transportation_fee, total_price); `orders` (subtotal, delivery_fee, total, wallet_applied, coupon_discount, loyalty_discount, price_before_discounts, cancellation_fee, pre_review_total, insurance_copay).
+  - Raw writes that need `minorFields()` (today they use `shadowFields`): pharmacy-allocation.service, instant-consultation.service, provider-payouts.controller, provider-ops.module, finance-engine.module.
+  - Existing rows get no `_minor` until the backfill (needs the owner's decision, not in the plan). Legacy amount fields never change.
+- Open PRs of mine: #2789 (CI re-running on the fix).
+
 ## 2026-11-26 (14:10 UTC) B -> lead: money step M2 = #2789 (against main; npm run build exit 0)
 - **#2789** (M2): `minorShadowPlugin` (`<field>_minor` + currency, currency = document, else MarketContext, else SAR), `minorFields()` for raw writes, `*_minor` hidden from toJSON; `halalaShadowPlugin` writes `_halalas` for SAR documents only. No schema uses it yet, legacy fields untouched. Tests: new spec on real MongoDB (SAR minor == halalas, BHD 3 digits, context currency, no silent rounding, save/update/$inc), build 0, tsc 0, 86 suites / 587 tests of every halala-plugin user pass.
 - Known limit, documented and tested: an update that names no currency outside a market context resolves to SAR (stale shadow for a non-SAR doc, never wrong-rounded); M3 passes currency explicitly, M4 checks per currency. The raw-write ratchet spec moves to M3.
