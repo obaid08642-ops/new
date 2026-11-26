@@ -1,8 +1,10 @@
-# 2026-11-20 run 141 = deploy main@81868050 (supersedes 140, not approved): markets steps 3-5 (#2766 #2769 #2778; SA unchanged, backfill NOT run), licence lapse for radiology centres, hospitals/clinics and admin suspension (#2770 #2771 #2777), R11 P3 tooling (#2772, nothing written), patient-app/web fixes (#2764 #2767 #2773 #2774 #2775), admin segments (#2760). Then read-only 96r 96j 96h. Never 03:00-05:00 UTC.
-release:81868050ee487d5b4eb0064a40d54585d0f0cc77
+# 2026-11-26 run 142 = deploy main@34f2b949: markets step 6 catalogue registration (#2784), money step M1 helpers (#2782), patient-app #2785 #2779, provider-app #2781 (nothing new is written to the database by these). Then READ-ONLY R11 gate counts (96i) and the DRY RUN of the halala backfill (98s, every write variable empty: counts + wallet-owed counts only), then 96r 96j 96h. Never 03:00-05:00 UTC.
+release:34f2b949d15ba43e27d013f2363a0953901bd8f8
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+96i-halala-counts
+98s-halala-backfill
 96r-mongod-kill-window
 96j-mongo-cache-check
 96h-mongo-restarts
