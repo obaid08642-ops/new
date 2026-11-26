@@ -1,5 +1,11 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-26 P: resumed. #2785 merged; PRs #2787 (row 78) and #2788 (row 79)
+- #2787 patient web: radiology booking page shows the technician and the published report files (backend already returned them; opened through the signed-link route), 3 keys x 6 languages, test. Rows 6, 28, 59, 35, 36 were ALREADY ON MAIN (evidence file:line in the doc), updated inside this PR, no docs-only PR.
+- #2788 patient web: nurse list Nearest sort + "{km} km away" (backend `sort=nearest&lat&lng`, `distance_km`), 3 keys x 6 languages, test. Row 79 FIXED.
+- Open on the app side (noted in row 78): the app's radiology order screen has no report-file list. Both PRs regenerate the same inventory files: whichever merges second needs a re-sync, I will do it.
+- Open: #2787, #2788. Baselines 105 / 335 unchanged, parity ok. Next: 49 + 51 (booking path, high effort), then 46, 52, 57, 63.
+
 ## 2026-11-20 P: #2785 bundle fix pushed (0b0fddcf1)
 - Red check was "Patient Mobile build and tests": tests 2488/2488 green, the Android bundle step failed (15,436,958 bytes, 43,888 over budget 15,393,070). Budget untouched.
 - Cause: the new route importing a separate `ConnectedAppsView` module made the Hermes bundle +113 KB raw (+9 KB gzip, mostly zero bytes: layout, not code). Moving the view into `SettingsViews.tsx` (where every other settings view lives; route is a thin wrapper) gives 15,329,272 bytes locally = 63,798 under budget. Local figures match CI (the failing run reproduced to the byte). Tests (connected-apps + notification-settings) green.
