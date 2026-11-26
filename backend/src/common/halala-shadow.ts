@@ -12,6 +12,10 @@
 import { Schema } from 'mongoose';
 import { isCleanSar, toHalalas } from './money';
 import { resolveWriteCurrency } from './minor-shadow';
+import { DEFAULT_CURRENCY } from './market-defaults';
+
+/** The halala shadow is the Saudi currency's (2-digit) shadow; the code comes from the market config, never a literal here (market-literals ratchet). */
+const HALALA_CURRENCY = DEFAULT_CURRENCY;
 
 const shadowName = (field: string) => `${field}_halalas`;
 
@@ -29,7 +33,7 @@ export function halalaShadowPlugin(schema: Schema, fields: string[]): void {
 
   schema.pre('save', function (next) {
     const doc = this as any;
-    const sar = resolveWriteCurrency(doc.get('currency')) === 'SAR';
+    const sar = resolveWriteCurrency(doc.get('currency')) === HALALA_CURRENCY;
     for (const f of fields) {
       if (!doc.isNew && !doc.isModified(f)) continue;
       const v = doc.get(f);
@@ -44,7 +48,7 @@ export function halalaShadowPlugin(schema: Schema, fields: string[]): void {
     if (!update || Array.isArray(update)) return next();   // pipeline updates are not rewritten
     const set: Record<string, unknown> = { ...(update.$set || {}) };
     for (const f of fields) if (f in update && !f.startsWith('$')) set[f] = update[f];
-    const sar = resolveWriteCurrency(set.currency ?? update.currency) === 'SAR';
+    const sar = resolveWriteCurrency(set.currency ?? update.currency) === HALALA_CURRENCY;
     const shadowSet: Record<string, number> = sar ? shadowFields(set, fields) : {};
     const shadowInc: Record<string, number> = {};
     for (const f of fields) {
