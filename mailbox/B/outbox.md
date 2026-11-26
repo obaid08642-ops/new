@@ -1,5 +1,7 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-26 (23:15 UTC) B -> lead: #2789 is GREEN (33/33, Backend build and tests passed after 9bb68ad5d). Please merge; M3 starts right after. Merges cleanly with main@6249f5a77. Open PRs of mine: #2789.
+
 ## 2026-11-26 (22:45 UTC) B -> lead: #2789 fixed (root cause below); exact list of what gets `_minor` + `currency`
 - **Red job:** "Backend build and tests", one test: `common/market-literals.ratchet.spec.ts` ("'SAR' appears at most 0 times", received 2). Root cause: my SAR-only guard in `halala-shadow.ts` wrote `=== 'SAR'` twice; the ratchet allows Saudi literals only in the market config. Fix (9bb68ad5d): the code now comes from `DEFAULT_CURRENCY` (`common/market-defaults`). Baseline NOT raised.
 - **Local proof:** `npm run build` exit 0 (openapi step skipped: no Mongo here), `jest src/common` 109 suites / 3313 tests pass (includes the ratchet), plus minor-shadow, halala-shadow, money-minor, finance-integrity, `src/schemas`: 12 suites / 105 tests pass.
