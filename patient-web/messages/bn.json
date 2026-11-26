@@ -3907,7 +3907,10 @@
     "errBookingTimesNeedRecurrence": "একবারের বেশি বুক করতে কতবার পুনরাবৃত্তি হবে তা বেছে নিন।",
     "errBookingTimesOutOfRange": "বারের সংখ্যা এই সেবার অনুমোদিত সীমার বাইরে।",
     "errBookingSessionsNotOffered": "সেশনের এই সংখ্যা পাওয়া যায় না। তালিকা থেকে একটি প্যাকেজ বেছে নিন।",
-    "errServicePriceNotSet": "এই সেবার দাম এখনও নির্ধারিত হয়নি। পরে আবার চেষ্টা করুন।"
+    "errServicePriceNotSet": "এই সেবার দাম এখনও নির্ধারিত হয়নি। পরে আবার চেষ্টা করুন।",
+    "sortNearest": "সবচেয়ে কাছের",
+    "nearestNoAddress": "দূরত্ব অনুযায়ী নার্স সাজাতে একটি ডিফল্ট ঠিকানা যোগ করুন।",
+    "distanceLine": "{km} কিমি দূরে"
   },
   "MaternityWeb": {
     "title": "মাতৃত্ব",

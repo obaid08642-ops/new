@@ -1,5 +1,5 @@
 {
- "commit": "0d2059833",
+ "commit": "34f2b949d",
  "routes": [
   {
    "app": "patient-app",
@@ -7698,29 +7698,8 @@
    "board": "Settings",
    "batch": 12,
    "status": "—",
-   "calls": [
-    {
-     "method": "GET",
-     "path": "/patient/agent-connections",
-     "target": "backend",
-     "query": "",
-     "line": 21,
-     "file": "patient-app/src/components/account/ConnectedAppsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/agent-oauth/agent-oauth.controller.ts:104"
-    },
-    {
-     "method": "DELETE",
-     "path": "/patient/agent-connections/:param",
-     "target": "backend",
-     "query": "",
-     "line": 34,
-     "file": "patient-app/src/components/account/ConnectedAppsView.tsx",
-     "status": "OK",
-     "backend": "backend/src/modules/agent-oauth/agent-oauth.controller.ts:109"
-    }
-   ],
-   "files": 41,
+   "calls": [],
+   "files": 1,
    "unresolved": 0
   },
   {
@@ -7861,7 +7840,7 @@
      "path": "/users/me/notification-settings",
      "target": "backend",
      "query": "",
-     "line": 80,
+     "line": 81,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:56"
@@ -7965,7 +7944,7 @@
      "path": "/users/me/change-password",
      "target": "backend",
      "query": "",
-     "line": 183,
+     "line": 184,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:92"
@@ -7975,7 +7954,7 @@
      "path": "/users/me/security-settings",
      "target": "backend",
      "query": "",
-     "line": 143,
+     "line": 144,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:82"
@@ -7985,7 +7964,7 @@
      "path": "/users/me/sessions",
      "target": "backend",
      "query": "",
-     "line": 144,
+     "line": 145,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:97"
@@ -7995,7 +7974,7 @@
      "path": "/users/me/sessions/:param",
      "target": "backend",
      "query": "",
-     "line": 198,
+     "line": 199,
      "file": "patient-app/src/components/account/SettingsViews.tsx",
      "status": "OK",
      "backend": "backend/src/modules/users/users.controller.ts:138"
@@ -14455,7 +14434,7 @@
      "path": "/home-care/providers",
      "target": "backend",
      "query": "?:param",
-     "line": 54,
+     "line": 63,
      "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:93"
@@ -14469,9 +14448,19 @@
      "file": "patient-web/lib/api/home-care-services-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:81"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/addresses",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 69,
+   "files": 70,
    "unresolved": 0
   },
   {

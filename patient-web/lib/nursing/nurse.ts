@@ -13,6 +13,8 @@ const nurseSchema = z.object({
   years_experience: z.number().finite().nonnegative().max(80).nullish(),
   price: z.number().finite().nonnegative().max(1_000_000).nullish(),
   available_now: z.boolean().nullish(),
+  // GET /home-care/providers?sort=nearest&lat&lng: the straight-line distance from the patient's point, one decimal
+  distance_km: z.number().finite().nonnegative().max(20000).nullish(),
 }).strip();
 
 export type Nurse = {
@@ -26,6 +28,8 @@ export type Nurse = {
   years?: number;
   price?: number;
   availableNow?: boolean;
+  /** Straight-line km from the patient's default address, only when the list was sorted nearest. */
+  distanceKm?: number;
 };
 
 const clean = (value: string | null | undefined) => (value && value.length > 0 ? value : undefined);
@@ -48,6 +52,7 @@ function toNurse(value: unknown): Nurse | null {
     years: n.years_experience && n.years_experience > 0 ? n.years_experience : undefined,
     price: n.price ?? undefined,
     availableNow: n.available_now ?? undefined,
+    distanceKm: n.distance_km ?? undefined,
   };
 }
 
@@ -64,8 +69,8 @@ export function parseNurses(payload: unknown): Nurse[] {
   return Array.isArray(rows) ? rows.flatMap((row) => { const nurse = toNurse(row); return nurse ? [nurse] : []; }).slice(0, 50) : [];
 }
 
-export type NurseSort = "any" | "rating";
-export const nurseSortOf = (value: unknown): NurseSort => (value === "rating" ? "rating" : "any");
+export type NurseSort = "any" | "rating" | "nearest";
+export const nurseSortOf = (value: unknown): NurseSort => (value === "rating" || value === "nearest" ? value : "any");
 export type NurseGender = "any" | "male" | "female";
 /** issue 1819: the nationality choices of the app's filter sheet; the value is the readable spelling; the server matches it ignoring case (#2042). */
 export const NURSE_NATIONALITIES = ["Saudi", "Filipino", "Egyptian"] as const;

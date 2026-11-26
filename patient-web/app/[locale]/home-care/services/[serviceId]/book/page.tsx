@@ -7,6 +7,7 @@ import { nurseFilterCount } from "@/lib/diagnostics-filter-count";
 import { extractHomeCareService, parseHomeCareServiceId } from "@/lib/api/home-care-services";
 import { getPatientHomeCareService } from "@/lib/api/home-care-services-server";
 import { callPatientApi } from "@/lib/api/upstream";
+import { pointFromAddresses } from "@/lib/ordering/context";
 import { requirePatientAccess } from "@/lib/auth/session";
 import { getDirection, isLocale } from "@/lib/i18n";
 import { NURSE_NATIONALITIES, nurseAvailableOf, nurseGenderOf, nurseNationalityOf, nurseSortOf, parseNurses, type NurseGender, type NurseNationality, type NurseSort } from "@/lib/nursing/nurse";
@@ -45,7 +46,15 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
   const token = await requirePatientAccess(locale);
   const back = `/${locale}/home-care/services/${encodeURIComponent(serviceId)}`;
   const params2 = new URLSearchParams({ type: serviceId });
-  if (sort !== "any") params2.set("sort", sort);
+  // nearest needs the patient's point: the default address (the same read the ordering context bar makes); with none the list stays unsorted and says so
+  let nearestPoint: { lat: number; lng: number } | null = null;
+  if (sort === "nearest") {
+    const addressesResponse = await callPatientApi("/users/me/addresses", { cache: "no-store" }, token).catch(() => null);
+    nearestPoint = addressesResponse?.ok ? pointFromAddresses(await addressesResponse.json().catch(() => null)) : null;
+  }
+  if (sort === "nearest") {
+    if (nearestPoint) { params2.set("sort", "nearest"); params2.set("lat", String(nearestPoint.lat)); params2.set("lng", String(nearestPoint.lng)); }
+  } else if (sort !== "any") params2.set("sort", sort);
   if (gender !== "any") params2.set("gender", gender);
   if (availableNow) params2.set("available", "true");
   if (nationality !== "any") params2.set("nationality", nationality);
@@ -87,6 +96,7 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
       ) : null}
       <nav className={consult.segLinks} aria-label={t("sortTitle")}>
         <Link href={href({ sort: "any" })} replace aria-current={sort === "any" ? "page" : undefined}>{t("sortAny")}</Link>
+        <Link href={href({ sort: "nearest" })} replace aria-current={sort === "nearest" ? "page" : undefined}>{t("sortNearest")}</Link>
         <Link href={href({ sort: "rating" })} replace aria-current={sort === "rating" ? "page" : undefined}>{t("sortRating")}</Link>
       </nav>
       <nav className={consult.segLinks} aria-label={t("filterGender")}>
@@ -103,6 +113,7 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
           <Link key={value} href={href({ nationality: value })} replace aria-current={nationality === value ? "page" : undefined}>{t(`nationality_${value}`)}</Link>
         ))}
       </nav>
+      {sort === "nearest" && !nearestPoint ? <Notice warn>{t("nearestNoAddress")}</Notice> : null}
       {nurses.length === 0 ? (
         <ConsultState kind="empty" icon="user-circle" tone={NURSING.tone} title={t("noNurses")} />
       ) : (
@@ -110,6 +121,7 @@ export default async function HomeCareBookPage({ params, searchParams }: Props) 
           {nurses.map((nurse) => {
             const facts = [
               nurse.rating !== undefined ? t("ratingLine", { rating: number.format(nurse.rating), count: number.format(nurse.reviewCount ?? 0) }) : "",
+              nurse.distanceKm !== undefined ? t("distanceLine", { km: number.format(nurse.distanceKm) }) : "",
               nurse.years !== undefined ? t("yearsLine", { count: nurse.years }) : "",
               nurse.price !== undefined ? money(locale, nurse.price) : t("priceAtBooking"),
             ].filter(Boolean);
