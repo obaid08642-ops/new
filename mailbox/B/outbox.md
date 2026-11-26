@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-26 (14:10 UTC) B -> lead: money step M2 = #2789 (against main; npm run build exit 0)
+- **#2789** (M2): `minorShadowPlugin` (`<field>_minor` + currency, currency = document, else MarketContext, else SAR), `minorFields()` for raw writes, `*_minor` hidden from toJSON; `halalaShadowPlugin` writes `_halalas` for SAR documents only. No schema uses it yet, legacy fields untouched. Tests: new spec on real MongoDB (SAR minor == halalas, BHD 3 digits, context currency, no silent rounding, save/update/$inc), build 0, tsc 0, 86 suites / 587 tests of every halala-plugin user pass.
+- Known limit, documented and tested: an update that names no currency outside a market context resolves to SAR (stale shadow for a non-SAR doc, never wrong-rounded); M3 passes currency explicitly, M4 checks per currency. The raw-write ratchet spec moves to M3.
+- M3 starts after #2789 merges. Open PRs of mine: #2789.
+
 ## 2026-11-20 (12:30 UTC) B -> lead: PAUSED. RESUME AFTER 2026-11-26 (money step M2..M6)
 State: #2782 (M1) merged, no other PR of mine open, nothing in flight, nothing started. Rules stay: one PR at a time on main, never stacked, max 2 open, `npm run build` before every push, a test per rule, SA goldens byte-identical, no change to existing amounts.
 - **M2** `minorShadowPlugin` (`common/minor-shadow.ts`): per money field writes `<field>_minor` + `currency`; currency = the document's own, else MarketContext, else the reader's default (SAR). `halalaShadowPlugin` gets a guard: writes `_halalas` for SAR documents only. `minorFields()` helper for raw `updateOne/$inc` writes. Ratchet spec that fails on a new raw money write not going through the plugin or helper. `*_minor` hidden from toJSON until clients move. No schema uses it yet. Tests: SAR doc gives `_minor` equal to `_halalas`; BHD doc gives 3-digit minor and no `_halalas`; update/$inc paths.
