@@ -30,6 +30,10 @@ export type DiagnosticBooking = {
   hasReport?: boolean;
   /** Lab reports the booking holds a file for, opened through GET labs/bookings/:id/reports/:reportId (journeys#54). */
   reportIds?: string[];
+  /** The technician's display name on a radiology booking (`technician.name`; never an id, phone or licence). */
+  technicianName?: string;
+  /** The files of a published radiology report (the report PDF, the DICOM study, scan images) by storage id; opened through the patient file route, never by url. */
+  reportFiles?: Array<{ id: string; kind: "report" | "dicom" | "image" }>;
   /** The result rows the booking carries, when it carries any. */
   results?: DiagnosticResult[];
   /** The booking total as the server stores it (`total` or `total_price`), when positive. */
@@ -43,6 +47,17 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 const NAME_LANGS = ["ar", "en"] as const; // names are Arabic and English only (owner decision 2026-10-25)
 
 /** The server's `names` map ({ar,en}) merged over the stored Arabic/English of an old row; none when there is no text at all. */
+/** The storage ids of a published radiology report's files; none (or no valid row) reads as undefined. */
+function reportFilesFrom(value: unknown): DiagnosticBooking["reportFiles"] {
+  const rows = (Array.isArray(value) ? value : []).flatMap((f): Array<{ id: string; kind: "report" | "dicom" | "image" }> => {
+    const file = asRecord(f);
+    const id = typeof file?.id === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(file.id) ? file.id : null;
+    const kind = file?.kind === "report" || file?.kind === "dicom" || file?.kind === "image" ? file.kind : null;
+    return id && kind ? [{ id, kind }] : [];
+  });
+  return rows.length ? rows : undefined;
+}
+
 function namesFrom(map: unknown, ar?: string, en?: string): Texts | undefined {
   const out: Texts = { ...(ar ? { ar } : {}), ...(en ? { en } : {}) };
   const record = asRecord(map);
@@ -102,6 +117,8 @@ function bookingFrom(value: unknown): DiagnosticBooking | null {
     total: [record.total, record.total_price].map((v) => (typeof v === "number" ? v : typeof v === "string" ? Number(v) : NaN)).find((v) => Number.isFinite(v) && v > 0),
     medicalReferralRequired: typeof record.medical_referral_required === "boolean" ? record.medical_referral_required : undefined,
     hasReport: (Array.isArray(record.reports) && record.reports.length > 0) || (typeof record.signed_report_pdf_url === "string" && record.signed_report_pdf_url.trim().length > 0),
+    technicianName: text(asRecord(record.technician) ?? {}, ["name"]),
+    reportFiles: reportFilesFrom(record.report_files),
     reportIds: (Array.isArray(record.reports) ? record.reports : []).flatMap((r) => {
       const report = asRecord(r);
       const rid = bookingIdSchema.safeParse(report?.id);

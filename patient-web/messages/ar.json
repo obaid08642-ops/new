@@ -3700,7 +3700,10 @@
     "showResultsMore": "اعرض أكثر من {count} نتيجة",
     "filterCounting": "جارٍ العدّ…",
     "filterClearAll": "مسح الكل",
-    "catPackages": "باقات"
+    "catPackages": "باقات",
+    "technicianLabel": "فنّي الأشعة",
+    "openDicom": "فتح دراسة الأشعة (DICOM)",
+    "openScanImageN": "فتح صورة الأشعة {n}"
   },
   "OrderContext": {
     "forLabel": "لمن الطلب",

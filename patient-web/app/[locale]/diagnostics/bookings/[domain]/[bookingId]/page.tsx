@@ -64,6 +64,15 @@ export default async function DiagnosticDetailPage({ params }: Props) {
   const canCancel = !cancelled && CANCELLABLE_STATES.has((booking.state ?? "").toUpperCase());
   const collectorVisible = domain === "labs" && home && !cancelled && !booking.hasReport && Boolean(tracking?.techName || tracking?.techPhone);
   const FINAL = new Set(["REPORTED", "CANCELLED", "SAMPLE_REJECTED"]);
+  const files = domain === "radiology" ? booking.reportFiles ?? [] : [];
+  const count = (kind: "report" | "dicom" | "image") => files.filter((f) => f.kind === kind).length;
+  const seen = { report: 0, image: 0 };
+  const radiologyFiles = files.map((f) => {
+    if (f.kind === "dicom") return { id: f.id, label: w("openDicom") };
+    seen[f.kind] += 1;
+    if (f.kind === "report") return { id: f.id, label: count("report") > 1 ? w("openReportN", { n: seen.report }) : w("openReport") };
+    return { id: f.id, label: w("openScanImageN", { n: seen.image }) };
+  });
   const actions: LinkAction[] = domain === "labs"
     ? [
         // journeys#54: the report itself, as a file the browser opens (patient BFF -> GET labs/bookings/:id/reports/:reportId).
@@ -71,7 +80,10 @@ export default async function DiagnosticDetailPage({ params }: Props) {
         { href: `/${locale}/diagnostics/sample-tracking?bookingId=${encodeURIComponent(booking.id)}`, label: w("trackSample"), ...((booking.reportIds ?? []).length ? { variant: "outline" as const } : {}) },
         { href: `/${locale}/diagnostics/insurance-approval?orderId=${encodeURIComponent(booking.id)}`, label: w("uploadInsurance"), variant: "outline" },
       ]
-    : [];
+    : [
+        // a published radiology report: its files by storage id, through the signed-link file route (the backend lets the booking's patient open exactly these)
+        ...radiologyFiles.map((file) => ({ href: `/api/nursing/files/${encodeURIComponent(file.id)}`, label: file.label })),
+      ];
 
   return (
     <ConsultPage locale={locale} title={label} backHref={backHref}>
@@ -99,6 +111,11 @@ export default async function DiagnosticDetailPage({ params }: Props) {
             </div>
             {tracking.techPhone ? <a className={styles.callLink} href={`tel:${tracking.techPhone}`}>{w("collectorCall")}</a> : null}
           </div>
+        </SectionCard>
+      ) : null}
+      {domain === "radiology" && booking.technicianName ? (
+        <SectionCard id="diag-technician" title={w("technicianLabel")}>
+          <span className={styles.etaValue}>{booking.technicianName}</span>
         </SectionCard>
       ) : null}
       {domain === "radiology" && !cancelled && stageIndex >= 0 ? (

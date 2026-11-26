@@ -16,6 +16,15 @@ describe("diagnostic booking response guards", () => {
     expect(JSON.stringify(row)).not.toContain("cdn.example.test");
   });
 
+  it("reads a radiology booking's technician name and the storage ids of its report files, and nothing else", () => {
+    const row = extractDiagnosticBooking({ data: { id: bookingId, state: "REPORT_READY", technician: { name: "Sara", phone: "0500000000" }, report_files: [{ id: "obj_1", kind: "report", mime: "application/pdf" }, { id: "obj_2", kind: "dicom" }, { id: "../x", kind: "image" }, { id: "obj_3", kind: "other" }, { id: "obj_4", kind: "image", url: "https://cdn.example.test/x" }] } });
+    expect(row?.technicianName).toBe("Sara");
+    expect(row?.reportFiles).toEqual([{ id: "obj_1", kind: "report" }, { id: "obj_2", kind: "dicom" }, { id: "obj_4", kind: "image" }]);
+    expect(JSON.stringify(row)).not.toContain("0500000000");
+    expect(JSON.stringify(row)).not.toContain("cdn.example.test");
+    expect(extractDiagnosticBooking({ data: { id: bookingId, report_files: null } })?.reportFiles).toBeUndefined();
+  });
+
   it("validates diagnostic domains and UUID booking identifiers", () => {
     expect(parseDiagnosticDomain("labs")).toBe("labs");
     expect(parseDiagnosticDomain("radiology")).toBe("radiology");
