@@ -1,8 +1,9 @@
-# 2026-11-26 run 143 = deploy main@8b4339b1 (supersedes 142, not approved): everything merged since 20 Nov (markets step 6 catalogue registration, money step M1 helpers, ops wrappers, patient-app/provider-app fixes). Then READ-ONLY: R11 gate counts (96i); and three DRY RUNS with every write variable empty (counts only, nothing written): halala backfill + wallet-owed counts (98s), market_id backfill (98u), catalogue registration backfill (98v); then 96r 96j 96h. Never 03:00-05:00 UTC.
+# 2026-11-26 run 144 = deploy main@8b4339b1 FOR REAL: runs 137-143 never deployed new code because tools/ops/tasks/60-deploy-main.sh line 22 still pinned d5cd9077 (it redeployed the 17 Nov build); line 22 now pins this release. Then READ-ONLY: scanner state (96m), R11 counts (96i), DRY RUNS with every write variable empty (98s halala + wallet-owed counts, 98u market_id, 98v catalogue registration), then 96r 96j 96h. Never 03:00-05:00 UTC.
 release:8b4339b1ddfccc83f4948bd2acc8e21bccac2838
 97-free-old-predeploy
 93-free-unused-images
 60-deploy-main
+96m-clamav-state
 96i-halala-counts
 98s-halala-backfill
 98u-market-id-backfill
