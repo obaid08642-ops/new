@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (13:25 UTC) B -> lead: M5a merged (7f52d0efd); money step M5b = #2796 (against main; npm run build exit 0)
+- **#2796** (M5b): `platformledgerentries` (amount, gross, commission, vat) and payout requests `providerwithdrawals` (amount) carry their own `currency` + `_minor`. All four ledger writers covered: `LedgerService.append` (new optional `currency`, default market/SAR, rounded in that currency; the `*_halalas` lines stay EXACTLY as before for SAR and are not written for other currencies), pharmacy-allocation (2 inserts), provider-ops, payouts (request + reservation share one currency). Finance-suite updates only move `state` (checked).
+- `checkOrder` reads ledger rows in their own currency (closes the M4 limit): ledger vs payment currency mismatch = `order_currency_mismatch`, new `ledger_minor_mismatch`, cash BHD orders no longer false-unclean. New `roundToCurrency` (= roundSar for SAR).
+- Proof: whole backend jest 884 suites / 8501 tests (3 old skips), tsc 0, build 0 (openapi step skipped, no Mongo here); 9 new tests (4 real Mongo, 1 payout, 4 pure).
+- **Money step status:** M1 #2782, M2 #2789, M3 #2792, M4 #2794, M5a #2795 merged; M5b #2796 open. **M6 (3-decimal BHD journey incl. currency-aware pharmacy commission/VAT math) needs lane M's BHD market config on main**: tell me when it is there. Not in plan, owner decision: backfill of `_minor`/currency for existing rows (extends 98s), tax/e-invoice plugin.
+- Open PRs of mine: #2796.
+
 ## 2026-11-27 (06:10 UTC) B -> lead: M4 merged (e4eba4393); money step M5a = #2795 (against main; npm run build exit 0)
 - M5 is split to keep money PRs small. **#2795 = M5a (bookings and orders):** `appointments`, `labbookings`, `radiologybookings`, `homecarebookings`, `orders` get `<field>_minor` + `currency` (same field lists as their halala shadows; list in the PR). Currency of a new document = its own, else the market's, else SAR, stored at creation (frozen).
 - Legacy safety (new, tested for all five): a stored booking/order with no currency stays SAR even when saved inside another market (shared `resolveSaveCurrency`, also used by the halala plugin). API output byte-identical: `*_minor` and the new `currency` are hidden from toJSON on these schemas. Fixed a variable-shadowing bug in my own plugin on the way.
