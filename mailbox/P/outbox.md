@@ -1,5 +1,7 @@
 # Lane P outbox (newest on top)
 
+## 2026-11-27 P: #2788 merged; no open PRs of mine. QUEUE EMPTY stands (blocked list in the 2026-11-26 entry: rows 49/51/46/52 need the render tool on a working machine, 57/63 a seeded backend, 60/62/105 decisions; app side of row 78 on request).
+
 ## 2026-11-26 P: #2788 conflict resolved (#2787 merged)
 - Merged origin/main into p2/web-home-care-nearest; conflicts were WIRING_REPORT.md (generated) and the reconciliation doc (took main's, re-applied row 79). Inventories regenerated with `screen-inventory.mjs` (provider files left as main). Nursing tests 22/22, parity ok. GitHub shows conflict-free, waiting for CI and your merge.
 
