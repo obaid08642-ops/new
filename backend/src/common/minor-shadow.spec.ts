@@ -1,7 +1,7 @@
 /** Money step M2: `<field>_minor` + currency next to the legacy amount; `_halalas` for SAR documents only. Real MongoDB, a test schema (no production schema uses the plugin yet). */
 import mongoose, { Connection, Model, Schema } from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { halalaShadowPlugin } from './halala-shadow';
+import { halalaShadowPlugin, moneyShadows } from './halala-shadow';
 import { minorFields, minorShadowPlugin, resolveWriteCurrency } from './minor-shadow';
 import { runWithMarketContext } from '../modules/markets/market-context';
 
@@ -20,6 +20,14 @@ describe('resolveWriteCurrency / minorFields', () => {
     expect(minorFields({ amount: 150.5, fee: 'x' }, ['amount', 'fee'])).toEqual({ amount_minor: 15050, currency: 'SAR' });
     expect(minorFields({ amount: 1.234, currency: 'BHD' }, ['amount'])).toEqual({ amount_minor: 1234, currency: 'BHD' });
     expect(minorFields({ amount: 0.1 + 0.2 }, ['amount'])).toEqual({});
+  });
+});
+
+describe('moneyShadows (raw writes)', () => {
+  it('SAR: halalas + minor + currency; BHD: minor + currency only', () => {
+    expect(moneyShadows({ price: 10.5 }, ['price'], 'SAR')).toEqual({ price_halalas: 1050, price_minor: 1050, currency: 'SAR' });
+    expect(moneyShadows({ price: 1.234 }, ['price'], 'BHD')).toEqual({ price_minor: 1234, currency: 'BHD' });
+    expect(moneyShadows({ price: 0.1 + 0.2 }, ['price'], 'BHD')).toEqual({});
   });
 });
 
@@ -107,6 +115,16 @@ describe('minorShadowPlugin', () => {
     expect((await raw(d.id)).amount_minor).toBe(725);
     await M.updateMany({ id: d.id }, { $set: { amount: 8 } });
     expect((await raw(d.id)).amount_minor).toBe(800);
+  });
+
+  it('a stored document with no currency stays in the default currency when saved inside another market', async () => {
+    const ins = await conn.collection('ms').insertOne({ id: `legacy${++n}`, amount: 5 } as any);
+    const doc: any = await M.findOne({ _id: ins.insertedId });
+    doc.amount = 7.55;
+    await inMarket('BHD', () => doc.save());
+    const r = await conn.collection('ms').findOne({ _id: ins.insertedId } as any) as any;
+    expect(r.currency).toBe('SAR');
+    expect(r.amount_minor).toBe(755);   // SAR: 755 halalas (in BHD it would have been 7550 fils)
   });
 
   it('toJSON hides *_minor; legacy fields and currency stay', async () => {

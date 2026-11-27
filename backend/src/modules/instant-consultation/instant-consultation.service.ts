@@ -1,6 +1,7 @@
 import { stampAcceptance } from '../../common/refund-policy-stamp';
 import { refundPolicyAcceptance } from '../../common/refund-policy-acceptance';
-import { shadowFields } from '../../common/halala-shadow';
+import { moneyShadows } from '../../common/halala-shadow';
+import { resolveWriteCurrency } from '../../common/minor-shadow';
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
@@ -240,7 +241,7 @@ export class InstantConsultationService implements OnModuleInit {
       status: 'scheduled',
       payment_status: 'not_charged',
       price: typeof price === 'number' ? price : 0,
-      ...shadowFields({ price: typeof price === 'number' ? price : 0 }, ['price']),   // R11 P1: a raw insert adds its own shadow
+      ...moneyShadows({ price: typeof price === 'number' ? price : 0 }, ['price'], resolveWriteCurrency()),   // R11 P1 + money step M5: a raw insert adds its own shadows (halalas for the Saudi currency, minor + currency always)
       createdAt: now,
       updatedAt: now,
     });

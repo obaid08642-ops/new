@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 import { halalaShadowPlugin } from '../common/halala-shadow';
+import { minorShadowPlugin } from '../common/minor-shadow';
 
 export enum NursingBookingState {
   NEW_REQUEST = 'NEW_REQUEST',
@@ -192,6 +193,7 @@ export const HomeCareBookingSchema = SchemaFactory.createForClass(HomeCareBookin
 // R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
 export const HOME_CARE_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price'];
 halalaShadowPlugin(HomeCareBookingSchema, HOME_CARE_BOOKING_HALALA_FIELDS);
+minorShadowPlugin(HomeCareBookingSchema, HOME_CARE_BOOKING_HALALA_FIELDS, { hideCurrency: true });
 HomeCareBookingSchema.index({ patient_id: 1, createdAt: -1 });
 HomeCareBookingSchema.index({ state: 1, scheduled_at: 1 });
 HomeCareBookingSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });

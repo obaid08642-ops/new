@@ -4,6 +4,7 @@ import { OrderState, OrderRejectionReason } from '../common/enums';
 import { v4 as uuid } from 'uuid';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 import { halalaShadowPlugin } from '../common/halala-shadow';
+import { minorShadowPlugin } from '../common/minor-shadow';
 
 @Schema({ _id: false })
 export class OrderResult {
@@ -128,6 +129,7 @@ export const OrderSchema = SchemaFactory.createForClass(Order);
 export const ORDER_HALALA_FIELDS = ['subtotal', 'delivery_fee', 'total', 'wallet_applied', 'coupon_discount', 'loyalty_discount',
   'price_before_discounts', 'cancellation_fee', 'pre_review_total', 'insurance_copay'];
 halalaShadowPlugin(OrderSchema, ORDER_HALALA_FIELDS);
+minorShadowPlugin(OrderSchema, ORDER_HALALA_FIELDS, { hideCurrency: true });
 OrderSchema.index({ patient_id: 1, createdAt: -1 });
 OrderSchema.index({ pharmacy_id: 1, state: 1 });
 OrderSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });   // the SLA-breach query of the urgent-alert job (every 5 minutes)
