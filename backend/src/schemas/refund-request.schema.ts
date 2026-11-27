@@ -1,4 +1,5 @@
 import { halalaShadowPlugin } from '../common/halala-shadow';
+import { minorShadowPlugin } from '../common/minor-shadow';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -19,3 +20,4 @@ export class RefundRequest {
 }
 export const RefundRequestSchema = SchemaFactory.createForClass(RefundRequest);
 halalaShadowPlugin(RefundRequestSchema, ['amount']);
+minorShadowPlugin(RefundRequestSchema, ['amount']);

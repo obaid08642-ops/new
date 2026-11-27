@@ -1,5 +1,6 @@
 import { isAllowedCallbackUrl } from '../../common/callback-url';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
+import { minorShadowPlugin } from '../../common/minor-shadow';
 import { toHalalas } from '../../common/money';
 import { GatewayTimeoutException, ServiceUnavailableException } from '@nestjs/common';
 import {
@@ -73,6 +74,7 @@ export class MoyasarPayment {
 export type MoyasarPaymentDocument = MoyasarPayment & Document;
 export const MoyasarPaymentSchema = SchemaFactory.createForClass(MoyasarPayment);
 halalaShadowPlugin(MoyasarPaymentSchema, ['amount', 'refunded_amount']);
+minorShadowPlugin(MoyasarPaymentSchema, ['amount', 'refunded_amount']);
 MoyasarPaymentSchema.index({ booking_id: 1, status: 1 });
 MoyasarPaymentSchema.index({ patient_id: 1, createdAt: -1 });
 MoyasarPaymentSchema.index({ moyasar_id: 1 }, { sparse: true });

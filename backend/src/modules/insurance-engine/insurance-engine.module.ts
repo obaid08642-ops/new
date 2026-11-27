@@ -1,6 +1,7 @@
 import { earningsPipeline, foldPlatformSummary, foldProviderSummary, reversalsPipeline } from '../finance-engine/commission-summary';
 import { consultationRefundWindow, consultationRefundWindows } from '../finance-engine/consultation-refund-table';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
+import { minorShadowPlugin } from '../../common/minor-shadow';
 import { PROVIDER_ROLES } from '../../common/enums';
 /**
  * M3 — Insurance Engine (BR-2) + Unified Booking Quote (BR-1) + Financial Core.
@@ -148,6 +149,7 @@ export class RefundRequest {
 }
 export const RefundRequestSchema = SchemaFactory.createForClass(RefundRequest);
 halalaShadowPlugin(RefundRequestSchema, ['amount_paid', 'refund_amount']);
+minorShadowPlugin(RefundRequestSchema, ['amount_paid', 'refund_amount']);
 
 @Schema({ timestamps: true })
 export class PlatformLedgerEntry {

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { halalaShadowPlugin } from '../common/halala-shadow';
-import { DEFAULT_CURRENCY } from '../common/market-defaults';
+import { minorShadowPlugin, resolveWriteCurrency } from '../common/minor-shadow';
 
 export type TransactionDocument = Transaction & Document;
 
@@ -15,7 +15,7 @@ export class Transaction {
   /** Issue 684: who paid, when a family member booked and pays for the patient (absent when the patient paid). */
   @Prop() payer_id?: string;
   @Prop({ required: true }) amount: number;
-  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
+  @Prop({ default: () => resolveWriteCurrency() }) currency: string;
   @Prop({ enum: ['stripe', 'tap', 'moyasar'], default: 'moyasar' }) gateway: string;
   @Prop({ default: 'card' }) method: string; // card|cash|insurance
   @Prop({ enum: ['initiating', 'pending', 'authorized', 'paid', 'failed', 'refunded', 'partially_refunded', 'cancelled'], default: 'pending', index: true }) status: string;
@@ -36,6 +36,7 @@ export class Transaction {
 }
 export const TransactionSchema = SchemaFactory.createForClass(Transaction);
 halalaShadowPlugin(TransactionSchema, ['amount', 'refunded_amount']);
+minorShadowPlugin(TransactionSchema, ['amount', 'refunded_amount']);
 TransactionSchema.index({ booking_kind: 1, booking_id: 1, createdAt: -1 });
 // failed payments in the last hour: the urgent-alert job (every 5 minutes) and the admin today screen count { status in failed/cancelled, updatedAt >= since }
 TransactionSchema.index({ status: 1, updatedAt: 1 }, { name: 'alerts_failed_payments_v1' });

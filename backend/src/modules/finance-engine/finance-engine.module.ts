@@ -1,7 +1,7 @@
 import { Cron } from '@nestjs/schedule';
 import { ScheduledOnce } from '../../common/scheduled-once';
 import { normalizeCoupon } from '../../common/coupon-doc';
-import { shadowFields } from '../../common/halala-shadow';
+import { refundedShadows } from './refund-shadows';
 import { copayRefundable, findCopayTransaction } from '../../common/copay-transaction';
 import { riyadhDayRange, riyadhMonthStart } from '../../common/riyadh-clock';
 import { ModuleRef } from '@nestjs/core';
@@ -943,7 +943,7 @@ export class RefundExecutor {
         method = 'gateway';
         await this.conn.collection('moyasar_payments').updateOne(
           { _id: paidPayment._id } as any,
-          { $set: { refunded_amount: newRefunded, ...shadowFields({ refunded_amount: newRefunded }, ['refunded_amount']), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
+          { $set: { refunded_amount: newRefunded, ...refundedShadows(paidPayment.currency, newRefunded), status: newRefunded >= Number(paidPayment.amount || 0) - 0.001 ? 'refunded' : 'paid', refunded_at: new Date() } },
         );
       }
     }
