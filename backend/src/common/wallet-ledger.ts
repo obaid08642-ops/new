@@ -1,10 +1,16 @@
 import { randomUUID } from 'crypto';
-import { shadowFields } from './halala-shadow';
+import { moneyShadows } from './halala-shadow';
 import { roundSar } from './money';
+import { fromMinor, toMinor } from './money-minor';
+import { resolveWriteCurrency } from './minor-shadow';
+import { DEFAULT_CURRENCY } from './market-defaults';
 
 type Conn = { collection(name: string): any };
 
-const round2 = roundSar;
+/** Rounds to the minor unit of the currency; for the Saudi currency this is exactly the old `roundSar`. */
+const roundIn = (n: number, currency: string) => (currency === DEFAULT_CURRENCY ? roundSar(n) : Number.isFinite(n) ? fromMinor(toMinor(n, currency), currency) : NaN);
+/** A wallet row with no currency was written before currencies existed: it is in the Saudi currency. */
+const walletCurrency = (wallet: any): string => (typeof wallet?.currency === 'string' && wallet.currency ? wallet.currency : DEFAULT_CURRENCY);
 /** The unique index behind the idempotency key. Sparse: rows written before the key existed carry none and must not collide with each other. */
 export const WALLET_TX_INDEX = { keys: { idempotency_key: 1 }, options: { unique: true, sparse: true, name: 'wallet_tx_idempotency_key' } } as const;
 let indexReady: Promise<unknown> | null = null;
@@ -16,13 +22,14 @@ function ensureIndex(conn: Conn) {
 }
 
 /** What the ledger says a wallet holds: credits minus debits. The balance is never adjusted by hand; this is the only figure. */
-export async function walletLedgerBalance(conn: Conn, walletId: string): Promise<number> {
+export async function walletLedgerBalance(conn: Conn, walletId: string, currency?: string): Promise<number> {
+  const cur = currency ?? walletCurrency(await conn.collection('wallets').findOne({ id: walletId }, { projection: { _id: 0, currency: 1 } }));
   const rows: Array<{ _id: string; total: number }> = await conn.collection('wallet_transactions').aggregate([
     { $match: { walletId } },
     { $group: { _id: '$type', total: { $sum: '$amount' } } },
   ]).toArray();
   const sum = (t: string) => rows.find((r) => r._id === t)?.total ?? 0;
-  return round2(sum('credit') - sum('debit'));
+  return roundIn(sum('credit') - sum('debit'), cur);
 }
 
 /**
@@ -36,38 +43,41 @@ export async function postWalletEntry(
   entry: { ownerId: string; ownerType: string; amount: number; type: 'credit' | 'debit'; referenceType: string; referenceId: string; description: string },
   opts: { createWalletIfMissing?: boolean } = {},
 ): Promise<{ credited: boolean; balance: number | null }> {
-  const amount = round2(entry.amount);
-  if (!(amount > 0)) return { credited: false, balance: null };
   let wallet: any = await conn.collection('wallets').findOne({ ownerId: entry.ownerId, ownerType: entry.ownerType });
+  // an entry that rounds to nothing in the wallet's currency (a new wallet takes the market's) neither creates a wallet nor writes a row
+  if (!(roundIn(entry.amount, wallet ? walletCurrency(wallet) : resolveWriteCurrency()) > 0)) return { credited: false, balance: null };
   if (!wallet && opts.createWalletIfMissing) {
     // one wallet per owner (unique index on ownerId + ownerType): a concurrent creator wins, we read its row
     const now0 = new Date();
-    await conn.collection('wallets').updateOne({ ownerId: entry.ownerId, ownerType: entry.ownerType }, { $setOnInsert: { id: randomUUID(), ownerId: entry.ownerId, ownerType: entry.ownerType, balance: 0, balance_halalas: 0, savedCards: [], createdAt: now0, updatedAt: now0 } }, { upsert: true });
+    const newCurrency = resolveWriteCurrency();
+    await conn.collection('wallets').updateOne({ ownerId: entry.ownerId, ownerType: entry.ownerType }, { $setOnInsert: { id: randomUUID(), ownerId: entry.ownerId, ownerType: entry.ownerType, balance: 0, currency: newCurrency, ...moneyShadows({ balance: 0 }, ['balance'], newCurrency), savedCards: [], createdAt: now0, updatedAt: now0 } }, { upsert: true });
     wallet = await conn.collection('wallets').findOne({ ownerId: entry.ownerId, ownerType: entry.ownerType });
   }
   if (!wallet) return { credited: false, balance: null };
+  const cur = walletCurrency(wallet);
+  const amount = roundIn(entry.amount, cur);
   await ensureIndex(conn);
   // a row written before the idempotency key existed (same wallet, direction and reference) counts as already recorded
   const legacy = await conn.collection('wallet_transactions').findOne({ walletId: wallet.id, type: entry.type, referenceType: entry.referenceType, referenceId: entry.referenceId });
-  if (legacy) return { credited: false, balance: await walletLedgerBalance(conn, wallet.id) };
+  if (legacy) return { credited: false, balance: await walletLedgerBalance(conn, wallet.id, cur) };
   // one key per wallet, direction and business event: the same reference on another wallet, or the opposite direction on this one
   // (a debit and its reversal, a patient credit and a provider debit on one order), is a different entry and is recorded
   const key = `${wallet.id}:${entry.type}:${entry.referenceType}:${entry.referenceId}`;
   const now = new Date();
   const res: any = await conn.collection('wallet_transactions').updateOne(
     { idempotency_key: key },
-    { $setOnInsert: { id: randomUUID(), walletId: wallet.id, amount, ...shadowFields({ amount }, ['amount']), type: entry.type, referenceType: entry.referenceType, referenceId: entry.referenceId, description: entry.description, idempotency_key: key, createdAt: now, updatedAt: now } },
+    { $setOnInsert: { id: randomUUID(), walletId: wallet.id, amount, ...moneyShadows({ amount }, ['amount'], cur), type: entry.type, referenceType: entry.referenceType, referenceId: entry.referenceId, description: entry.description, idempotency_key: key, createdAt: now, updatedAt: now } },
     { upsert: true },
   );
   const created = (res?.upsertedCount ?? 0) > 0 || !!res?.upsertedId;
-  let balance = await walletLedgerBalance(conn, wallet.id);
+  let balance = await walletLedgerBalance(conn, wallet.id, cur);
   if (created && entry.type === 'debit' && balance < 0) {
     // a debit never leaves the wallet below zero, even when two debits race: the row that overdraws is taken back
     await conn.collection('wallet_transactions').deleteOne({ idempotency_key: key });
-    balance = await walletLedgerBalance(conn, wallet.id);
+    balance = await walletLedgerBalance(conn, wallet.id, cur);
     throw new WalletInsufficientError(balance);
   }
-  if (created) await conn.collection('wallets').updateOne({ _id: wallet._id }, { $set: { balance, ...shadowFields({ balance }, ['balance']), updatedAt: now } });   // R11 P1: integer halalas next to the double
+  if (created) await conn.collection('wallets').updateOne({ _id: wallet._id }, { $set: { balance, ...moneyShadows({ balance }, ['balance'], cur), updatedAt: now } });   // R11 P1: integer halalas next to the double
   return { credited: created, balance };
 }
 

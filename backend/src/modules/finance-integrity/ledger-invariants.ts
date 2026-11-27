@@ -1,4 +1,6 @@
 import { isCleanSar, sumHalalas, toHalalas } from '../../common/money';
+import { isCleanAmount, toMinor } from '../../common/money-minor';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 
 /**
  * R11: invariants of the platform ledger (`platformledgerentries`) for ONE order, computed on integer halalas. Pure: the service loads the rows.
@@ -7,33 +9,45 @@ import { isCleanSar, sumHalalas, toHalalas } from '../../common/money';
  * a `commission_reversal` and a `vat_reversal`, all with ref_type 'refund' and the refund id as ref_id.
  */
 export interface LedgerRow { id?: string; type: string; amount: number; ref_type?: string; ref_id?: string; gross?: number; commission?: number; vat?: number; state?: string }
-export interface PaymentRow { amount: number; refunded_amount?: number; amount_halalas?: number; refunded_amount_halalas?: number; status?: string; kind: 'transaction' | 'moyasar_payment'; id?: string; method?: string }
+export interface PaymentRow { currency?: string; amount_minor?: number; refunded_amount_minor?: number; amount: number; refunded_amount?: number; amount_halalas?: number; refunded_amount_halalas?: number; status?: string; kind: 'transaction' | 'moyasar_payment'; id?: string; method?: string }
 export interface OrderContext { order_id: string; ledger: LedgerRow[]; earnings: LedgerRow[]; payments: PaymentRow[] }
 export interface Finding { code: string; entity_id: string; detail: Record<string, unknown> }
 
 const PAID = new Set(['paid', 'partially_refunded', 'refunded']);
 const IDEMPOTENT_TYPES = new Set(['refund', 'provider_debit', 'commission_reversal', 'vat_reversal', 'provider_earning']);
 
-const h = (x: unknown) => { try { return toHalalas(Number(x) || 0); } catch { return 0; } };
-const sum = (rows: LedgerRow[], type: string, f: (r: LedgerRow) => number = (r) => h(r.amount)) => sumHalalas(rows.filter((r) => r.type === type).map(f));
 
 export function checkOrder(ctx: OrderContext): Finding[] {
   const out: Finding[] = [];
   const id = ctx.order_id;
   const add = (code: string, detail: Record<string, unknown>) => out.push({ code, entity_id: id, detail });
 
+  // INV-8 one currency per order (money step M4): the amounts of an order are only ever added up in ONE currency. Payments of two currencies on one order are a
+  // finding, and the rest of the checks do not run (they would add unlike units). A row with no currency is in the Saudi currency (written before currencies existed).
+  const currencies = [...new Set(ctx.payments.map((p) => p.currency || DEFAULT_CURRENCY))];
+  if (currencies.length > 1) { add('order_currency_mismatch', { currencies }); return out; }
+  const cur = currencies[0] ?? DEFAULT_CURRENCY;
+  // integer minor units of the order's currency; for the Saudi currency this is exactly the halalas of before
+  const h = (x: unknown) => { try { return toMinor(Number(x) || 0, cur); } catch { return 0; } };
+  const sum = (rows: LedgerRow[], type: string, f: (r: LedgerRow) => number = (r) => h(r.amount)) => sumHalalas(rows.filter((r) => r.type === type).map(f));
+
   // INV-5 amount hygiene: every money field is a finite, non-negative number with at most 2 decimals
   for (const r of [...ctx.ledger, ...ctx.earnings]) {
     for (const f of ['amount', 'gross', 'commission', 'vat'] as const) {
       const v = (r as any)[f];
       if (v === undefined || v === null) continue;
-      if (!isCleanSar(v) || v < 0) add('ledger_amount_unclean', { ledger_id: r.id, type: r.type, field: f, value: v });
+      if (!isCleanAmount(v, cur) || v < 0) add('ledger_amount_unclean', { ledger_id: r.id, type: r.type, field: f, value: v });
     }
   }
   // INV-7 shadow consistency (R11 P1): a payment row that carries `<field>_halalas` must carry the halalas of its double. A mismatch means a write changed the
   // double without the shadow (a raw collection write that skipped common/halala-shadow.ts). A row with no shadow yet is not a finding: the backfill fills history.
   for (const p of ctx.payments) {
     for (const f of ['amount', 'refunded_amount'] as const) {
+      const minor = (p as any)[`${f}_minor`];
+      const val = (p as any)[f];
+      // INV-9 the `_minor` shadow (money step M3/M4) is the minor units of its double in the row's currency
+      if (minor !== undefined && minor !== null && val !== undefined && val !== null && isCleanAmount(val, cur) && minor !== toMinor(val, cur)) add('payment_minor_mismatch', { payment: p.kind, payment_id: p.id, field: f, value: val, shadow: minor, currency: cur });
+      if (cur !== DEFAULT_CURRENCY) continue;   // `_halalas` exists for the Saudi currency only
       const shadow = (p as any)[`${f}_halalas`];
       const v = (p as any)[f];
       if (shadow === undefined || shadow === null || v === undefined || v === null || !isCleanSar(v)) continue;

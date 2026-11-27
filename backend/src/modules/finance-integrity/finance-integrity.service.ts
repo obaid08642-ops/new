@@ -69,8 +69,8 @@ export class FinanceIntegrityService {
     for (let i = 0; i < orderIds.length; i += 200) {
       const chunk = orderIds.slice(i, i + 200);
       const rows: any[] = await ledger.find({ $or: [{ order_id: { $in: chunk } }, { ref_id: { $in: chunk }, type: 'provider_earning' }] } as any, { projection: { _id: 0 } }).toArray();
-      const tx: any[] = await this.conn.collection('transactions').find({ booking_id: { $in: chunk } } as any, { projection: { _id: 0, id: 1, booking_id: 1, amount: 1, refunded_amount: 1, amount_halalas: 1, refunded_amount_halalas: 1, status: 1, method: 1 } }).toArray();
-      const mp: any[] = await this.conn.collection('moyasar_payments').find({ booking_id: { $in: chunk } } as any, { projection: { _id: 0, moyasar_id: 1, booking_id: 1, amount: 1, refunded_amount: 1, amount_halalas: 1, refunded_amount_halalas: 1, status: 1 } }).toArray();
+      const tx: any[] = await this.conn.collection('transactions').find({ booking_id: { $in: chunk } } as any, { projection: { _id: 0, id: 1, booking_id: 1, amount: 1, refunded_amount: 1, amount_halalas: 1, refunded_amount_halalas: 1, currency: 1, amount_minor: 1, refunded_amount_minor: 1, status: 1, method: 1 } }).toArray();
+      const mp: any[] = await this.conn.collection('moyasar_payments').find({ booking_id: { $in: chunk } } as any, { projection: { _id: 0, moyasar_id: 1, booking_id: 1, amount: 1, refunded_amount: 1, amount_halalas: 1, refunded_amount_halalas: 1, currency: 1, amount_minor: 1, refunded_amount_minor: 1, status: 1 } }).toArray();
       for (const id of chunk) {
         const mine = rows.filter((r) => r.order_id === id || (r.type === 'provider_earning' && r.ref_id === id));
         const ctx: OrderContext = {
@@ -78,8 +78,8 @@ export class FinanceIntegrityService {
           ledger: mine,
           earnings: mine.filter((r) => r.type === 'provider_earning'),
           payments: [
-            ...tx.filter((t) => t.booking_id === id).map((t) => ({ kind: 'transaction' as const, id: t.id, amount: t.amount, refunded_amount: t.refunded_amount, amount_halalas: t.amount_halalas, refunded_amount_halalas: t.refunded_amount_halalas, status: t.status, method: t.method })),
-            ...mp.filter((m) => m.booking_id === id).map((m) => ({ kind: 'moyasar_payment' as const, id: m.moyasar_id, amount: m.amount, refunded_amount: m.refunded_amount, amount_halalas: m.amount_halalas, refunded_amount_halalas: m.refunded_amount_halalas, status: m.status })),
+            ...tx.filter((t) => t.booking_id === id).map((t) => ({ kind: 'transaction' as const, id: t.id, amount: t.amount, refunded_amount: t.refunded_amount, amount_halalas: t.amount_halalas, refunded_amount_halalas: t.refunded_amount_halalas, currency: t.currency, amount_minor: t.amount_minor, refunded_amount_minor: t.refunded_amount_minor, status: t.status, method: t.method })),
+            ...mp.filter((m) => m.booking_id === id).map((m) => ({ kind: 'moyasar_payment' as const, id: m.moyasar_id, amount: m.amount, refunded_amount: m.refunded_amount, amount_halalas: m.amount_halalas, refunded_amount_halalas: m.refunded_amount_halalas, currency: m.currency, amount_minor: m.amount_minor, refunded_amount_minor: m.refunded_amount_minor, status: m.status })),
           ],
         };
         found.push(...checkOrder(ctx));
