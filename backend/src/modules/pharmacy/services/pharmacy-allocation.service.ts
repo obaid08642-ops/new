@@ -1,5 +1,4 @@
 import { moneyShadows } from '../../../common/halala-shadow';
-import { resolveWriteCurrency } from '../../../common/minor-shadow';
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,7 +17,8 @@ import { LICENCE_LAPSE_CANCEL_EVENT, LICENCE_LAPSE_CANCEL_REASON, type LicenceLa
 import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT } from '../../../common/commission-defaults';
 import { deliveryModeOf, type DeliveryMode } from '../../../common/tax-registration';
 import { assertSubstituteInsidePrescription } from './rx-rules';
-import { roundSar } from '../../../common/money';
+import { pharmacyCurrency, roundAmount, settlementAmounts } from '../pharmacy-money';
+import { roundToCurrency } from '../../../common/money-minor';
 import { DEFAULT_CURRENCY } from '../../../common/market-defaults';
 
 function assertProvider(u: any) { if (!u || !isProviderRole(u.role)) throw new ForbiddenException('provider_scope_required'); }
@@ -33,7 +33,8 @@ function assertPatient(u: any) { if (!u || u.role !== 'patient') throw new Forbi
  *  - 'pharmacy_own': a pharmacy with its own couriers set its own fee: it is the pharmacy's, part of its gross (commission by the usual rules).
  */
 export function pharmacySettlementGross(a: any, order?: any): { gross: number; platformDeliveryFee: number; delivery_mode: DeliveryMode } {
-  const round2 = roundSar;
+  const cur = pharmacyCurrency(a);
+  const round2 = (n: number) => roundToCurrency(n, cur);   // the Saudi currency: exactly roundSar, as before
   const total = round2(Number(a?.totals?.total) || 0);
   const fee = round2(Number(a?.totals?.delivery_fee) || 0);
   const delivery_mode = deliveryModeOf(a, order);
@@ -403,7 +404,7 @@ export class PharmacyAllocationService {
       if (!snapshotHash) return false;
       const payment: any = await this.orders.db.collection('pharmacy_payment_evidence').findOne({
         order_id: order.id, selected_offer_id: a.offer_id, selected_offer_version: a.offer_version,
-        quote_snapshot_hash: snapshotHash, amount: Math.round(amount * 100) / 100,
+        quote_snapshot_hash: snapshotHash, amount: roundAmount(amount, String(a.totals?.currency || DEFAULT_CURRENCY)),
         currency: String(a.totals?.currency || DEFAULT_CURRENCY), payer_account_id: order.patient_account_id,
         status: 'confirmed', gateway_payment_id: { $exists: true }, webhook_event_id: { $exists: true },
       });
@@ -504,13 +505,14 @@ export class PharmacyAllocationService {
     const isCod = method === 'cod' || order.status === PharmacyOrderState.COD_DUE_ON_DELIVERY;
     if (isCod) {
       // Master spec: COD delivery requires collection proof matching the selected quote total exactly.
-      const expected = Math.round(Number(order.pricing_snapshot?.totals?.total ?? a.totals?.total) * 100) / 100;
+      const cur = pharmacyCurrency(a);
+      const expected = roundAmount(Number(order.pricing_snapshot?.totals?.total ?? a.totals?.total), cur);
       const collected = Number(body?.collection?.amount_collected);
       const collMethod = body?.collection?.method;
       if (!['cash', 'card_terminal'].includes(String(collMethod)) || !Number.isFinite(collected)) {
         throw new BadRequestException('cod_collection_proof_required');
       }
-      if (Math.round(collected * 100) / 100 !== expected) {
+      if (roundAmount(collected, cur) !== expected) {
         throw new BadRequestException('collected_amount_must_match_selected_quote_total');
       }
       await this.orders.db.collection('pharmacy_payment_evidence').insertOne({
@@ -520,7 +522,7 @@ export class PharmacyAllocationService {
         allocation_id: a.id,
         selected_offer_id: a.offer_id,
         selected_offer_version: a.offer_version,
-        amount: Math.round(collected * 100) / 100,
+        amount: roundAmount(collected, cur),
         currency: String(a.totals?.currency || DEFAULT_CURRENCY),
         method: collMethod,
         collected_by: user.id,
@@ -528,7 +530,7 @@ export class PharmacyAllocationService {
         status: 'confirmed',
       });
       await this.orders.updateOne({ id: a.order_id }, {
-        $set: { 'delivery.collection_proof': { method: collMethod, amount_collected: Math.round(collected * 100) / 100, collected_by: user.id, collected_at: new Date() } },
+        $set: { 'delivery.collection_proof': { method: collMethod, amount_collected: roundAmount(collected, cur), collected_by: user.id, collected_at: new Date() } },
       });
     }
     const fromStatus = a.status;
@@ -571,26 +573,25 @@ export class PharmacyAllocationService {
     const cfg: any = await this.orders.db.collection('finance_config').findOne({ key: 'commissions' });
     const pct = Number(cfg?.service_types?.pharmacy?.percent ?? DEFAULT_COMMISSION_PERCENT);
     const vatPct = Number(cfg?.tax?.vat_percent ?? DEFAULT_VAT_PERCENT);
-    const commission = Math.round(gross * pct) / 100;
-    const vat = Math.round(commission * vatPct) / 100;
+    const cur = pharmacyCurrency(a);   // the allocation's own currency (the Saudi default: the same arithmetic as before)
+    const { commission, vat, net, codOwed } = settlementAmounts(gross, platformDeliveryFee, pct, vatPct, cur);
     const now = new Date();
     if (isCod) {
       await ledger.insertOne({
         id: `le_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         provider_account_id: a.pharmacy_account_id, type: 'provider_debit', state: 'cleared',
         // the pharmacy collected the whole cash: it owes the commission, the VAT on it and the delivery fee the platform keeps
-        amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100,
+        amount: codOwed,
         ref_type: refType, ref_id: refId, order_id: a.order_id,
         gross, commission_percent: pct, commission, vat, platform_delivery_fee: platformDeliveryFee, delivery_mode,
         description: 'COD commission + VAT + platform delivery fee owed to platform (cash collected by pharmacy)',
         actor_id: 'system', createdAt: now,
         // R11 P1: integer shadows next to the doubles
-        ...moneyShadows({ amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat'], resolveWriteCurrency()),
+        ...moneyShadows({ amount: codOwed, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat'], cur),
       });
       return;
     }
     const delayDays = Number(cfg?.settlement?.delay_days?.pharmacy ?? cfg?.settlement?.delay_days?.default ?? settlementDelayDefault());
-    const net = Math.round((gross - commission - vat) * 100) / 100;
     await ledger.insertOne({
       id: `earn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       provider_account_id: a.pharmacy_account_id, type: 'provider_earning', state: 'pending',
@@ -600,7 +601,7 @@ export class PharmacyAllocationService {
       description: 'Pharmacy order earning (escrow until settlement delay)',
       actor_id: 'system', createdAt: now,
       // R11 P1: integer shadows next to the doubles
-      ...moneyShadows({ amount: net, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat'], resolveWriteCurrency()),
+      ...moneyShadows({ amount: net, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat'], cur),
     });
   }
 

@@ -63,4 +63,23 @@ describe('settleDeliveredAllocation', () => {
       expect(row).toMatchObject({ gross: 115, platform_delivery_fee: 0, delivery_mode: 'pharmacy_own' });
     });
   });
+
+  describe('money step M6: by the allocation\'s own currency', () => {
+    const bhd = () => alloc('platform', { totals: { subtotal: 12.345, delivery_fee: 0.5, total: 12.845, currency: 'BHD' } });
+    it('SAR (no currency on the quote): the same amounts as before, plus currency, _minor and the halala shadows', async () => {
+      const [row] = await run(alloc('platform'), false);
+      expect(row).toMatchObject({ amount: 88.5, currency: 'SAR', amount_minor: 8850, amount_halalas: 8850, gross_minor: 10000, commission_minor: 1000, vat_minor: 150 });
+    });
+    it('a BHD quote, paid online: settled to the fils (commission 1.235, VAT 0.185, credited 10.925), fils in _minor, no halalas', async () => {
+      const [row] = await run(bhd(), false);
+      expect(row).toMatchObject({ type: 'provider_earning', gross: 12.345, commission: 1.235, vat: 0.185, amount: 10.925, platform_delivery_fee: 0.5, currency: 'BHD' });
+      expect([row.amount_minor, row.gross_minor, row.commission_minor, row.vat_minor]).toEqual([10925, 12345, 1235, 185]);
+      expect(Object.keys(row).filter((k) => k.endsWith('_halalas'))).toEqual([]);
+      expect(row.amount + row.commission + row.vat).toBeCloseTo(12.345, 10);
+    });
+    it('a BHD quote, cash on delivery: the pharmacy owes commission + VAT + the delivery fee, 1.235 + 0.185 + 0.5 = 1.920', async () => {
+      const [row] = await run(bhd(), true);
+      expect(row).toMatchObject({ type: 'provider_debit', amount: 1.92, currency: 'BHD', amount_minor: 1920 });
+    });
+  });
 });
