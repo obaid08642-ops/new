@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuid } from 'uuid';
 import { halalaShadowPlugin } from '../common/halala-shadow';
+import { minorShadowPlugin } from '../common/minor-shadow';
 
 export type WalletDocument = Wallet & Document;
 
@@ -29,6 +30,7 @@ export class Wallet {
 
 export const WalletSchema = SchemaFactory.createForClass(Wallet);
 halalaShadowPlugin(WalletSchema, ['balance']);
+minorShadowPlugin(WalletSchema, ['balance']);
 WalletSchema.index({ ownerId: 1, ownerType: 1 }, { unique: true });
 
 export type WalletTransactionDocument = WalletTransaction & Document;
@@ -67,6 +69,7 @@ export class WalletTransaction {
 
 export const WalletTransactionSchema = SchemaFactory.createForClass(WalletTransaction);
 halalaShadowPlugin(WalletTransactionSchema, ['amount']);
+minorShadowPlugin(WalletTransactionSchema, ['amount']);
 WalletTransactionSchema.index({ walletId: 1, createdAt: -1 });
 // sparse: rows written before the key existed carry none; same name and options as the index common/wallet-ledger.ts ensures
 WalletTransactionSchema.index({ idempotency_key: 1 }, { unique: true, sparse: true, name: 'wallet_tx_idempotency_key' });

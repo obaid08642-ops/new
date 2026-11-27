@@ -11,7 +11,7 @@
  */
 import { Schema } from 'mongoose';
 import { isCleanSar, toHalalas } from './money';
-import { resolveWriteCurrency } from './minor-shadow';
+import { minorFields, resolveWriteCurrency } from './minor-shadow';
 import { DEFAULT_CURRENCY } from './market-defaults';
 
 /** The halala shadow is the Saudi currency's (2-digit) shadow; the code comes from the market config, never a literal here (market-literals ratchet). */
@@ -24,6 +24,11 @@ export function shadowFields(values: Record<string, unknown>, fields: string[]):
   const out: Record<string, number> = {};
   for (const f of fields) if (isCleanSar(values[f])) out[shadowName(f)] = toHalalas(values[f] as number);
   return out;
+}
+
+/** Shadows for a raw collection write in ONE currency: `_halalas` only for the Saudi currency, `_minor` and `currency` always (money step M4). */
+export function moneyShadows(values: Record<string, unknown>, fields: string[], currency: string): Record<string, unknown> {
+  return { ...(currency === HALALA_CURRENCY ? shadowFields(values, fields) : {}), ...minorFields(values, fields, currency) };
 }
 
 export function halalaShadowPlugin(schema: Schema, fields: string[]): void {
