@@ -11,7 +11,7 @@
  */
 import { Schema } from 'mongoose';
 import { isCleanSar, toHalalas } from './money';
-import { minorFields, resolveWriteCurrency } from './minor-shadow';
+import { minorFields, resolveSaveCurrency, resolveWriteCurrency } from './minor-shadow';
 import { DEFAULT_CURRENCY } from './market-defaults';
 
 /** The halala shadow is the Saudi currency's (2-digit) shadow; the code comes from the market config, never a literal here (market-literals ratchet). */
@@ -38,7 +38,7 @@ export function halalaShadowPlugin(schema: Schema, fields: string[]): void {
 
   schema.pre('save', function (next) {
     const doc = this as any;
-    const sar = resolveWriteCurrency(doc.get('currency')) === HALALA_CURRENCY;
+    const sar = resolveSaveCurrency(doc) === HALALA_CURRENCY;
     for (const f of fields) {
       if (!doc.isNew && !doc.isModified(f)) continue;
       const v = doc.get(f);

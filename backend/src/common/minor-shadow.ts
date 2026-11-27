@@ -27,6 +27,15 @@ export function resolveWriteCurrency(explicit?: unknown): string {
   return DEFAULT_CURRENCY;
 }
 
+/**
+ * Currency of a document being saved: its own, else (new document) the market's, else the default; a STORED document with no currency was
+ * written before currencies existed and is in the default currency, whatever market this request is in. Both shadow plugins use this.
+ */
+export function resolveSaveCurrency(doc: { isNew: boolean; get(path: string): unknown }): string {
+  const own = doc.get('currency');
+  return !doc.isNew && !isKnownCurrency(own) ? DEFAULT_CURRENCY : resolveWriteCurrency(own);
+}
+
 /** `{ field_minor: n, currency }` for every named field that is a clean amount in `values`; for raw collection writes. `{}` if none. */
 export function minorFields(values: Record<string, unknown>, fields: string[], currency?: string): Record<string, unknown> {
   const cur = resolveWriteCurrency(currency ?? values.currency);
@@ -36,13 +45,18 @@ export function minorFields(values: Record<string, unknown>, fields: string[], c
   return out;
 }
 
-export function minorShadowPlugin(schema: Schema, fields: string[]): void {
+export interface MinorShadowOptions {
+  /** The schema had no `currency` before: keep it out of `toJSON` (like `*_minor`) until the clients read it, so API output stays byte-identical. */
+  hideCurrency?: boolean;
+}
+
+export function minorShadowPlugin(schema: Schema, fields: string[], pluginOpts: MinorShadowOptions = {}): void {
   for (const f of fields) if (!schema.path(minorName(f))) schema.add({ [minorName(f)]: { type: Number } });
   if (!schema.path('currency')) schema.add({ currency: { type: String } });
 
   schema.pre('save', function (next) {
     const doc = this as any;
-    const cur = resolveWriteCurrency(doc.get('currency'));
+    const cur = resolveSaveCurrency(doc);
     let wrote = false;
     for (const f of fields) {
       if (!doc.isNew && !doc.isModified(f)) continue;
@@ -85,6 +99,7 @@ export function minorShadowPlugin(schema: Schema, fields: string[]): void {
     transform(doc: any, ret: any, opts: any) {
       const out = typeof prev.transform === 'function' ? prev.transform(doc, ret, opts) ?? ret : ret;
       for (const f of fields) delete out[minorName(f)];
+      if (pluginOpts.hideCurrency) delete out.currency;
       return out;
     },
   });

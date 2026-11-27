@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { trackingId, TRACK_PREFIX } from '../common/tracking';
 import { InsuranceDetails, InsuranceDetailsSchema } from './insurance.schema';
 import { halalaShadowPlugin } from '../common/halala-shadow';
+import { minorShadowPlugin } from '../common/minor-shadow';
 
 /**
  * RadiologyService — independent catalog from LabService (X-Ray / CT / MRI / Ultrasound / Mammography / DEXA).
@@ -229,6 +230,7 @@ export const RadiologyBookingSchema = SchemaFactory.createForClass(RadiologyBook
 // R11 P1: the booking's own SAR doubles get an integer `<field>_halalas` next to them (halalaShadowPlugin); the backfill uses the same list.
 export const RADIOLOGY_BOOKING_HALALA_FIELDS = ['total', 'service_fee', 'home_visit_fee', 'transportation_fee', 'total_price', 'insurance_copay'];
 halalaShadowPlugin(RadiologyBookingSchema, RADIOLOGY_BOOKING_HALALA_FIELDS);
+minorShadowPlugin(RadiologyBookingSchema, RADIOLOGY_BOOKING_HALALA_FIELDS, { hideCurrency: true });
 RadiologyBookingSchema.index({ patient_id: 1, createdAt: -1 });
 RadiologyBookingSchema.index({ state: 1, scheduled_at: 1 });
 RadiologyBookingSchema.index({ sla_due_at: 1, state: 1 }, { name: 'alerts_sla_due_v1' });
