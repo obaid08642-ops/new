@@ -46,11 +46,11 @@ describe('ProviderPayoutsController reservation integrity', () => {
       ledgerEntries.aggregate.mockReturnValue({ toArray: jest.fn().mockResolvedValue([{ earned_cleared: 500, paid: 0, debits: 0, locked: 0, earned_pending: 25 }]) });
     };
     setup();
-    await controller.request({ id: 'p1', role: 'pharmacy' }, { amount: 200, idempotency_key: 'minor_sar_key_0001' });
+    await controller.request({ id: 'p1', role: 'pharmacy' }, { amount: 200, idempotency_key: 'idem-sar-'.padEnd(16, '0') });
     expect(withdrawals.insertOne).toHaveBeenLastCalledWith(expect.objectContaining({ amount_halalas: 20000, amount_minor: 20000, currency: 'SAR' }), expect.anything());
     expect(ledgerEntries.insertOne).toHaveBeenLastCalledWith(expect.objectContaining({ amount_halalas: 20000, amount_minor: 20000, currency: 'SAR' }), expect.anything());
     setup();
-    await runWithMarketContext({ currency: 'BHD' } as any, () => controller.request({ id: 'p2', role: 'pharmacy' }, { amount: 200, idempotency_key: 'minor_bhd_key_0001' }));
+    await runWithMarketContext({ currency: 'BHD' } as any, () => controller.request({ id: 'p2', role: 'pharmacy' }, { amount: 200, idempotency_key: 'idem-bhd-'.padEnd(16, '0') }));
     const req = withdrawals.insertOne.mock.calls.at(-1)[0];
     const led = ledgerEntries.insertOne.mock.calls.at(-1)[0];
     expect(req).toMatchObject({ amount: 200, amount_minor: 200000, currency: 'BHD' });
