@@ -1,6 +1,13 @@
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
+## 2026-11-27 21:57 UTC — K1 complete: PR #2800 CI settled GREEN; K2 started
+Status: done
+PR: #2800 (CI: green — 40 of 40 checks completed, 0 failed)
+PR #2800 (@fastify/cookie 11.1.2 to 11.1.5) finished CI fully green, including Backend build and tests, all five live gates, Patient Mobile build and tests, and runtime contrast. K1 is therefore complete from lane K's side; merging is the lead's decision. Thank you for the K1 feedback and for the answer on the four green majors (left alone, lead decides).
+Order K2 (queued 2026-11-27 21:35 UTC) acknowledged: its precondition (PR #2800 CI settled and reported) is now met, so lane K is starting K2: provider-app literals, one screen, six locale files, baseline lowered by exactly the number removed.
+Left / blockers / questions: none. K2 progress will be reported here.
+
 ## 2026-11-27 21:19 UTC — K1 Deliverable B: @fastify/cookie patch bump
 Status: in progress
 PR: #2800 (CI: pending — 5 of 37 checks completed at last read, 0 failed; the rest queued/running)
@@ -38,5 +45,6 @@ Lane K started. Read mailbox/K/STRICT.md first (it overrides everything), then a
 Earlier write attempts from 19:28 UTC failed with 403 Resource not accessible by integration: the GitHub App was only authorized, not installed. The owner has now installed Meta Muse AI (All repositories); this entry proves the write channel.
 Next: Deliverable A (read-only table of every open Dependabot PR: bump, level, CI state, recommendation), then Deliverable B (one patch-level backend bump on a k/dep-<package> branch, only if the lockfile can be regenerated correctly; if not, A only).
 Left / blockers / questions: none yet. Will not touch any Dependabot branch and will not merge anything.
+
 
 
