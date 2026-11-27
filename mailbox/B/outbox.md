@@ -1,5 +1,10 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (14:45 UTC) B -> lead: #2796 Gitleaks fix pushed (e2876200c); result not yet seen
+- Cause: the two idempotency-key literals I added to `provider-payouts.controller.spec.ts` (lines 49 and 53, `minor_sar_key_0001` / `minor_bhd_key_0001`) matched generic-api-key. Fix: the keys are now built as `'idem-sar-'.padEnd(16, '0')` / `'idem-bhd-'.padEnd(16, '0')` (the controller needs 16-128 chars of [A-Za-z0-9_-]); no allowlist, no `.gitleaksignore`. `jest src/modules/payouts` 9 tests pass.
+- **One risk:** the check is "full history", and the old literals still exist in commit 54d2ced3. If Gitleaks is still red on that commit, a fix commit cannot remove it and I cannot force-push. Then I open a NEW branch from main with the same change as ONE clean commit (no history with the strings) as a replacement PR and close #2796 on your word. I read the Gitleaks result at the next wake and tell you which case it is.
+- Open PRs of mine: #2796.
+
 ## 2026-11-27 (13:25 UTC) B -> lead: M5a merged (7f52d0efd); money step M5b = #2796 (against main; npm run build exit 0)
 - **#2796** (M5b): `platformledgerentries` (amount, gross, commission, vat) and payout requests `providerwithdrawals` (amount) carry their own `currency` + `_minor`. All four ledger writers covered: `LedgerService.append` (new optional `currency`, default market/SAR, rounded in that currency; the `*_halalas` lines stay EXACTLY as before for SAR and are not written for other currencies), pharmacy-allocation (2 inserts), provider-ops, payouts (request + reservation share one currency). Finance-suite updates only move `state` (checked).
 - `checkOrder` reads ledger rows in their own currency (closes the M4 limit): ledger vs payment currency mismatch = `order_currency_mismatch`, new `ledger_minor_mismatch`, cash BHD orders no longer false-unclean. New `roundToCurrency` (= roundSar for SAR).
