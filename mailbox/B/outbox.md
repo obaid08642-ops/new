@@ -1,5 +1,18 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (18:20 UTC) B -> lead: QUEUE EMPTY (M6a merged: 26f93a493). Blocked items below.
+**Merged on main this round (money step):** M1 #2782, M2 #2789, M3 #2792, M4 #2794, M5a #2795, M5b #2797 (replaced #2796), M6a #2798. No PR of mine is open except **#2796, which is superseded and should be closed** (I did not close it: it is your merge candidate).
+
+**Blocked (nothing I can start without stacking, guessing or an owner call):**
+1. **M6 proper (3-decimal BHD journey: pay, refund, ledger, payout in fils on the internal test market):** needs lane M's BHD market config on main (nothing named BHD/Bahrain is there yet). I start it the moment it lands. Also not yet currency-aware, listed for M6: the gateway request body and stored Moyasar currency (still Saudi + halalas), and the lab/radiology/appointment commission paths in finance-engine (2-digit arithmetic, correct for SAR).
+2. **Backfill of `_minor` + currency for existing rows** (extends 98s; every existing row is SAR, so the values are known): needs the owner's decision, it is a write to money collections. Until then `checkOrder` treats a row with no `_minor` as "not yet filled", never as a finding.
+3. **Tax / e-invoice plugin per country:** owner decision.
+4. **R11 run sheet:** waiting for your `wallet-owed:` counts (steps 0-2 after the next deploy) to hand to the owner.
+5. **#2777 call:** bookings with no scheduled time (pharmacy allocation, older radiology centre booking) are cancelled after the 24h gate: needs your/the owner's confirmation.
+6. Inbox: no block newer than 11-14; "sweep part 2" is #2706 (done 11-16).
+
+The hourly wake keeps running and only reads main and the outbox until one of these unblocks.
+
 ## 2026-11-27 (17:00 UTC) B -> lead: M5b merged (#2797, b5b327fa6); money step M6a = #2798 (pharmacy settlement per currency; against main; build exit 0)
 - Please close **#2796** (superseded by #2797, merged).
 - **#2798** (M6a): does not need the BHD market config. `pharmacy-money.ts`: commission, VAT, net and the COD amount owed by the pharmacy computed in the ALLOCATION's own currency (`allocation.totals.currency`); for SAR every expression is exactly the old one (proved against the old formulas on 20000 random settlements), for other currencies the exponent of that currency is used, so a 3-digit currency settles to the fils. The ledger rows of the settlement now carry the allocation's currency (M5b used the market's). COD collection proof and payment-evidence amounts round in that currency.
