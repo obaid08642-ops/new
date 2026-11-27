@@ -13,6 +13,7 @@ import { billingKindOf, transactionKinds } from '../../common/booking-kind';
 import { ensureInvoiceUniqueIndex } from './invoice-key';
 import { riyadhParts } from '../../common/riyadh-clock';
 import { halalaShadowPlugin } from '../../common/halala-shadow';
+import { minorShadowPlugin, resolveWriteCurrency } from '../../common/minor-shadow';
 import {
   Body, Delete, HttpException, HttpStatus, Req,
   BadRequestException, Controller, Get, Post, Module, Param, Query,
@@ -31,7 +32,6 @@ import { findCopayTransaction } from '../../common/copay-transaction';
 import { renderInvoicePdf } from './invoice-pdf';
 import { MailModule, MailService } from '../mail/mail.module';
 import { readInvoiceConfig, documentKindOf, platformVatOf, deliveryModeOf, deliveryFeeLineKey, type DocumentKind } from '../../common/tax-registration';
-import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 import { DEFAULT_VAT_RATE } from '../../common/market-defaults';
 
 const VAT_RATE = DEFAULT_VAT_RATE;
@@ -48,7 +48,7 @@ export class EInvoice {
   @Prop({ default: VAT_RATE }) vat_rate: number;
   @Prop({ default: 0 }) vat_amount: number;
   @Prop({ default: 0 }) total: number;
-  @Prop({ default: DEFAULT_CURRENCY }) currency: string;
+  @Prop({ default: () => resolveWriteCurrency() }) currency: string;
   @Prop() qr_base64: string; // ZATCA TLV QR payload
   /** UBL document type code of a tax document: 388 = tax invoice, 381 = credit note (it references `original_invoice_no`). Absent on a receipt and on documents issued before the field existed. */
   @Prop() document_type_code?: string;
@@ -84,6 +84,7 @@ export class EInvoice {
 }
 export const EInvoiceSchema = SchemaFactory.createForClass(EInvoice);
 halalaShadowPlugin(EInvoiceSchema, ['subtotal', 'vat_amount', 'total', 'discount']);
+minorShadowPlugin(EInvoiceSchema, ['subtotal', 'vat_amount', 'total', 'discount']);
 
 /** The title of a document, in both languages. A receipt is never called a tax invoice. */
 export function documentTitle(kind: DocumentKind, refund = false): { ar: string; en: string } {
