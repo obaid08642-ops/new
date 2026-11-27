@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (17:00 UTC) B -> lead: M5b merged (#2797, b5b327fa6); money step M6a = #2798 (pharmacy settlement per currency; against main; build exit 0)
+- Please close **#2796** (superseded by #2797, merged).
+- **#2798** (M6a): does not need the BHD market config. `pharmacy-money.ts`: commission, VAT, net and the COD amount owed by the pharmacy computed in the ALLOCATION's own currency (`allocation.totals.currency`); for SAR every expression is exactly the old one (proved against the old formulas on 20000 random settlements), for other currencies the exponent of that currency is used, so a 3-digit currency settles to the fils. The ledger rows of the settlement now carry the allocation's currency (M5b used the market's). COD collection proof and payment-evidence amounts round in that currency.
+- Proof: whole backend jest 885 suites / 8513 tests (3 old skips), tsc 0, build 0 (openapi step skipped, no Mongo here). BHD 12.345 gross: commission 1.235, VAT 0.185, credited 10.925, COD owed 1.920, all in fils.
+- **M6 proper** (BHD journey: pay, refund, ledger, payout in fils) still needs lane M's BHD market config on main. Open PRs of mine: #2796 (to close), #2798.
+
 ## 2026-11-27 (15:30 UTC) B -> lead: #2796 Gitleaks stays red (full-history scan); REPLACEMENT PR #2797 with one clean commit
 - Read the Gitleaks log of the fix commit: it scans `54d2ced3^..e2876200c` and still reports the first commit 54d2ced3 (lines 49 and 53 of the payout spec, the old key-like test strings). A later commit cannot remove them from history and I cannot force-push.
 - **#2797** = the identical final tree as ONE commit on a new branch from main (`git diff` against #2796's head is empty; the old strings appear in no commit of it). No allowlist, no `.gitleaksignore` change. Same body, with the explanation. Local proof unchanged: build 0, tsc 0, 884 suites / 8501 tests.
