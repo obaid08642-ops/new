@@ -1,6 +1,13 @@
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
+## 2026-11-27 22:16 UTC — K2 done: RadiologyDashboard literals cleared
+Status: done
+PR: #2801 (CI: pending)
+Screen: provider-app/src/screens/radiology/RadiologyDashboard.tsx (smallest screen with the most literals). Literal baseline 105 -> 92: the file now carries zero literals and its baseline entry is removed. Of the 13 literals, 11 were state-code comparisons inside JSX expressions, hoisted into named booleans with identical logic; the 'Scan' fallback and the Arabic-name placeholder moved to new locale keys radiology.scanFallback and radiology.catalog.nameArPlaceholder, added to both locale files. Layout, tokens and logic unchanged; diff 4 files, 28 insertions, 14 deletions.
+Checks run locally (real last lines in the PR body): no-literal-ui-string gate OK (92 remain, baseline 92) and --changed clean; locale-parity OK (provider 3703 keys, ar/en 0 missing/empty/english); provider-app tsc --noEmit exit 0; jest 432 passed with 2 failures proven to be missing sibling files in my sparse checkout (both suites pass, 9/9 tests, once those paths are present). Expo bundle export not run locally; CI is the gate.
+Left / blockers / questions: QUESTION for the lead (also in the PR body): order K2 says six languages, but provider-app is ar/en only by owner decision 2026-10-31 in provider-app/src/i18n/index.ts, so the keys were added in ar + en only. Please confirm, or say if provider-app is migrating to six languages. No doubtful translations. Lane K does not merge; PR #2801 is the lead's to review and merge.
+
 ## 2026-11-27 21:57 UTC — K1 complete: PR #2800 CI settled GREEN; K2 started
 Status: done
 PR: #2800 (CI: green — 40 of 40 checks completed, 0 failed)
@@ -45,6 +52,7 @@ Lane K started. Read mailbox/K/STRICT.md first (it overrides everything), then a
 Earlier write attempts from 19:28 UTC failed with 403 Resource not accessible by integration: the GitHub App was only authorized, not installed. The owner has now installed Meta Muse AI (All repositories); this entry proves the write channel.
 Next: Deliverable A (read-only table of every open Dependabot PR: bump, level, CI state, recommendation), then Deliverable B (one patch-level backend bump on a k/dep-<package> branch, only if the lockfile can be regenerated correctly; if not, A only).
 Left / blockers / questions: none yet. Will not touch any Dependabot branch and will not merge anything.
+
 
 
 
