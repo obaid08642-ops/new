@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { ProviderPayoutsController } from './provider-payouts.controller';
+import { runWithMarketContext } from '../markets/market-context';
 
 describe('ProviderPayoutsController reservation integrity', () => {
   let withdrawals: any;
@@ -36,6 +37,26 @@ describe('ProviderPayoutsController reservation integrity', () => {
     // R11 P1: the request and its ledger reservation carry the integer shadow of the amount (200 SAR = 20000 halalas)
     expect(withdrawals.insertOne).toHaveBeenCalledWith(expect.objectContaining({ amount: 200, amount_halalas: 20000 }), expect.anything());
     expect(ledgerEntries.insertOne).toHaveBeenCalledWith(expect.objectContaining({ type: 'payout', state: 'locked', amount: 200, amount_halalas: 20000 }), expect.anything());
+  });
+
+  it('money step M5b: the request and its reservation carry _minor + the same currency; SAR = halalas, a BHD market = fils and no halalas', async () => {
+    const setup = () => {
+      withdrawals.findOne.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+      bankAccounts.findOne.mockResolvedValue({ id: 'bank-1', iban: 'SA1234567890123456789012', bank_name: 'Bank', review_status: 'approved' });
+      ledgerEntries.aggregate.mockReturnValue({ toArray: jest.fn().mockResolvedValue([{ earned_cleared: 500, paid: 0, debits: 0, locked: 0, earned_pending: 25 }]) });
+    };
+    setup();
+    await controller.request({ id: 'p1', role: 'pharmacy' }, { amount: 200, idempotency_key: 'idem-sar-'.padEnd(16, '0') });
+    expect(withdrawals.insertOne).toHaveBeenLastCalledWith(expect.objectContaining({ amount_halalas: 20000, amount_minor: 20000, currency: 'SAR' }), expect.anything());
+    expect(ledgerEntries.insertOne).toHaveBeenLastCalledWith(expect.objectContaining({ amount_halalas: 20000, amount_minor: 20000, currency: 'SAR' }), expect.anything());
+    setup();
+    await runWithMarketContext({ currency: 'BHD' } as any, () => controller.request({ id: 'p2', role: 'pharmacy' }, { amount: 200, idempotency_key: 'idem-bhd-'.padEnd(16, '0') }));
+    const req = withdrawals.insertOne.mock.calls.at(-1)[0];
+    const led = ledgerEntries.insertOne.mock.calls.at(-1)[0];
+    expect(req).toMatchObject({ amount: 200, amount_minor: 200000, currency: 'BHD' });
+    expect(led).toMatchObject({ amount: 200, amount_minor: 200000, currency: 'BHD' });
+    expect('amount_halalas' in req).toBe(false);
+    expect('amount_halalas' in led).toBe(false);
   });
 
   it('earnings whose hold has passed are matured BEFORE the balance is summed (this route never went through providerBalance)', async () => {

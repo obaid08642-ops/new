@@ -12,14 +12,14 @@ describe('checkOrder by currency', () => {
   });
 
   it('BHD order: 3-digit amounts are clean, no false ledger_amount_unclean, minor units compared in fils', () => {
-    const ok = checkOrder({ order_id: 'o', ledger: [refundRow(2.5)], earnings: [], payments: [pay({ currency: 'BHD', amount: 12.345, refunded_amount: 2.5, amount_minor: 12345, refunded_amount_minor: 2500 })] });
+    const ok = checkOrder({ order_id: 'o', ledger: [{ ...refundRow(2.5), currency: 'BHD' }], earnings: [], payments: [pay({ currency: 'BHD', amount: 12.345, refunded_amount: 2.5, amount_minor: 12345, refunded_amount_minor: 2500 })] });
     expect(ok).toEqual([]);
-    const over = checkOrder({ order_id: 'o', ledger: [refundRow(12.346)], earnings: [], payments: [pay({ currency: 'BHD', amount: 12.345, refunded_amount: 12.346 })] });
+    const over = checkOrder({ order_id: 'o', ledger: [{ ...refundRow(12.346), currency: 'BHD' }], earnings: [], payments: [pay({ currency: 'BHD', amount: 12.345, refunded_amount: 12.346 })] });
     expect(codes(over)).toContain('refund_exceeds_paid');      // one fils over
   });
 
   it('BHD amount with 4 decimals is unclean in BHD', () => {
-    const f = checkOrder({ order_id: 'o', ledger: [refundRow(1.2345)], earnings: [], payments: [pay({ currency: 'BHD', amount: 5, refunded_amount: 1.2345 })] });
+    const f = checkOrder({ order_id: 'o', ledger: [{ ...refundRow(1.2345), currency: 'BHD' }], earnings: [], payments: [pay({ currency: 'BHD', amount: 5, refunded_amount: 1.2345 })] });
     expect(codes(f)).toContain('ledger_amount_unclean');
   });
 
@@ -47,5 +47,24 @@ describe('checkOrder by currency', () => {
   it('a row with no currency and a row with SAR are the same currency (every existing row is SAR)', () => {
     const f = checkOrder({ order_id: 'o', ledger: [], earnings: [], payments: [pay({ id: 'a', amount: 10 }), pay({ id: 'b', currency: 'SAR', amount: 10 })] });
     expect(codes(f)).not.toContain('order_currency_mismatch');
+  });
+
+  it('M5b: a cash order (no payment row) is read in its ledger rows\' currency: BHD 3 digits are clean', () => {
+    const f = checkOrder({ order_id: 'o', ledger: [{ ...refundRow(2.345), currency: 'BHD', amount_minor: 2345 }], earnings: [{ id: 'e1', type: 'provider_earning', amount: 10.125, currency: 'BHD', amount_minor: 10125 } as LedgerRow], payments: [] });
+    expect(f).toEqual([]);
+  });
+
+  it('M5b: a ledger row of another currency than the payments is order_currency_mismatch', () => {
+    const f = checkOrder({ order_id: 'o', ledger: [{ ...refundRow(5), currency: 'BHD' }], earnings: [], payments: [pay({ currency: 'SAR', amount: 50 })] });
+    expect(codes(f)).toEqual(['order_currency_mismatch']);
+  });
+
+  it('M5b: a ledger row whose _minor is not the minor units of its amount is ledger_minor_mismatch', () => {
+    const f = checkOrder({ order_id: 'o', ledger: [{ ...refundRow(2.345), currency: 'BHD', amount_minor: 2340 }], earnings: [], payments: [] });
+    expect(f.find((x) => x.code === 'ledger_minor_mismatch')?.detail).toMatchObject({ field: 'amount', value: 2.345, shadow: 2340, currency: 'BHD' });
+  });
+
+  it('M5b: a SAR ledger row with no currency and a matching _minor is clean', () => {
+    expect(checkOrder({ order_id: 'o', ledger: [{ ...refundRow(10.5), amount_minor: 1050 }], earnings: [], payments: [pay({ amount: 100, refunded_amount: 10.5 })] })).toEqual([]);
   });
 });
