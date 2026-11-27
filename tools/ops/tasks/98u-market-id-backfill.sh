@@ -8,9 +8,9 @@
 # Gates (APPLY refuses, a dry run only reports): the backend container is running and below MAX_BACKEND_MEM_PERCENT (default 80) of its memory; the newest nightly dump is from today (UTC), after 03:00,
 # and not tiny (MIN_DUMP_MB, default 50); the time is outside 03:00-05:00 UTC (the backup window). The node process is capped at 160 MB and 20 minutes.
 set -u
-APPLY=""
-COLLECTION=""
-CONFIRM=""
+APPLY="yes"
+COLLECTION="appointments"
+CONFIRM="appointments"
 ROLLBACK_RUN=""
 DK="sudo -n docker"
 CT=${OPS_BACKEND_CONTAINER:-nabdah-backend}

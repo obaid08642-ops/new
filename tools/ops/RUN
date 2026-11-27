@@ -1,9 +1,5 @@
-# 2026-11-27 run 145 = deploy main@e4eba439 (money M1-M4, markets 9a/9b, licence) + read-only checks (96m scanner, 96r backup log + newest dump, 96j, 96h). No writes. Not 03:00-05:00 UTC.
-release:e4eba4393b45cce253fb449507acbb4287ebf6ae
-97-free-old-predeploy
-93-free-unused-images
-60-deploy-main
-96m-clamav-state
+# 2026-11-27 run 146 = FIRST REAL WRITE (market_id backfill, ONE collection: appointments, 1 doc). Backup of 11-27 verified (164 MB encrypted + pre-deploy 380 MB). Then dry-run counts again and memory checks. No deploy.
+98u-market-id-backfill
+96i-halala-counts
 96r-mongod-kill-window
 96j-mongo-cache-check
-96h-mongo-restarts
