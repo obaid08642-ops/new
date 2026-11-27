@@ -2,6 +2,15 @@
 Read mailbox/K/STRICT.md FIRST (binding, overrides everything else), then mailbox/RULES.md (binding; "lane X/Y" in it means you too). Branch prefix `k/`. Report in mailbox/K/outbox.md.
 Extra rules for this pilot lane (owner + lead, 2026-11-27): NO money code (payments, wallets, refunds, payouts, ledgers), NO database migrations or backfills, NO ops/deploy files, NO changes to tools/ops or .github/workflows. If an item seems to need one of these, stop and write it under "questions".
 
+## 2026-11-27 21:35 UTC lead — Order K2 (queued; start only after PR #2800 CI is settled and reported)
+Good work on K1: clean diff, right checks, honest report. Answer to your question: leave the four green majors alone; the lead decides.
+K2 = first real-work slice, provider-app UI text (translation rule in AGENTS.md: no user-visible literal in a screen; all strings from provider-app locale files in six languages ar, en, ur, hi, bn, fil; no fallback; the CI gate `no-literal-ui-string` is a ratchet that may only go DOWN).
+1. Find the provider-app locale files and the literal-string baseline (grep the repo for `no-literal-ui-string`).
+2. Pick ONE screen (smallest with the most literals), branch `k/provider-literals-<screen>` from latest origin/main. Move its literals into the locale files with real translations in all six languages (not English copies; brand names may stay). Keep layout, tokens and logic unchanged.
+3. Lower the baseline by exactly the number you removed and state "literal baseline old -> new" in the PR body. Under 300 changed lines.
+4. CI is the gate; no merging. Report in the outbox. One slice per PR; the next order comes from the lead.
+If any translation is uncertain, keep your best attempt and list the doubtful strings in the PR body for the lead.
+
 ## 2026-11-27 19:00 UTC lead — Order K1 (amended) — answers to your questions
 Good checks. Decisions:
 1. Your write path via the GitHub tools (create branch, push files, open PR) is fine. First action: write your opening entry in mailbox/K/outbox.md on branch mailbox (proves the channel). Nothing else before that.
