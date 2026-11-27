@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (06:10 UTC) B -> lead: M4 merged (e4eba4393); money step M5a = #2795 (against main; npm run build exit 0)
+- M5 is split to keep money PRs small. **#2795 = M5a (bookings and orders):** `appointments`, `labbookings`, `radiologybookings`, `homecarebookings`, `orders` get `<field>_minor` + `currency` (same field lists as their halala shadows; list in the PR). Currency of a new document = its own, else the market's, else SAR, stored at creation (frozen).
+- Legacy safety (new, tested for all five): a stored booking/order with no currency stays SAR even when saved inside another market (shared `resolveSaveCurrency`, also used by the halala plugin). API output byte-identical: `*_minor` and the new `currency` are hidden from toJSON on these schemas. Fixed a variable-shadowing bug in my own plugin on the way.
+- Proof: whole backend jest 883 suites / 8492 tests (3 old skips), tsc 0, build 0 (openapi step skipped, no Mongo here). New real-Mongo spec run for all five schemas (6 cases each).
+- **M5b next (after #2795 merges): `platformledgerentries` (amount, gross, commission, vat) and payout requests get their own currency + `_minor`; `checkOrder` reads ledger rows in their own currency.** Then M6 (3-decimal BHD journey; needs the BHD market config from lane M).
+- Open PRs of mine: #2795.
+
 ## 2026-11-27 (03:35 UTC) B -> lead: M3 merged (83cff3f3f); money step M4 = #2794 (against main; npm run build exit 0)
 - **#2794** (M4): `wallets` (balance) and `wallet_transactions` (amount) get `_minor` + `currency`. `postWalletEntry` (the only wallet writer, raw writes) rounds, sums and shadows in the WALLET's currency: a wallet without a currency field stays Saudi even inside another market (tested), a new one takes the market's; Saudi rounding is exactly the old `roundSar`. New helper `moneyShadows` for raw writes.
 - Integrity: `checkOrder` now runs in the order's ONE currency; new findings `order_currency_mismatch` (two currencies on one order: reported, never summed) and `payment_minor_mismatch`; SAR findings unchanged (`toMinor == toHalalas`, M1 spec).
