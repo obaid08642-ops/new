@@ -1,4 +1,5 @@
-import { shadowFields } from '../../common/halala-shadow';
+import { moneyShadows } from '../../common/halala-shadow';
+import { resolveWriteCurrency } from '../../common/minor-shadow';
 import { mergeCrm, readCrm } from '../provider-production/crm-store';
 import { protectHealthDoc } from '../../common/health-fields';
 import { PROVIDER_ROLES } from '../../common/enums';
@@ -764,7 +765,7 @@ export class ProviderOpsService {
       ref_type: refType, ref_id: refId, createdAt: new Date(),
     };
     // R11 P1: a raw insert adds its own integer shadows (LedgerService.append does the same for the rows it writes)
-    const withShadows = { ...row, ...shadowFields(row, ['amount', 'gross', 'commission', 'vat']) };
+    const withShadows = { ...row, ...moneyShadows(row, ['amount', 'gross', 'commission', 'vat'], resolveWriteCurrency()) };
     // The read above is not atomic: two parallel service.completed events both pass it. The unique partial index (earning-key.ts) makes the database refuse the second row;
     // that refusal means "already credited", and an order the loser claimed on a limited promotion is given back.
     await (this.earningIndex ??= ensureEarningUniqueIndex(this.conn, (m) => this.logger.warn(m)));

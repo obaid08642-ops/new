@@ -8,7 +8,7 @@ import { DEFAULT_CURRENCY } from '../../common/market-defaults';
  * (what the patient got back) and, in proportion to the refunded share of what the patient paid, a `provider_debit` (clawback of the net),
  * a `commission_reversal` and a `vat_reversal`, all with ref_type 'refund' and the refund id as ref_id.
  */
-export interface LedgerRow { id?: string; type: string; amount: number; ref_type?: string; ref_id?: string; gross?: number; commission?: number; vat?: number; state?: string }
+export interface LedgerRow { currency?: string; amount_minor?: number; gross_minor?: number; commission_minor?: number; vat_minor?: number; id?: string; type: string; amount: number; ref_type?: string; ref_id?: string; gross?: number; commission?: number; vat?: number; state?: string }
 export interface PaymentRow { currency?: string; amount_minor?: number; refunded_amount_minor?: number; amount: number; refunded_amount?: number; amount_halalas?: number; refunded_amount_halalas?: number; status?: string; kind: 'transaction' | 'moyasar_payment'; id?: string; method?: string }
 export interface OrderContext { order_id: string; ledger: LedgerRow[]; earnings: LedgerRow[]; payments: PaymentRow[] }
 export interface Finding { code: string; entity_id: string; detail: Record<string, unknown> }
@@ -22,9 +22,9 @@ export function checkOrder(ctx: OrderContext): Finding[] {
   const id = ctx.order_id;
   const add = (code: string, detail: Record<string, unknown>) => out.push({ code, entity_id: id, detail });
 
-  // INV-8 one currency per order (money step M4): the amounts of an order are only ever added up in ONE currency. Payments of two currencies on one order are a
+  // INV-8 one currency per order (money step M4/M5b): the amounts of an order are only ever added up in ONE currency. Payment rows and ledger rows of two currencies on one order are a
   // finding, and the rest of the checks do not run (they would add unlike units). A row with no currency is in the Saudi currency (written before currencies existed).
-  const currencies = [...new Set(ctx.payments.map((p) => p.currency || DEFAULT_CURRENCY))];
+  const currencies = [...new Set([...ctx.payments, ...ctx.ledger, ...ctx.earnings].map((r) => r.currency || DEFAULT_CURRENCY))];
   if (currencies.length > 1) { add('order_currency_mismatch', { currencies }); return out; }
   const cur = currencies[0] ?? DEFAULT_CURRENCY;
   // integer minor units of the order's currency; for the Saudi currency this is exactly the halalas of before
@@ -37,6 +37,15 @@ export function checkOrder(ctx: OrderContext): Finding[] {
       const v = (r as any)[f];
       if (v === undefined || v === null) continue;
       if (!isCleanAmount(v, cur) || v < 0) add('ledger_amount_unclean', { ledger_id: r.id, type: r.type, field: f, value: v });
+    }
+  }
+  // INV-10 the `_minor` shadow of a ledger row (money step M5b) is the minor units of its double in the order's currency
+  for (const r of [...ctx.ledger, ...ctx.earnings]) {
+    for (const f of ['amount', 'gross', 'commission', 'vat'] as const) {
+      const minor = (r as any)[`${f}_minor`];
+      const val = (r as any)[f];
+      if (minor === undefined || minor === null || val === undefined || val === null || !isCleanAmount(val, cur)) continue;
+      if (minor !== toMinor(val, cur)) add('ledger_minor_mismatch', { ledger_id: r.id, type: r.type, field: f, value: val, shadow: minor, currency: cur });
     }
   }
   // INV-7 shadow consistency (R11 P1): a payment row that carries `<field>_halalas` must carry the halalas of its double. A mismatch means a write changed the

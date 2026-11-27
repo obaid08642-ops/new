@@ -42,6 +42,9 @@ import { settlementDelayDefault, DEFAULT_COMMISSION_PERCENT, DEFAULT_VAT_PERCENT
 import { PROMO_COLLECTION, promoState, type CommissionPromo } from '../../common/commission-promo';
 import { DurableEventsService, emitDurable } from '../durable-events/durable-events.service';
 import { roundSar, toHalalas } from '../../common/money';
+import { roundToCurrency } from '../../common/money-minor';
+import { minorFields, resolveWriteCurrency } from '../../common/minor-shadow';
+import { DEFAULT_CURRENCY } from '../../common/market-defaults';
 import { refundableLeftSar } from './refundable-left';
 import { clawbackShares } from './refund-clawback';
 import { halalasSum, reportFigures } from './report-totals';
@@ -102,20 +105,27 @@ export class LedgerService {
     description?: string;
     actor_id?: string;
     meta?: any;
+    /** Money step M5b: the currency of this row; default the market's (SAR with no market). Rows are append-only, so it is frozen at creation. */
+    currency?: string;
   }) {
     if (!LEDGER_TYPES.includes(entry.type)) throw new BadRequestException(`invalid ledger type ${entry.type}`);
     if (!(Number(entry.amount) >= 0)) throw new BadRequestException('ledger amount must be >= 0 (direction is expressed by type)');
+    const cur = resolveWriteCurrency(entry.currency);
+    const amount = roundToCurrency(Number(entry.amount) || 0, cur);
+    const saudi = cur === DEFAULT_CURRENCY;
     const doc = {
       id: `le_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       provider_account_id: entry.provider_account_id || null,
       type: entry.type,
       state: entry.state || 'cleared',
-      amount: round2(entry.amount),
-      // R11 dual write: integer halalas next to the legacy double (docs/platform/R11-money-integrity.md); readers still use the doubles
-      amount_halalas: toHalalas(round2(entry.amount)),
-      ...(entry.gross !== undefined && entry.gross !== null ? { gross_halalas: toHalalas(entry.gross) } : {}),
-      ...(entry.commission !== undefined && entry.commission !== null ? { commission_halalas: toHalalas(entry.commission) } : {}),
-      ...(entry.vat !== undefined && entry.vat !== null ? { vat_halalas: toHalalas(entry.vat) } : {}),
+      amount,
+      // R11 dual write: integer halalas next to the legacy double (docs/platform/R11-money-integrity.md); readers still use the doubles. The halala shadow is the Saudi currency's only.
+      ...(saudi ? { amount_halalas: toHalalas(round2(entry.amount)) } : {}),
+      ...(saudi && entry.gross !== undefined && entry.gross !== null ? { gross_halalas: toHalalas(entry.gross) } : {}),
+      ...(saudi && entry.commission !== undefined && entry.commission !== null ? { commission_halalas: toHalalas(entry.commission) } : {}),
+      ...(saudi && entry.vat !== undefined && entry.vat !== null ? { vat_halalas: toHalalas(entry.vat) } : {}),
+      // money step M5b: minor units + the row's own currency
+      ...minorFields({ amount, gross: entry.gross, commission: entry.commission, vat: entry.vat }, ['amount', 'gross', 'commission', 'vat'], cur),
       ...(entry.available_at ? { available_at: entry.available_at } : {}),
       ref_type: entry.ref_type, ref_id: entry.ref_id, order_id: entry.order_id,
       gross: entry.gross, commission_percent: entry.commission_percent,
