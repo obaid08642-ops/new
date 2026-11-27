@@ -6,19 +6,19 @@
 import { BadRequestException } from '@nestjs/common';
 import type { Connection } from 'mongoose';
 import { fieldCrypto } from './pdpl-compliance.module';
-import { SA_PLUGINS } from '../modules/markets/plugins/registry';
+import { currentIdentityPlugin } from '../modules/markets/plugins/registry';
 
 const IDENTITY = 'patient_identity';
 
-/** The launch market's national ID / iqama rule (`markets/plugins/identity.plugin.ts`). Throws `national_id_invalid`. */
+/** The request market's national ID rule (SA: national ID / iqama) (`markets/plugins/identity.plugin.ts`). Throws `national_id_invalid`. */
 export function normaliseNationalId(raw: unknown): string {
-  const v = SA_PLUGINS.identity.normalise(raw);
+  const v = currentIdentityPlugin().normalise(raw);
   if (v === null) throw new BadRequestException('national_id_invalid');
   return v;
 }
 
 export function maskId(id: string | null | undefined): string | null {
-  return SA_PLUGINS.identity.mask(id);
+  return currentIdentityPlugin().mask(id);
 }
 
 /** The number in clear text, or null when the patient never gave one. */

@@ -12,7 +12,8 @@
  * instead of inferring it.
  */
 import { Injectable, Logger } from '@nestjs/common';
-import { parsePhoneNumberFromString, CountryCode } from 'libphonenumber-js';
+import { currentPhoneConfig } from '../modules/markets/plugins/registry';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { RedisService } from '../modules/redis/redis.service';
 
 /** OTPs one phone number may ask for in an hour. */
@@ -20,9 +21,6 @@ export const MAX_OTP_PER_NUMBER_PER_HOUR = 5;
 /** Distinct phone numbers one IP may target in an hour. */
 export const MAX_NUMBERS_PER_IP_PER_HOUR = 20;
 const HOUR = 60 * 60;
-
-/** Region assumed for a number written in national form with no country. */
-const DEFAULT_REGION = (process.env.OTP_DEFAULT_REGION || 'SA') as CountryCode;
 
 export type OtpAbuseRefusal =
   | 'otp_invalid_identifier'
@@ -63,9 +61,9 @@ export class OtpAbuseGuard {
     if (digits.startsWith('+')) digits = digits.slice(1);
     // 00 is the international access prefix; the rest is already country-first.
     if (digits.startsWith('00')) digits = digits.slice(2);
-    // A leading national trunk zero is only meaningful with a country, and the
-    // product is Saudi-first, so 05… means +9665….
-    if (digits.startsWith('0')) digits = `966${digits.slice(1)}`;
+    // A leading national trunk prefix (SA: 0) is only meaningful with a country: it means the request's market (SA: 05… is +9665…).
+    const phone = currentPhoneConfig();
+    if (phone.trunk_prefix && digits.startsWith(phone.trunk_prefix)) digits = `${phone.default_dial.slice(1)}${digits.slice(phone.trunk_prefix.length)}`;
     if (!/^\d{7,15}$/.test(digits)) return null;
 
     // Digits with no trunk zero are parsed as a country-first number.

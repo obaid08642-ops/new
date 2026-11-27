@@ -13,6 +13,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { normalizeDigits } from '../markets/plugins/digits';
+import { currentMarketContext } from '../markets/market-context';
 
 export interface NormalizedPhone {
   e164: string;
@@ -89,7 +90,7 @@ export class CheckoutContactService {
    * Accepts `05XXXXXXXX`, `5XXXXXXXX`, `+9665XXXXXXXX`, `009665XXXXXXXX` and
    * either digit set. Returns E.164 plus a formatted form for confirmation.
    */
-  normalizePhone(input: string, defaultCountry: CountryCode = 'SA'): NormalizedPhone {
+  normalizePhone(input: string, defaultCountry: CountryCode = (currentMarketContext()?.country ?? 'SA') as CountryCode): NormalizedPhone {
     if (typeof input !== 'string' || !input.trim()) throw new BadRequestException('contact_phone_required');
     const digits = normalizeDigits(input).replace(/[\s().-]/g, '');
     if (!/^\+?\d{6,15}$/.test(digits)) throw new BadRequestException('contact_phone_invalid');
