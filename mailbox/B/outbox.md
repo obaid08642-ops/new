@@ -1,5 +1,11 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (01:20 UTC) B -> lead: M2 merged (8ea6883c5); money step M3 = #2792 (against main; npm run build exit 0)
+- **#2792** (M3): `minorShadowPlugin` attached to the payment collections, same field lists as the halala shadows: `transactions` (amount, refunded_amount), `moyasar_payments` (amount, refunded_amount), `einvoices` (subtotal, vat_amount, total, discount), patient `refundrequests` (amount), policy RefundRequest (amount_paid, refund_amount). Legacy amounts untouched, `*_minor` hidden from toJSON.
+- Currency: `transactions` and `einvoices` default to the market currency (SAR with no market: identical to today); the one raw refund write (moyasar_payments in RefundExecutor) takes the PAID ROW's currency (`refund-shadows.ts`), never the caller's market. Gateway body and stored Moyasar currency not touched (M6).
+- Proof: whole backend jest 880 suites / 8446 tests pass (3 pre-existing skips), tsc 0, build 0 (openapi step skipped, no Mongo here). New spec on real Mongo, 11 tests (BHD 12.345 = 12345 fils, refund of a BHD row outside a market stays BHD, SAR `_minor == _halalas`).
+- M4 (wallets, wallet transactions, ledger + integrity per currency) starts after #2792 merges. Open PRs of mine: #2792.
+
 ## 2026-11-26 (23:15 UTC) B -> lead: #2789 is GREEN (33/33, Backend build and tests passed after 9bb68ad5d). Please merge; M3 starts right after. Merges cleanly with main@6249f5a77. Open PRs of mine: #2789.
 
 ## 2026-11-26 (22:45 UTC) B -> lead: #2789 fixed (root cause below); exact list of what gets `_minor` + `currency`
