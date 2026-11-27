@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import { escXml, localizedUrl } from "@/lib/seo";
 import type { Locale } from "@/lib/i18n";
 import { cdnImage } from "@/lib/api/public-products-server";
@@ -28,7 +29,7 @@ export function merchantItemXml(locale: Locale, p: MerchantFeedItem): string | n
     `<link>${escXml(link)}</link>`,
     tag("image_link", image),
     tag("availability", p.available ? "in_stock" : "out_of_stock"),
-    tag("price", `${p.price.toFixed(2)} ${p.currency || "SAR"}`),
+    tag("price", `${p.price.toFixed(2)} ${p.currency || SA_MARKET_DEFAULTS.currency.code}`),
     tag("condition", "new"),
     tag("brand", p.brand),
     p.gtin ? tag("gtin", p.gtin) : tag("identifier_exists", "no"),

@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import { NextResponse } from "next/server";
 import { backendList, cell, LLMS_LOCALES, type LlmsLocale, siteOriginForLlms } from "@/lib/llms-full";
 
@@ -21,7 +22,7 @@ export async function GET(_req: Request, { params }: Props) {
       if (items.length < 1000) break;
     }
     const lines = all.filter((p) => p.slug).map((p) => [
-      cell(p.name), p.price ?? "", cell(p.currency || "SAR"), cell(p.form), cell(p.strength), cell(p.active_ingredient), cell(p.category), p.is_rx ? "Rx" : "OTC",
+      cell(p.name), p.price ?? "", cell(p.currency || SA_MARKET_DEFAULTS.currency.code), cell(p.form), cell(p.strength), cell(p.active_ingredient), cell(p.category), p.is_rx ? "Rx" : "OTC",
       p.url && p.url.startsWith(`${origin}/${locale}/p/`) ? p.url : `${origin}/${locale}/p/${encodeURIComponent(String(p.slug))}`,
     ].join(" | "));
     const header = `# Nabd Plus products (${locale}): ${lines.length}\n# name | price | currency | form | strength | active ingredient | category | Rx/OTC | page\n# Rx items need a prescription on Nabd Plus. Prices change: the page shows the current one.\n`;

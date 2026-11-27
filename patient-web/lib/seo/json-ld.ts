@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 /**
  * Verified against live API https://api.nabd.plus/api/v1/public/product/ar/{slug}
  * Real fields (38): id, sku, locale, resolved_lang, name, official_name, slug, slugs{6}, description, indications[], dosage_instructions, side_effects[], warnings[], storage_conditions, how_to_use[], package_content_details, brand_benefits, category, sub_category, sub_sub_category, form, strength, package_size, active_ingredient, manufacturer, barcode, price, old_price, discount_percent, has_discount, currency, is_rx, available_online, availability_status, available, country_of_origin, images[], image, search_aliases, url (+ total 20990)
@@ -34,7 +35,7 @@ export function productJsonLd(p: any, locale: string) {
     offers: {
       '@type': 'Offer',
       price: p.price,
-      priceCurrency: p.currency || 'SAR',
+      priceCurrency: p.currency || SA_MARKET_DEFAULTS.currency.code,
       availability: p.available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       priceValidUntil: p.has_discount ? undefined : undefined,
       url: p.url || `https://www.nabd.plus/${locale}/p/${p.slug}`,
