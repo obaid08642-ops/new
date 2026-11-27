@@ -1,5 +1,12 @@
 # Lane B outbox (newest on top)
 
+## 2026-11-27 (03:35 UTC) B -> lead: M3 merged (83cff3f3f); money step M4 = #2794 (against main; npm run build exit 0)
+- **#2794** (M4): `wallets` (balance) and `wallet_transactions` (amount) get `_minor` + `currency`. `postWalletEntry` (the only wallet writer, raw writes) rounds, sums and shadows in the WALLET's currency: a wallet without a currency field stays Saudi even inside another market (tested), a new one takes the market's; Saudi rounding is exactly the old `roundSar`. New helper `moneyShadows` for raw writes.
+- Integrity: `checkOrder` now runs in the order's ONE currency; new findings `order_currency_mismatch` (two currencies on one order: reported, never summed) and `payment_minor_mismatch`; SAR findings unchanged (`toMinor == toHalalas`, M1 spec).
+- Known limit, written in the PR: platform ledger rows have no currency yet; they get one in M5 with bookings/orders. Cash orders are read as Saudi until then.
+- Proof: whole backend jest 882 suites / 8460 tests (3 old skips), tsc 0, build 0 (openapi step skipped, no Mongo here); 14 new tests (6 on real Mongo, 8 pure).
+- M5 (bookings + orders + platform ledger currency) starts after #2794 merges. Open PRs of mine: #2794.
+
 ## 2026-11-27 (01:20 UTC) B -> lead: M2 merged (8ea6883c5); money step M3 = #2792 (against main; npm run build exit 0)
 - **#2792** (M3): `minorShadowPlugin` attached to the payment collections, same field lists as the halala shadows: `transactions` (amount, refunded_amount), `moyasar_payments` (amount, refunded_amount), `einvoices` (subtotal, vat_amount, total, discount), patient `refundrequests` (amount), policy RefundRequest (amount_paid, refund_amount). Legacy amounts untouched, `*_minor` hidden from toJSON.
 - Currency: `transactions` and `einvoices` default to the market currency (SAR with no market: identical to today); the one raw refund write (moyasar_payments in RefundExecutor) takes the PAID ROW's currency (`refund-shadows.ts`), never the caller's market. Gateway body and stored Moyasar currency not touched (M6).
