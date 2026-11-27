@@ -3910,7 +3910,10 @@
     "errBookingTimesNeedRecurrence": "Para mag-book ng higit sa isang beses, piliin kung gaano kadalas ito uulitin.",
     "errBookingTimesOutOfRange": "Lampas ang bilang ng beses sa pinapayagan ng serbisyong ito.",
     "errBookingSessionsNotOffered": "Hindi iniaalok ang bilang na ito ng session. Pumili ng package mula sa listahan.",
-    "errServicePriceNotSet": "Wala pang itinakdang presyo ang serbisyong ito. Subukan muli mamaya."
+    "errServicePriceNotSet": "Wala pang itinakdang presyo ang serbisyong ito. Subukan muli mamaya.",
+    "sortNearest": "Pinakamalapit",
+    "nearestNoAddress": "Magdagdag ng default na address para maisaayos ang mga nurse ayon sa layo.",
+    "distanceLine": "{km} km ang layo"
   },
   "MaternityWeb": {
     "title": "Pagbubuntis",

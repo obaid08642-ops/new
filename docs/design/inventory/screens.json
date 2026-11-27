@@ -1,5 +1,5 @@
 {
- "commit": "34f2b949d",
+ "commit": "b18e4483f",
  "routes": [
   {
    "app": "patient-app",
@@ -14434,7 +14434,7 @@
      "path": "/home-care/providers",
      "target": "backend",
      "query": "?:param",
-     "line": 54,
+     "line": 63,
      "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:93"
@@ -14448,9 +14448,19 @@
      "file": "patient-web/lib/api/home-care-services-server.ts",
      "status": "OK",
      "backend": "backend/src/modules/home-care/home-care-compat.module.ts:81"
+    },
+    {
+     "method": "GET",
+     "path": "/users/me/addresses",
+     "target": "backend",
+     "query": "",
+     "line": 52,
+     "file": "patient-web/app/[locale]/home-care/services/[serviceId]/book/page.tsx",
+     "status": "OK",
+     "backend": "backend/src/modules/users/users.addresses.controller.ts:42"
     }
    ],
-   "files": 69,
+   "files": 70,
    "unresolved": 0
   },
   {

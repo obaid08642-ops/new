@@ -13,9 +13,15 @@ describe("nurses", () => {
     expect(parseNurses({ data: [{ id: "n-1", name: "A" }, { name: "B" }, "x"] })).toHaveLength(1);
     expect(parseNurses(null)).toEqual([]);
   });
+  it("reads the distance the server sends for a nearest list and nothing else", () => {
+    expect(parseNurse({ id: "n-1", name: "A", distance_km: 3.4 })?.distanceKm).toBe(3.4);
+    expect(parseNurse({ id: "n-1", name: "A", distance_km: null })?.distanceKm).toBeUndefined();
+    expect(parseNurse({ id: "n-1", name: "A" })?.distanceKm).toBeUndefined();
+  });
   it("sort and gender fall back to the open choice", () => {
     expect(nurseSortOf("rating")).toBe("rating");
-    expect(nurseSortOf("nearest")).toBe("any");
+    expect(nurseSortOf("nearest")).toBe("nearest");
+    expect(nurseSortOf("x")).toBe("any");
     expect(nurseGenderOf("female")).toBe("female");
     expect(nurseGenderOf("x")).toBe("any");
   });

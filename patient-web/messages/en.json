@@ -3910,7 +3910,10 @@
     "errBookingTimesNeedRecurrence": "To book more than one time, choose how often it repeats.",
     "errBookingTimesOutOfRange": "The number of times is outside what this service allows.",
     "errBookingSessionsNotOffered": "This number of sessions is not offered. Choose a package from the list.",
-    "errServicePriceNotSet": "The price of this service is not set yet. Please try again later."
+    "errServicePriceNotSet": "The price of this service is not set yet. Please try again later.",
+    "sortNearest": "Nearest",
+    "nearestNoAddress": "Add a default address to sort nurses by distance.",
+    "distanceLine": "{km} km away"
   },
   "MaternityWeb": {
     "title": "Maternity",

@@ -3910,7 +3910,10 @@
     "errBookingTimesNeedRecurrence": "ایک سے زیادہ بار بک کرنے کے لیے منتخب کریں کہ کتنی بار دہرانا ہے۔",
     "errBookingTimesOutOfRange": "بار کی تعداد اس سروس کی اجازت سے باہر ہے۔",
     "errBookingSessionsNotOffered": "سیشنز کی یہ تعداد دستیاب نہیں۔ فہرست سے پیکیج منتخب کریں۔",
-    "errServicePriceNotSet": "اس سروس کی قیمت ابھی مقرر نہیں ہوئی۔ بعد میں کوشش کریں۔"
+    "errServicePriceNotSet": "اس سروس کی قیمت ابھی مقرر نہیں ہوئی۔ بعد میں کوشش کریں۔",
+    "sortNearest": "سب سے قریب",
+    "nearestNoAddress": "نرسوں کو فاصلے کے مطابق ترتیب دینے کے لیے ڈیفالٹ پتہ شامل کریں۔",
+    "distanceLine": "{km} کلومیٹر دور"
   },
   "MaternityWeb": {
     "title": "زچگی",

@@ -3910,7 +3910,10 @@
     "errBookingTimesNeedRecurrence": "لحجز أكثر من مرة، اختر عدد مرات التكرار.",
     "errBookingTimesOutOfRange": "عدد المرات خارج المسموح لهذه الخدمة.",
     "errBookingSessionsNotOffered": "عدد الجلسات هذا غير متاح. اختر باقة من القائمة.",
-    "errServicePriceNotSet": "لم يُحدَّد سعر هذه الخدمة بعد. حاول لاحقًا."
+    "errServicePriceNotSet": "لم يُحدَّد سعر هذه الخدمة بعد. حاول لاحقًا.",
+    "sortNearest": "الأقرب",
+    "nearestNoAddress": "أضف عنواناً افتراضياً لترتيب الممرضين حسب المسافة.",
+    "distanceLine": "يبعد {km} كم"
   },
   "MaternityWeb": {
     "title": "الأمومة",

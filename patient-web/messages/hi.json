@@ -3910,7 +3910,10 @@
     "errBookingTimesNeedRecurrence": "एक से अधिक बार बुक करने के लिए चुनें कि कितनी बार दोहराना है।",
     "errBookingTimesOutOfRange": "बारों की संख्या इस सेवा की अनुमति से बाहर है।",
     "errBookingSessionsNotOffered": "सत्रों की यह संख्या उपलब्ध नहीं है। सूची से पैकेज चुनें।",
-    "errServicePriceNotSet": "इस सेवा की कीमत अभी तय नहीं है। कृपया बाद में प्रयास करें।"
+    "errServicePriceNotSet": "इस सेवा की कीमत अभी तय नहीं है। कृपया बाद में प्रयास करें।",
+    "sortNearest": "सबसे नज़दीक",
+    "nearestNoAddress": "नर्सों को दूरी के हिसाब से क्रमबद्ध करने के लिए डिफ़ॉल्ट पता जोड़ें।",
+    "distanceLine": "{km} किमी दूर"
   },
   "MaternityWeb": {
     "title": "मातृत्व",
