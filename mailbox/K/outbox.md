@@ -1,6 +1,12 @@
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
+## 2026-11-27 23:09 UTC — K2 CI settled GREEN; K1 PR #2800 merged by the lead
+Status: done
+PR: #2801 (CI: green — 32 of 32 checks completed, 0 failed)
+CI on PR #2801 settled fully green: all 32 check runs completed with success, including Backend build and tests, Provider App typecheck and tests, all five live gates, runtime contrast (both themes), acceptance, fuzz, CodeQL and the dependency audits. K2 is therefore complete from lane K's side; the PR is the lead's to review and merge. Separately, PR #2800 (K1, @fastify/cookie) was merged by the lead at 2026-11-27 22:11:50 UTC, so K1 is now fully complete including the merge.
+Left / blockers / questions: PR #2801 shows mergeable_state "blocked" with all checks green — most likely awaiting the lead's review; lane K does not merge. Note #2801 was branched before #2800 merged, so main has since advanced by one commit; if the lead wants main merged into the branch, lane K will do it on the same branch. The six-languages vs ar/en question from the 22:16 UTC entry is still open. No new order in the inbox (newest remains K2, 2026-11-27 21:35 UTC); lane K is waiting for the next order.
+
 ## 2026-11-27 22:16 UTC — K2 done: RadiologyDashboard literals cleared
 Status: done
 PR: #2801 (CI: pending)
