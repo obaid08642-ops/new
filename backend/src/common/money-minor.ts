@@ -5,7 +5,8 @@
  * Currencies are never mixed: adding two amounts of different currencies throws `currency_mismatch`. There is no conversion between currencies (v1: a market has one currency).
  */
 import { currencyExponent } from './currency';
-import { MoneyError, allocate, assertHalalas, percentOf, rateOf, sumHalalas } from './money';
+import { MoneyError, allocate, assertHalalas, percentOf, rateOf, roundSar, sumHalalas } from './money';
+import { DEFAULT_CURRENCY } from './market-defaults';
 
 export interface Money { amount_minor: number; currency: string }
 
@@ -94,4 +95,14 @@ export function percentOfMinor(m: Money, percent: number | string): Money {
 export function allocateMinor(m: Money, weights: number[]): Money[] {
   exp(m.currency);
   return allocate(m.amount_minor, weights).map((p) => money(p, m.currency));
+}
+
+/**
+ * An amount rounded to the minor unit of `currency`, decided on the decimal text like `toMinor`. For the default (Saudi) currency this is exactly `roundSar`
+ * (same fallback for non-finite input); for any other currency the exponent of that currency is used, so a 3-digit currency is never rounded to 2 digits.
+ */
+export function roundToCurrency(n: number, currency: string): number {
+  if (currency === DEFAULT_CURRENCY) return roundSar(n);
+  if (!Number.isFinite(n)) return NaN;
+  try { return fromMinor(toMinor(n, currency), currency); } catch { const f = 10 ** currencyExponent(currency); return Math.round(n * f) / f; }
 }

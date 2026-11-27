@@ -1,14 +1,12 @@
 import { randomUUID } from 'crypto';
 import { moneyShadows } from './halala-shadow';
-import { roundSar } from './money';
-import { fromMinor, toMinor } from './money-minor';
+import { roundToCurrency } from './money-minor';
 import { resolveWriteCurrency } from './minor-shadow';
 import { DEFAULT_CURRENCY } from './market-defaults';
 
 type Conn = { collection(name: string): any };
 
-/** Rounds to the minor unit of the currency; for the Saudi currency this is exactly the old `roundSar`. */
-const roundIn = (n: number, currency: string) => (currency === DEFAULT_CURRENCY ? roundSar(n) : Number.isFinite(n) ? fromMinor(toMinor(n, currency), currency) : NaN);
+const roundIn = roundToCurrency;
 /** A wallet row with no currency was written before currencies existed: it is in the Saudi currency. */
 const walletCurrency = (wallet: any): string => (typeof wallet?.currency === 'string' && wallet.currency ? wallet.currency : DEFAULT_CURRENCY);
 /** The unique index behind the idempotency key. Sparse: rows written before the key existed carry none and must not collide with each other. */

@@ -1,4 +1,5 @@
-import { shadowFields } from '../../../common/halala-shadow';
+import { moneyShadows } from '../../../common/halala-shadow';
+import { resolveWriteCurrency } from '../../../common/minor-shadow';
 import { Injectable, ForbiddenException, NotFoundException, BadRequestException, ConflictException, ServiceUnavailableException, Inject, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -584,7 +585,7 @@ export class PharmacyAllocationService {
         description: 'COD commission + VAT + platform delivery fee owed to platform (cash collected by pharmacy)',
         actor_id: 'system', createdAt: now,
         // R11 P1: integer shadows next to the doubles
-        ...shadowFields({ amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat']),
+        ...moneyShadows({ amount: Math.round((commission + vat + platformDeliveryFee) * 100) / 100, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat'], resolveWriteCurrency()),
       });
       return;
     }
@@ -599,7 +600,7 @@ export class PharmacyAllocationService {
       description: 'Pharmacy order earning (escrow until settlement delay)',
       actor_id: 'system', createdAt: now,
       // R11 P1: integer shadows next to the doubles
-      ...shadowFields({ amount: net, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat']),
+      ...moneyShadows({ amount: net, gross, commission, vat }, ['amount', 'gross', 'commission', 'vat'], resolveWriteCurrency()),
     });
   }
 
