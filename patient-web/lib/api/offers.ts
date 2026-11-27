@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import { z } from "zod";
 
 /**
@@ -76,7 +77,7 @@ export function parseOffers(value: unknown): ServiceOffer[] {
       rating: o.provider.rating ?? undefined,
       ratingCount: o.provider.rating_count ?? 0,
       price: o.price != null && o.price > 0 ? o.price : undefined,
-      currency: o.currency ?? "SAR",
+      currency: o.currency ?? SA_MARKET_DEFAULTS.currency.code,
       premises: o.premises === true, home: o.home === true, insurance: o.insurance === true,
     }];
   });

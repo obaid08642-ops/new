@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 /**
  * The prescription API (GET /prescriptions/active) returns `items` [{ medicine_id?, medicine_name_ar/en, dose, duration_days,
  * instructions }] without item ids. The appointment page needs stable ids and display fields, and the body POST /health/reminders
@@ -52,9 +53,9 @@ export function dosingTimes(instruction: string): string[] {
 
 function deviceTimeZone(): string {
   try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone || "Asia/Riyadh";
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || SA_MARKET_DEFAULTS.timezone;
   } catch {
-    return "Asia/Riyadh";
+    return SA_MARKET_DEFAULTS.timezone;
   }
 }
 

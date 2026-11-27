@@ -1,3 +1,4 @@
+import { marketDay, SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import { extractMedicationReminderSummaries } from "@/lib/api/reminders";
 import { extractVitalSummary } from "@/lib/api/vitals";
 import { parseMoodHistory } from "@/lib/api/mood";
@@ -29,7 +30,6 @@ export type RecordRow =
   | { key: "mood"; loggedToday: boolean }
   | { key: "maternity"; pregnant: boolean };
 
-const RIYADH_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh", year: "numeric", month: "2-digit", day: "2-digit" });
 
 /**
  * Each argument is the parsed JSON of one read, or null when that read failed or the person may not see it (the row is then
@@ -39,6 +39,7 @@ const RIYADH_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh", y
 export function parseRecordRows(
   input: { nutrition: unknown; vitals: unknown; mood: unknown; maternity: unknown },
   now: Date = new Date(),
+  timeZone: string = SA_MARKET_DEFAULTS.timezone,
 ): RecordRow[] {
   const rows: RecordRow[] = [];
   const nutritionRoot = rec(input.nutrition);
@@ -48,10 +49,10 @@ export function parseRecordRows(
   if (meals > 0 || waterMl > 0) rows.push({ key: "nutrition", meals, waterMl });
   if (input.vitals !== null && extractVitalSummary(input.vitals).length > 0) rows.push({ key: "vitals" });
   if (input.mood !== null) {
-    const today = RIYADH_DAY.format(now);
+    const today = marketDay(timeZone, now);
     const loggedToday = parseMoodHistory(input.mood).some((entry) => {
       const at = entry.loggedAt ? new Date(entry.loggedAt) : null;
-      return Boolean(at && !Number.isNaN(at.valueOf()) && RIYADH_DAY.format(at) === today);
+      return Boolean(at && !Number.isNaN(at.valueOf()) && marketDay(timeZone, at) === today);
     });
     rows.push({ key: "mood", loggedToday });
   }

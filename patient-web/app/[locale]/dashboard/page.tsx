@@ -15,10 +15,12 @@ import { RetryErrorState } from "@/components-next/core/core-states";
 import { HomeShell } from "@/components-next/home/home-shell";
 import { AiCard, AllServices, CuratedSections, PointsCard, AppointmentCard, HeroCard, RecordsCard, ReminderCard, ServiceGrid } from "@/components-next/home/home-parts";
 import styles from "@/components-next/home/home.module.css";
+import { getMarketConfig } from "@/lib/market/market-config";
+import { marketHour } from "@/lib/market/market-defaults";
 
-/** The greeting follows the hour in the service's time zone (Riyadh), as the board's "مساء الخير". */
-function greetingKey(now: Date): "greetingMorning" | "greetingAfternoon" | "greetingEvening" {
-  const hour = Number(new Intl.DateTimeFormat("en-US", { hour: "numeric", hourCycle: "h23", timeZone: "Asia/Riyadh" }).format(now));
+/** The greeting follows the hour in the market's time zone (Riyadh for the launch market), as the board's "مساء الخير". */
+function greetingKey(now: Date, timeZone: string): "greetingMorning" | "greetingAfternoon" | "greetingEvening" {
+  const hour = marketHour(timeZone, now);
   return hour < 12 ? "greetingMorning" : hour < 17 ? "greetingAfternoon" : "greetingEvening";
 }
 
@@ -31,6 +33,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const t = await getTranslations({ locale, namespace: "HomeWeb" });
   const dashboard = await getTranslations({ locale, namespace: "Dashboard" });
   const disabled = await getDisabledModules();
+  const market = await getMarketConfig();
   const [profileResult, appointmentResult] = await Promise.allSettled([
     getPatientDashboardProfile(token),
     getPatientDashboardUpcomingAppointment(token),
@@ -76,7 +79,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     optionalJson("/maternity/profile", "maternity"),
   ]);
   const reminderCard = remindersPayload === null ? null : parseReminderCard(remindersPayload);
-  const recordRows = parseRecordRows({ nutrition: nutritionPayload, vitals: vitalsPayload, mood: moodPayload, maternity: maternityPayload });
+  const recordRows = parseRecordRows({ nutrition: nutritionPayload, vitals: vitalsPayload, mood: moodPayload, maternity: maternityPayload }, new Date(), market.timezone);
   const hub = await getTranslations({ locale, namespace: "LoyaltyHubWeb" });
   const showAppointment = Boolean(appointment) && !isPathHidden(`/${locale}/appointments`, disabled);
   return (
@@ -86,7 +89,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
           <HeroCard
             locale={locale}
             t={t}
-            eyebrow={profile.name ? t(greetingKey(new Date())) : undefined}
+            eyebrow={profile.name ? t(greetingKey(new Date(), market.timezone)) : undefined}
             title={profile.name ?? dashboard("title")}
             headingId="patient-dashboard-title"
           />

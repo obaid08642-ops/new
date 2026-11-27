@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import { decodeZatcaTlv, type ZatcaPayload } from "./tlv";
 
 /** The kinds of booking the backend invoices (`/billing/invoice/:kind/:id`), as the billing module names them. */
@@ -69,7 +70,7 @@ export function extractReceipt(raw: unknown, opts: { shared?: boolean } = {}): R
     vatRate: num(r.vat_rate) ?? 0,
     vatAmount,
     total,
-    currency: text(r.currency) ?? "SAR",
+    currency: text(r.currency) ?? SA_MARKET_DEFAULTS.currency.code,
     qr: taxInvoice ? qr : null,
     seller: taxInvoice ? seller : null,
     sellerName: text(obj(r.seller)?.legal_name),

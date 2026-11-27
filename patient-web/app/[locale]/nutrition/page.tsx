@@ -1,3 +1,5 @@
+import { getMarketConfig } from "@/lib/market/market-config";
+import { marketDay } from "@/lib/market/market-defaults";
 import type { ReactNode } from "react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -124,8 +126,8 @@ export default async function NutritionPage({ params, searchParams }: Props) {
     );
   }
 
-  // The patient's day in Saudi time, not UTC (needs-review issue 868): en-CA formats as YYYY-MM-DD.
-  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Riyadh" }).format(new Date());
+  // The patient's day in the market's time zone, not UTC (needs-review issue 868): en-CA formats as YYYY-MM-DD.
+  const today = marketDay((await getMarketConfig()).timezone);
   let summaryRes: Response;
   let mealsRes: Response;
   try {

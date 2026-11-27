@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -147,7 +148,7 @@ export default async function PublicProductPage({ params }: Props) {
       offers: {
         "@type": "Offer",
         price: product.price,
-        priceCurrency: product.currency || "SAR",
+        priceCurrency: product.currency || SA_MARKET_DEFAULTS.currency.code,
         url: canonical,
         availability: product.available ? "https://schema.org/InStock" : "https://schema.org/LimitedAvailability",
         itemCondition: "https://schema.org/NewCondition",

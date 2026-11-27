@@ -1,3 +1,4 @@
+import { SA_MARKET_DEFAULTS } from "@/lib/market/market-defaults";
 import { extractHomeCareServices, type HomeCareService } from "@/lib/api/home-care-services";
 import type { Locale } from "@/lib/i18n";
 
@@ -59,7 +60,7 @@ export function priceRange(offers: ReadonlyArray<{ price?: number; currency: str
   const priced = (offers ?? []).filter((o): o is { price: number; currency: string } => typeof o.price === "number" && o.price > 0);
   if (priced.length === 0) return undefined;
   const prices = priced.map((o) => o.price);
-  return { low: Math.min(...prices), high: Math.max(...prices), currency: priced[0].currency || "SAR", count: priced.length };
+  return { low: Math.min(...prices), high: Math.max(...prices), currency: priced[0].currency || SA_MARKET_DEFAULTS.currency.code, count: priced.length };
 }
 
 type CityRow = { code?: string; name_ar?: string; name_en?: string; is_deleted?: boolean };
