@@ -5,6 +5,7 @@ import { Market, MarketConfigRow, MarketConfigRowDocument, MarketDocument, Opera
 import { MarketConfig, MarketInfo } from './market-config.types';
 import { validateMarketConfig } from './market-config.validate';
 import { SA_CONFIG_V1, SA_MARKET, SA_MARKET_ID, SA_OPERATOR } from './sa-market.seed';
+import { BH_CONFIG_V1, BH_MARKET, BH_OPERATOR, registerBhInternalTest } from './test-markets/bh-internal-test';
 
 export interface ConfigVersion { version: number; effective_from: Date; config: MarketConfig }
 export interface ResolvedMarketConfig { market_id: string; version: number; config: MarketConfig }
@@ -33,6 +34,21 @@ export class MarketsService implements OnModuleInit {
   /** Idempotent: inserts the SA operator, market and config v1 only when missing. Never overwrites. */
   async onModuleInit(): Promise<void> {
     try { await this.seedSaudi(); } catch (err) { this.log.warn(`SA market seed skipped: ${(err as Error).message}`); }
+    if (process.env.MARKETS_INTERNAL_TEST === 'yes') {
+      try { await this.seedInternalTestMarkets(); } catch (err) { this.log.warn(`internal test market seed skipped: ${(err as Error).message}`); }
+    }
+  }
+
+  /** Internal test market BH (test and staging only; env MARKETS_INTERNAL_TEST=yes). Idempotent, never overwrites; registers its plugins/data. */
+  async seedInternalTestMarkets(): Promise<void> {
+    registerBhInternalTest();
+    await this.operators.updateOne({ id: BH_OPERATOR.id }, { $setOnInsert: BH_OPERATOR }, { upsert: true });
+    await this.markets.updateOne({ id: BH_MARKET.id }, { $setOnInsert: BH_MARKET }, { upsert: true });
+    await this.configs.updateOne(
+      { market_id: BH_MARKET.id, version: 1 },
+      { $setOnInsert: { market_id: BH_MARKET.id, version: 1, effective_from: new Date(0), status: 'active', config: BH_CONFIG_V1, created_by: 'seed' } },
+      { upsert: true },
+    );
   }
 
   async seedSaudi(): Promise<void> {

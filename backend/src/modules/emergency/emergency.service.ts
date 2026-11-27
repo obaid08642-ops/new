@@ -1,3 +1,4 @@
+import { currentPhoneConfig } from '../markets/plugins/registry';
 import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -8,8 +9,8 @@ import { RedisService } from '../redis/redis.service';
 const MAX_SHARES = 5;
 const WINDOW_SECONDS = 600;
 
-/** Digits only, with the Saudi 05… / 9665… / +9665… forms folded to one key (last 9 digits). */
-const phoneKey = (p: unknown) => String(p ?? '').replace(/\D/g, '').slice(-9);
+/** Digits only, with the national / international forms folded to one key (the last national-number digits of the request's market: SA 9). */
+const phoneKey = (p: unknown) => String(p ?? '').replace(/\D/g, '').slice(-currentPhoneConfig().national_length);
 
 /**
  * D-14: "send my location to my emergency contacts". Contacts who use the app get an in-app notification
@@ -38,7 +39,7 @@ export class EmergencyService {
     ]);
     const name = String(me?.full_name || me?.name || '').trim();
     const contacts: any[] = (Array.isArray(profile?.emergency_contacts) ? profile.emergency_contacts : [])
-      .filter((c: any) => phoneKey(c?.phone).length === 9);
+      .filter((c: any) => phoneKey(c?.phone).length === currentPhoneConfig().national_length);
 
     const keys = [...new Set(contacts.map((c) => phoneKey(c.phone)))];
     const appUsers: any[] = keys.length

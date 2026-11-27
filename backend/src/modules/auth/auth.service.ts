@@ -19,7 +19,7 @@ import { PatientProfileRepository } from "./repositories/patientprofile.reposito
 import { RedisService } from '../redis/redis.service';
 import { PasskeyService } from './passkey.service';
 import { DeviceTrustService } from './device-trust.service';
-import { SA_PLUGINS } from '../markets/plugins/registry';
+import { currentPhonePlugin } from '../markets/plugins/registry';
 import { normalizeDigits } from '../markets/plugins/digits';
 import { AdminSessionService } from './admin-session.service';
 import { revokeAllCredentialSessions, revokeRedisRefreshSessions, RevocationResult } from '../../common/credential-revocation';
@@ -435,7 +435,7 @@ export class AuthService {
    * already uses rather than adding a second digit table.
    */
   static normalizePhone(raw: string): string {
-    return SA_PLUGINS.phone.canonicalise(raw);
+    return currentPhonePlugin().canonicalise(raw);
   }
 
   private otpKey(identifier: string) {
