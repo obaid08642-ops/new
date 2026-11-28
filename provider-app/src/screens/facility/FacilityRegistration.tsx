@@ -78,12 +78,12 @@ const NOTICE: NoticeText = {
 const FacilityNotice = (p: StepProps<FacilityRegData>) => <NoticeSection<FacilityRegData> text={NOTICE} submitRef={p.submitRef} />;
 
 function ProcessingOverlay({ visible }: { visible: boolean }) {
-  const { theme } = useTheme();
+  const { theme } = useTheme(); const { t: tt } = useLang();
   return (
     <Modal visible={visible} transparent animationType="fade">
       <View style={{ flex: 1, backgroundColor: withAlpha(theme.text, 0.5), justifyContent: 'center', alignItems: 'center' }}>
         <View style={{ padding: 20, backgroundColor: theme.surface, borderRadius: 12, alignItems: 'center' }}>
-          <Text style={{ marginTop: 10, fontSize: 16, color: theme.text }}>جاري معالجة البيانات...</Text>
+          <Text style={{ marginTop: 10, fontSize: 16, color: theme.text }}>{tt('facreg.processingData')}</Text>
         </View>
       </View>
     </Modal>
@@ -468,7 +468,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
           {(Object.keys(TYPES) as any[]).map(t => (
             <TouchableOpacity key={t} onPress={() => { setModalType(t); resetTemp(); }} style={{ width: '47%', padding: SP.md, backgroundColor: theme.surface2, borderRadius: R.md, alignItems: 'center', borderWidth: 1, borderColor: theme.border }}>
               <I name="add" size={24} color={TYPES[t].color} />
-              <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginTop: SP.xs }}>{AR ? `إضافة ${TYPES[t].ar}` : `Add ${TYPES[t].en}`}</Text>
+              <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text, marginTop: SP.xs }}>{tt('facreg.addType', { type: AR ? TYPES[t].ar : TYPES[t].en })}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -500,7 +500,7 @@ function Step4SubProviders({ data, update, submitRef }: StepProps<FacilityRegDat
         <SafeAreaView style={{ flex: 1, backgroundColor: theme.bg }}>
           <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', padding: SP.xl, borderBottomWidth: 1, borderBottomColor: theme.border }}>
             <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text }}>
-              {AR ? `تسجيل ${TYPES[modalType || 'doctor']?.ar} جديد` : `Register new ${TYPES[modalType || 'doctor']?.en}`}
+              {tt('facreg.registerNewType', { type: AR ? TYPES[modalType || 'doctor']?.ar : TYPES[modalType || 'doctor']?.en })}
             </Text>
             <TouchableOpacity onPress={() => setModalType(null)}><I name="close" size={28} color={theme.text} /></TouchableOpacity>
           </View>

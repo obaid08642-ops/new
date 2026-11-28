@@ -300,9 +300,7 @@ export function FacilityHomeTab({ onNavigate, wards, onTriggerAlarm, branches, s
  </Text>
  </View>
  <View style={{ alignItems: 'flex-end', gap: 4 }}>
- <NBadge label={AR
- ? (apt.type === 'emergency' ? ' طوارئ' : apt.type === 'surgery' ? ' عملية' : ' كشف')
- : (apt.type === 'emergency' ? ' ER' : apt.type === 'surgery' ? ' Surgery' : ' OPD')}
+ <NBadge label={apt.type === 'emergency' ? tt('fachome.typeEmergency') : apt.type === 'surgery' ? tt('fachome.typeSurgery') : tt('fachome.typeOpd')}
  variant={apt.type === 'emergency' ? 'danger' : apt.type === 'surgery' ? 'warning' : 'primary'}
  size="xs" />
  <NBadge label={apt.status === 'in_progress' ? (tt('fachome.98492d4f')) : apt.status === 'confirmed' ? (tt('fachome.1cab1a63')) : (tt('fachome.94139241'))}
