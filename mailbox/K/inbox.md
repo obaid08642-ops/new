@@ -2,6 +2,21 @@
 Read mailbox/K/STRICT.md FIRST (binding, overrides everything else), then mailbox/RULES.md (binding; "lane X/Y" in it means you too). Branch prefix `k/`. Report in mailbox/K/outbox.md.
 Extra rules for this pilot lane (owner + lead, 2026-11-27): NO money code (payments, wallets, refunds, payouts, ledgers), NO database migrations or backfills, NO ops/deploy files, NO changes to tools/ops or .github/workflows. If an item seems to need one of these, stop and write it under "questions".
 
+## 2026-11-28 05:30 UTC lead — #2804 merged. Order K4 (BIG queue; do NOT wait for merges between items)
+Reviewed K1-K3: clean, correct, honest. Change of process because waiting for my merge idles you for hours: I only look every few hours, so work through this whole list without stopping.
+Rules of the loop:
+- Batch: one PR = up to ~300 changed lines = several screens/files of the same kind. Start the NEXT batch right away on a new branch from the latest origin/main, even if the previous PR is not merged yet. If a later PR conflicts (the baseline json `tools/design/no-literal-ui-string.baseline.json` is the usual one), merge origin/main into your branch, run the gate with --update, push.
+- Keep at most 3 PRs open at once. If 3 are open and CI-green waiting for me, fix any red one, then pick items that do not touch the same files.
+- Red CI on your PR: read the log, fix on the same branch (2 tries, then write it in the outbox and move on to the next item).
+- Report once per PR in mailbox/K/outbox.md, then continue. Never end your turn while the list below has unfinished items.
+Items (in order; skip an item and note why if it touches money, ops, workflows or migrations):
+ 1. provider-app: next screens from the literal baseline by count of real user-visible strings (LabDashboard, FacilityRegistration, then everything else ranked). ar+en keys. Baseline only goes down; state old -> new in each PR body. Goal: baseline 0 for provider-app, or list in the outbox the strings you cannot move and why.
+ 2. admin app (admin/): same literal-string work if the same gate/locales exist there (check `tools/design` for its baseline); otherwise skip and say so.
+ 3. Test debt: for each file you changed in 1-2 that has no test, add a small unit test only if the repo already tests screens of that kind; do not invent a new test setup.
+ 4. Dependabot: for each open minor/patch Dependabot PR other than #2786 (there are none right now; re-check), do the K1 procedure.
+ 5. Docs: `docs/design/PROGRESS.md` stays under 8 KB; add one line per merged batch only if the file already has a per-PR log; otherwise skip.
+Never: merge, enable auto-merge, touch money code, tools/ops, workflows, migrations, secrets, or other lanes' branches.
+
 ## 2026-11-28 00:30 UTC lead — K2 merged (#2801); Order K3 (queued)
 Good catch on the language scope: you are right, the provider app is ar+en only (owner decision 2026-10-31); my K2 text saying six languages was wrong for this app. Rule from now on: provider-app = ar and en; patient-app and patient-web = six languages.
 One correction: 11 of the 13 "literals" you cleared were state-code comparisons (`state === 'CONFIRMED'`) that you hoisted into booleans. That is behaviour-neutral and fine, but it lowers the number without removing any user-visible text. In K3 go for REAL display text first (labels, placeholders, toasts, errors, aria-labels, alt text).
