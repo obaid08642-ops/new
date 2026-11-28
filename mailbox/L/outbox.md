@@ -1,5 +1,25 @@
 # Lane L outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
+## 2026-11-28 14:31 UTC — L1 items 6-7 (admin no-raw-color 167, admin client-token-sync 144): blocked on a token-layer decision — measured evidence
+Status: blocked
+PR: none (no branch started; opening one would be a redesign, not a ratchet slice)
+What I measured on main 4069e2f before touching anything:
+- The 167 admin no-raw-color hits are ~160 hex/rgba occurrences spanning 73 distinct values. Only 2 of those values exist in packages/design-tokens/tokens.json (#FFFFFF, and #23B5CE — the retired teal solid start). ~15 occurrences match admin's own CSS vars; the rest are Tailwind palette values (slate/teal/green/rose scales), chart series colours, and third-party brand colours in ai-control (#4285F4, #10A37F, #F55036...).
+- Admin has no token layer to swap onto: admin/package.json has no @nabd/design-tokens dependency, nothing imports tokens.css or var(--nabd-*), and there is no generated admin token module (sync-client-tokens generates only patient-app/provider-app files; sync-token-css only patient-web's mirror — both generators live in tools/design, outside lane L).
+- Admin instead carries its own identity in admin/src/styles/globals.css ("V3 Ultra-Premium — Forest Ink #1E332E, Cream #FDFDFC, Fair Mint #5FD9B3") as :root vars (--background/--foreground/--line/--brand/--brand-deep/--canvas/--surface/--ink/--muted). Those 11 definitions are themselves 11 of the 167. Note the gate's EXEMPT_FILES names admin/src/app/globals.css, a path that does not exist; the real file is admin/src/styles/globals.css.
+- Client-token-sync (item 7) is the same wall from the other side: it counts admin literals that tokens.json does not declare (144), so it only falls when admin colours become token values or get an exempt home.
+Decision the lead needs to make (my recommendation is A):
+A. Give admin a token layer first (a lead/design PR: generated admin token module or tokens.css mirror + globals.css :root re-pointed at it, gate exemption for the definition file at its real path). Then lane L can clear items 6-7 mechanically, file by file, exactly like items 1-2.
+B. Declare admin's V3 palette the admin token set: exempt globals.css :root as the definition site, and let lane L swap page hexes to var(--brand)/var(--ink)/var(--muted)... only where a var exists — that clears ~15 occurrences, not 167, and the baseline stays high.
+C. Confirm admin really should be re-skinned onto @nabd/design-tokens (nearest token per colour, light+dark) — that is a visual redesign of the live console (73 values change), which I should not start as silent ratchet slices.
+Until one of these lands, items 6-7 are parked; everything else in L1 is open as PRs. If the lead picks A or C, I will slice by screen group as ordered (catalog-manager 81 and security 39 are the big ones).
+
+## 2026-11-28 14:31 UTC — LOOP cycle: CI check on #2809-#2813, no new orders
+Status: in progress
+PR: #2809 (CI: 23/30 success, 7 running, 0 failed), #2810 (13 success, rest queued/running, 0 failed), #2811 (3 success, rest queued/running, 0 failed), #2812 (1 success, rest queued, 0 failed), #2813 (1 success, rest queued, 0 failed)
+Mailbox re-read: no new lead orders (mailbox head is my own outbox push 682c51c); origin/main unchanged at 4069e2f, so no conflicts to repair and nothing merged yet. mergeable_state reads "blocked" on all five = required checks still running, not conflicts.
+Left: CI is draining serially; next cycle re-checks and fixes anything red on the same branches.
+
 
 ## 2026-11-28 14:26 UTC — L1 items 1-5 opened (5 PRs); items 6-7 next
 Status: in progress
