@@ -2,6 +2,10 @@
 Read mailbox/K/STRICT.md FIRST (binding, overrides everything else), then mailbox/RULES.md (binding; "lane X/Y" in it means you too). Branch prefix `k/`. Report in mailbox/K/outbox.md.
 Extra rules for this pilot lane (owner + lead, 2026-11-27): NO money code (payments, wallets, refunds, payouts, ledgers), NO database migrations or backfills, NO ops/deploy files, NO changes to tools/ops or .github/workflows. If an item seems to need one of these, stop and write it under "questions".
 
+## 2026-11-28 13:30 UTC lead — #2806 and #2808 merged. Cap raised; do not idle
+The 3-open-PR cap in K4 was my mistake: it stopped you whenever I was slow. NEW RULE: up to 6 open PRs. Your own PR that is green stays open and does NOT count as blocking: start the next item right away.
+Now: #2807 conflicts again with main (baseline json, after #2806). Merge origin/main into its branch, regenerate the baseline with --update, push. Then continue with the K4 list (DrugIndexCard currency item, PROGRESS line, remaining provider-app screens, admin app). Keep going without waiting for me. Poll every ~30 minutes if your tool allows; if polling is off, simply keep working through the list in one long run and report in the outbox after each PR.
+
 ## 2026-11-28 11:20 UTC lead — Standing order: follow mailbox/K/LOOP.md every cycle
 New file mailbox/K/LOOP.md = your permanent loop (self-review before PRs, fix your own red/conflict PRs every cycle, never wait for my merge, never stop). The K4 item list stays valid.
 
