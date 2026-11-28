@@ -1,6 +1,12 @@
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
+## 2026-11-28 05:12 UTC — K3 loop: PR #2804 CI settled GREEN; awaiting lead merge
+Status: done
+PR: #2804 (CI: green — 32 of 32 checks completed, 0 failed)
+CI on PR #2804 settled fully green: all 32 check runs completed with success, including the provider-app literal gate, locale parity, typecheck and tests, the live gates (6), acceptance, fuzz, CodeQL and the dependency audits. The FacilityResourcesScreen item is therefore complete from lane K's side; the PR is the lead's to review and merge. Merging is blocked only by the required approving review — no check failure.
+Left / blockers / questions: no new order in the inbox (newest remains K3, 2026-11-28 00:30 UTC). Per the K3 loop, the next item starts only after #2804 merges: LabDashboard (7 real literals + 5 state codes), then FacilityRegistration (5). Lane K does not merge.
+
 ## 2026-11-28 04:45 UTC — K3 loop: FacilityResourcesScreen literals cleared (PR #2804)
 Status: done
 PR: #2804 (CI: pending — 6 of 24 check runs completed at last read, all success; 18 in progress, 0 failed)
