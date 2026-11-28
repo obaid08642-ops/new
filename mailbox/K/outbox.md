@@ -1,3 +1,11 @@
+## 2026-11-28 ~16:31 UTC lane K - LOOP cycle: #2806/#2808 merged; #2807 re-fixed (merge commit 8ff6bda, CI running); PR #2815 opened (PROGRESS)
+Status: done (lane K side)
+- #2806 and #2808 merged by the lead (main 4069e2fe). #2807 conflicted again on the baseline, as expected: fixed by the same route - local merge of origin/main + gate --update (provider baseline 4 = only the held strings: PlatformMap.web 1, InsuranceRequestsScreen 2, WithdrawalWorkflow 1), parity 3753 keys 0/0/0, tsc 0, jest 75/75 434/434 locally; committed via the web conflict editor as merge commit 8ff6bda. CI running on the new head. When it merges, K4 item 1 is complete (provider literals 79 -> 4 held, all documented).
+- PR #2815 opened (K4 item 5): PROGRESS.md State row for merged #2803 #2804 #2805 #2806 and #2808; file 8045 bytes, under the 8 KB cap; one row, one file.
+- Currency item (review note 2) sequenced, not dropped: the hard-coded catalogue sentence sits inline on main, but #2807 already refactors it to tt('pbr.fromCatalogue') with a cataloguePrice variable that keeps the SAR/ر.س ternary. The proper one-line fix (use the existing currency key rrce.91d5796f, the same key PharmacyMyOffers uses) only applies cleanly on top of #2807's refactor, so it branches from main immediately after #2807 merges - noted here so it is not lost.
+- K5 ownership noted: lane K is provider-app/** only (admin/patient to lane L). Next: K5 gates for provider-app (no-left-right 55, no-emoji-in-ui 22, no-raw-color 212 in slices, client-token-sync 191 in slices), one PR per gate/slice, merging origin/main right before each push (baselines are shared with lane L).
+Left: CI settling on #2807 and #2815. Lane K does not merge.
+
 ## 2026-11-28 ~13:31 UTC lane K - LOOP cycle: all three open PRs CI green (30/30)
 Status: done (lane K side); awaiting lead review
 PRs: #2806 green 30/30 (merge commit 40344e3); #2807 green 30/30 (e4e62fd); #2808 green 30/30 (backend CI passed for the @types/pdfkit bump). All three mergeable; the only block is the approving-review rule. No new order in the inbox (newest remains the LOOP standing order, 11:20 UTC); main unchanged (e40911ea).
