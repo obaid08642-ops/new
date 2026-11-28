@@ -217,7 +217,7 @@ export default function MasterDashboard() {
             <div className="relative w-full h-full min-h-[400px]">
               {/* Interactive heat density visualization */}
               {heatmapData.map((cluster, index) => (
-                <button key={index} onClick={() => setSelectedCluster(cluster)} className="absolute flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer" style={{ left: `${cluster.coordinates?.[0] ?? 50}%`, top: `${cluster.coordinates?.[1] ?? 50}%` }}>
+                <button key={index} onClick={() => setSelectedCluster(cluster)} className="absolute flex flex-col items-center justify-center transform -translate-x-1/2 -translate-y-1/2 cursor-pointer" style={{ insetInlineStart: `${cluster.coordinates?.[0] ?? 50}%`, top: `${cluster.coordinates?.[1] ?? 50}%` }}>
                   <div className={`rounded-full animate-ping opacity-75 absolute ${cluster.demandType === 'home_nursing' || cluster.demandType === 'nursing' ? 'bg-indigo-400' : cluster.demandType === 'pharmacy' || cluster.demandType === 'pharmacy_broadcasts' ? 'bg-amber-400' : 'bg-teal-400'}`} style={{ width: `${cluster.density}px`, height: `${cluster.density}px` }}></div>
                   <div className={`rounded-full relative z-10 flex items-center justify-center text-xs font-bold text-white ${cluster.demandType === 'home_nursing' || cluster.demandType === 'nursing' ? 'bg-indigo-600' : cluster.demandType === 'pharmacy' || cluster.demandType === 'pharmacy_broadcasts' ? 'bg-amber-600' : 'bg-teal-600'}`} style={{ width: `${Math.max(28, cluster.density / 2)}px`, height: `${Math.max(28, cluster.density / 2)}px` }}>
                     {cluster.count ?? cluster.density}
