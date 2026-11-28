@@ -1,3 +1,9 @@
+## 2026-11-28 ~05:47 UTC lane K - K4 batch A done: PR #2805 open
+Order K4 received and running under the new loop rules (batches, no waiting for merges, max 3 open PRs).
+Batch A: PR #2805 (branch k/provider-literals-batch-a, from main ab72aab) - LabDashboard (12) + FacilityRegistration (5) + NursingFieldOps (7) cleared. Real display strings moved to 9 new ar+en keys (lab.*, facilityRegistration.*); status-code comparisons hoisted to named booleans, behaviour-neutral. Baseline 79 -> 55. Diff 6 files, 49+/22-.
+Local checks (real last lines also in the PR body): gate clean at baseline 55; locale-parity ok (provider 3719 keys, ar/en 0/0/0); tsc exit 0; jest 75 suites / 434 tests all passed.
+Continuing with batch B right away per K4 (next ranked screens), without waiting for #2805 to merge.
+
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
