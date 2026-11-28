@@ -9,6 +9,8 @@
     "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx": 1,
     "provider-app/src/screens/doctor/DoctorOpsScreens.tsx": 3,
     "provider-app/src/screens/facility/FacilityInvitationScreen.tsx": 2,
+    "provider-app/src/screens/facility/FacilityRegistration.tsx": 5,
+    "provider-app/src/screens/lab/LabDashboard.tsx": 12,
     "provider-app/src/screens/lab/LabQcActions.tsx": 2,
     "provider-app/src/screens/nursing/NursingFieldOps.tsx": 7,
     "provider-app/src/screens/ordering/OrderingBulkScreen.tsx": 1,
