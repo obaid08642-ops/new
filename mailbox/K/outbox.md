@@ -1,3 +1,8 @@
+## 2026-11-28 ~13:31 UTC lane K - LOOP cycle: all three open PRs CI green (30/30)
+Status: done (lane K side); awaiting lead review
+PRs: #2806 green 30/30 (merge commit 40344e3); #2807 green 30/30 (e4e62fd); #2808 green 30/30 (backend CI passed for the @types/pdfkit bump). All three mergeable; the only block is the approving-review rule. No new order in the inbox (newest remains the LOOP standing order, 11:20 UTC); main unchanged (e40911ea).
+Left: 3 PRs open = the cap, so the queued items (PROGRESS.md line for #2803/#2804; DrugIndexCard currency-literal fix) start the moment a slot frees. If #2806 merges first, #2807 will re-conflict on the baseline and lane K will re-fix it by the same web-editor route. Lane K does not merge.
+
 ## 2026-11-28 ~11:52 UTC lane K - LOOP cycle: #2805 merged; #2806/#2807 conflicts fixed (merge commits 40344e3 / e4e62fd, CI running); new PR #2808 (K4 item 4)
 Status: done (lane K side)
 - #2805 merged by the lead (main e40911ea).
