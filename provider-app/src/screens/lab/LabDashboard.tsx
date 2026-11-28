@@ -157,11 +157,11 @@ function LabOrdersTab({ onNav }: { onNav: (s: string, p?: any) => void }) {
             <NCard key={order.id} style={{ marginBottom: SP.md, borderColor: order.status === 'SAMPLE_REJECTED' ? theme.danger : theme.border, borderWidth: 1 }} onPress={() => onNav('order_detail', order)}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <View>
-                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || 'Patient'}</Text>
+                  <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || t('lab.patientFallback')}</Text>
                   <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, marginTop: 4 }}>
                     <Text style={{ fontSize: FS.sm, color: theme.textSub, fontWeight:'bold' }}>{order.is_insurance?(tt('labdash.815dd0cb')):(tt('labdash.3cab163d'))}</Text>
                     <Text style={{ fontSize: FS.sm, color: theme.textSub }}>•</Text>
-                    <Text style={{ fontSize: FS.sm, color: order.homeCollection? theme.primary: theme.textSub }}>{order.homeCollection?' سحب منزلي':' حضور للمختبر'}</Text>
+                    <Text style={{ fontSize: FS.sm, color: order.homeCollection? theme.primary: theme.textSub }}>{order.homeCollection ? t('lab.collectionHome') : t('lab.collectionAtLab')}</Text>
                   </View>
                 </View>
                 <View style={{ alignItems: AR ? 'flex-start' : 'flex-end' }}>
@@ -409,6 +409,12 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
   const [rescheduleDate, setRescheduleDate] = useState('');
   const [showCam, setShowCam] = useState(false);
   const [camPerm, requestCamPerm] = useCameraPermissions();
+ const isNewRequest = order?.status === 'NEW_REQUEST';
+ const isWaitingCopay = order?.status === 'WAITING_COPAY';
+ const isConfirmedStatus = order?.status === 'CONFIRMED';
+ const isInLab = order?.status === 'IN_LAB';
+ const isInTransitStatus = order?.status === 'IN_TRANSIT';
+ const isSampleCollected = order?.status === 'SAMPLE_COLLECTED';
 
   const openScanner = async () => {
     try {
@@ -551,7 +557,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
  <NAvatar name={order?.patient??'مريض'} size={56} />
  <View style={{flex:1}}>
  <Text style={{fontSize:FS.xl,fontWeight:FW.bold,color:theme.text,textAlign:AR?'right':'left'}}>{order?.patient??'—'}</Text>
- <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.doctor??'—'} | {order?.insurance??'Cash'}</Text>
+ <Text style={{fontSize:FS.sm,color:theme.textSub}}>{order?.doctor??'—'} | {order?.insurance ?? t('lab.paymentCash')}</Text>
  <NBadge label={order?.homeCollection?(tt('labdash.e379dc23')):(tt('labdash.9e68f203'))} variant={order?.homeCollection?'warning':'primary'} size="xs" style={{marginTop:SP.xs}} />
  </View>
  </View>
@@ -583,7 +589,7 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         </View>
       </NCard>
 
-      {order?.status === 'NEW_REQUEST' && (
+      {isNewRequest && (
         <View style={{gap:SP.md}}>
           <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', order)} />
           {order?.is_insurance ? (
@@ -597,13 +603,13 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         </View>
       )}
 
-      {order?.status === 'WAITING_COPAY' && (
+      {isWaitingCopay && (
         <NCard style={{ backgroundColor: theme.warnBg, borderColor: theme.warn, borderWidth: 1, alignItems: 'center' }}>
           <Text style={{ color: theme.warn, fontWeight: 'bold' }}>{tt('labdash.345de97f')}</Text>
         </NCard>
       )}
 
-      {order?.status === 'CONFIRMED' && (
+      {isConfirmedStatus && (
         <View style={{gap:SP.md}}>
           {order?.homeCollection ? (
             <NBtn label={tt('labdash.a1927b1d')} onPress={() => setShowAssign(true)} />
@@ -629,19 +635,19 @@ function LabOrderDetail({ order, onBack, onNav }:{ order:any; onBack:()=>void; o
         </View>
       )}
 
-      {order?.status === 'IN_LAB' && (
+      {isInLab && (
         <View style={{gap:SP.md}}>
           <NBtn label={tt('labdash.3128a6cd')} onPress={() => setShowRegister(true)} />
         </View>
       )}
 
-      {order?.status === 'IN_TRANSIT' && (
+      {isInTransitStatus && (
         <View style={{gap:SP.md}}>
           <NBtn label={tt('labdash.b6c8ce56')} onPress={() => setShowRegister(true)} />
         </View>
       )}
 
-      {order?.status === 'SAMPLE_COLLECTED' && (
+      {isSampleCollected && (
         <View style={{gap:SP.md}}>
           <NBtn label={tt('labdash.29697c94')} onPress={openSampleForResults} />
         </View>
@@ -922,7 +928,7 @@ function ResultReview({ sample, onBack }:{ sample:any; onBack:()=>void }) {
  </TouchableOpacity>
  ))}
  </NCard>
- <NBtn label={reportFile ? (AR ? `ملف مرفق: ${reportFile.name || ''} (إزالة)` : `Attached: ${reportFile.name || 'file'} (remove)`) : (tt('labdash.78424ac8'))} variant="outline" onPress={() => (reportFile ? setReportFile(null) : pickReportFile())} style={{ marginBottom: SP.md }} />
+ <NBtn label={reportFile ? t('lab.reportAttachedRemove', { p1: reportFile.name || (AR ? '' : 'file') }) : (tt('labdash.78424ac8'))} variant="outline" onPress={() => (reportFile ? setReportFile(null) : pickReportFile())} style={{ marginBottom: SP.md }} />
  <NBtn label={tt('labdash.c77f3f3d')} loading={loading} onPress={handleConfirmSend} />
  </NScroll>
  );
@@ -1103,7 +1109,7 @@ function HomeCollection({ order, onBack }:{ order:any; onBack:()=>void }) {
         
         {/* Map View */}
         <View style={{ height: 250, backgroundColor: tokens.infoSurface, borderRadius: R.xl, marginBottom: SP.lg, overflow: 'hidden', alignItems: 'center', justifyContent: 'center', borderColor: theme.border, borderWidth: 1 }}>
-          <Text style={{ fontSize: FS.xl, color:tokens.info, fontWeight: FW.bold }}> GPS TRACKING ACTIVE</Text>
+          <Text style={{ fontSize: FS.xl, color:tokens.info, fontWeight: FW.bold }}>{t('lab.gpsTrackingActive')}</Text>
           <Text style={{ fontSize: FS.md, color: tokens.info, marginTop: SP.md }}>{tt('labdash.53b8031b')}</Text>
         </View>
 
