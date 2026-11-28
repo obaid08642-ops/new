@@ -178,7 +178,7 @@ export default async function InsurancePage({ params, searchParams }: Props) {
         label={t("shortcuts")}
         items={[
           { href: `${base}/add-policy`, label: t("addPolicy"), icon: "plus", tone: "blue" },
-          { href: `${base}?tab=network`, label: t("tabNetwork"), icon: "hospital", tone: "teal" },
+          { href: `${base}?tab=network`, label: t("tabNetwork"), icon: "hospital", tone: SERVICE_ICONS.nursing.tone },
           { href: `${base}/coverage-check`, label: t("coverageCheck"), icon: "shield-check", tone: SERVICE_ICONS.insurance.tone },
         ]}
       />
