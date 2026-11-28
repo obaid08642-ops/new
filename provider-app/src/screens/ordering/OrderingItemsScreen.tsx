@@ -42,7 +42,7 @@ export function OrderingItemsScreen({ kind, onBack, onNav }: OrderingScreenProps
                 <Label bold>{tt('oitems.94b81cfb')}</Label>
                 <NBtn size="xs" variant="outline" full={false} label={tt('oitems.4cbb34bf')} onPress={() => onNav('ordering_settings')} />
               </Row>
-              {s.modes.includes('home') && <Label sub>{AR ? `رسوم الزيارة ${fmtMoney(s.home_fee, AR)} · نطاق ${s.home_radius_km ?? '-'} كم` : `Visit fee ${fmtMoney(s.home_fee, AR)} · radius ${s.home_radius_km ?? '-'} km`}</Label>}
+              {s.modes.includes('home') && <Label sub>{tt('oitems.visitFeeRadius', { p1: fmtMoney(s.home_fee, AR), p2: String(s.home_radius_km ?? '-') })}</Label>}
               <Label sub>{tt('tpx.02176b51', { p1: String(s.accepted_insurance.filter((x) => x.active).length) })}</Label>
               <Label sub>{tt('oitems.a92b19e7')}</Label>
             </NCard>

@@ -96,6 +96,7 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
  };
 
  const status = String(verified?.status || '').toUpperCase();
+ const isInProgress = status === 'IN_PROGRESS';
  const steps = visitSteps(status, verified?.service_type || apt?.service_type);
  const ready = !!verified && steps.ready;
  // Server rule (prescriptions.service create): a prescription needs an IN_PROGRESS appointment. Sick leave, report,
@@ -132,7 +133,7 @@ export function LiveConsultationScreen({ apt, onBack, onNavigate }: { apt: any; 
     </NCard>
     {steps.showCheckIn && <NBtn label={tt('live.4fa4fa34')} loading={acting} onPress={checkIn} style={{ marginBottom: SP.md }} />}
     {steps.showStart && <NBtn label={tt('live.4fe51d9f')} loading={acting} onPress={startVisit} style={{ marginBottom: SP.md }} />}
-    {status === 'IN_PROGRESS' && (
+    {isInProgress && (
      <NCard style={{ marginBottom: SP.md }}>
       <NInput label={tt('live.af0eaef5')} value={diagnosis} onChange={setDiagnosis} />
       <NInput label={tt('live.151efa31')} value={visitNotes} onChange={setVisitNotes} />

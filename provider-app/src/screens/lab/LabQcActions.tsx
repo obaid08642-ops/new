@@ -54,7 +54,7 @@ export function LabQcActions({ booking, onDone }: { booking: any; onDone: () => 
           onPress={() => qc('mark_urgent')}
         />
         <NBtn
-          label={isStat ? (AR ? '✓ STAT' : '✓ STAT') : 'STAT'}
+          label={isStat ? tt('labQc.statLabel') : 'STAT'}
           size="sm" variant={isStat ? 'primary' : 'danger'} full={false}
           loading={busy === 'mark_stat'} disabled={isStat}
           onPress={() => qc('mark_stat')}
