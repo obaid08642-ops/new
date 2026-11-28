@@ -93,7 +93,7 @@ export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  </View>
  <View style={{ gap: SP.xs }}>
  <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign:AR?'right':'left' }}>
- SCFHS: {cred.scfhs} · {AR?`ينتهي: ${cred.scfhsExp}`:`Expires: ${cred.scfhsExp}`}
+ {tt('credentialing.scfhsLabel')} {cred.scfhs} · {tt('credentialing.expiresLabel')} {cred.scfhsExp}
  </Text>
  <Text style={{ fontSize: FS.sm, color: cred.malpractice ? theme.success : theme.danger, textAlign:AR?'right':'left' }}>
  {tt('sxl.711a17a0')} {cred.malpractice ? (AR?` ${cred.malpExp}`:` ${cred.malpExp}`) : (tt('sxl.3b5f692b'))}
@@ -101,8 +101,8 @@ export function CredentialingScreen({ onBack }: { onBack: () => void }) {
  {cred.daysLeft < 90 && (
  <Text style={{ fontSize: FS.xs, color: cred.daysLeft < 0 ? theme.danger : theme.warn, fontWeight: FW.bold }}>
  {cred.daysLeft < 0
- ? (AR?`انتهى منذ ${Math.abs(cred.daysLeft)} يوم`:`Expired ${Math.abs(cred.daysLeft)} days ago`)
- : (AR?`ينتهي خلال ${cred.daysLeft} يوم`:`Expires in ${cred.daysLeft} days`)}
+ ? tt('credentialing.expiredDaysAgo', { days: Math.abs(cred.daysLeft) })
+ : tt('credentialing.expiresInDays', { days: cred.daysLeft })}
  </Text>
  )}
  </View>

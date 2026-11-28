@@ -9,7 +9,6 @@
     "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx": 1,
     "provider-app/src/screens/doctor/DoctorOpsScreens.tsx": 3,
     "provider-app/src/screens/facility/facility/AddSubAccountScreen.tsx": 4,
-    "provider-app/src/screens/facility/facility/CredentialingScreen.tsx": 7,
     "provider-app/src/screens/facility/facility/FacilityHomeTab.tsx": 4,
     "provider-app/src/screens/facility/facility/FacilityOrderDetail.tsx": 3,
     "provider-app/src/screens/facility/FacilityInvitationScreen.tsx": 2,
