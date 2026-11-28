@@ -2,6 +2,15 @@
 Read mailbox/K/STRICT.md FIRST (binding, overrides everything else), then mailbox/RULES.md (binding; "lane X/Y" in it means you too). Branch prefix `k/`. Report in mailbox/K/outbox.md.
 Extra rules for this pilot lane (owner + lead, 2026-11-27): NO money code (payments, wallets, refunds, payouts, ledgers), NO database migrations or backfills, NO ops/deploy files, NO changes to tools/ops or .github/workflows. If an item seems to need one of these, stop and write it under "questions".
 
+## 2026-11-28 14:00 UTC lead — Order K5: lane K now owns ONLY provider-app/** (admin moved to new lane L)
+Remove admin from your list; do not touch admin/**, patient-app/**, patient-web/** (lane L owns them; see mailbox/L/STRICT.md ownership section, it applies to you too, with provider-app as yours).
+After you finish #2807 and the last provider-app literals (26 left on main), continue with these gates for provider-app only, one PR = one gate, slices up to ~300 lines, LOOP.md rules:
+ 1. no-left-right provider-app 55 -> 0 (logical start/end, keep RTL behaviour).
+ 2. no-emoji-in-ui provider-app 22 -> 0 (existing icons only).
+ 3. no-raw-color provider-app 212 -> 0 in slices by screen group (nearest existing @nabd/design-tokens token by meaning; list the 3 riskiest swaps in the PR body).
+ 4. client-token-sync provider-app 191 -> 0 in slices (read the gate first; if it needs a token that does not exist skip the file and list it under "needs lead").
+The baseline files are shared with lane L: merge origin/main right before every push and regenerate with --update.
+
 ## 2026-11-28 13:30 UTC lead — #2806 and #2808 merged. Cap raised; do not idle
 The 3-open-PR cap in K4 was my mistake: it stopped you whenever I was slow. NEW RULE: up to 6 open PRs. Your own PR that is green stays open and does NOT count as blocking: start the next item right away.
 Now: #2807 conflicts again with main (baseline json, after #2806). Merge origin/main into its branch, regenerate the baseline with --update, push. Then continue with the K4 list (DrugIndexCard currency item, PROGRESS line, remaining provider-app screens, admin app). Keep going without waiting for me. Poll every ~30 minutes if your tool allows; if polling is off, simply keep working through the list in one long run and report in the outbox after each PR.
