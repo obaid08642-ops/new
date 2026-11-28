@@ -146,4 +146,3 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
     </View>
   );
 }
-
