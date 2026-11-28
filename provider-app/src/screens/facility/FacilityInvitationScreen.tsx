@@ -100,9 +100,7 @@ export function FacilityInvitationScreen({ onBack, preRole }: { onBack: () => vo
             {tt('finv.ed3a3fbf')}
           </Text>
           <Text style={{ fontSize: FS.sm, color: theme.textSub, textAlign: 'center', marginTop: SP.sm, marginBottom: SP.xl }}>
-            {AR 
-              ? `تم إرسال إشعار إلى المزود (${identifier}). بمجرد قبوله سيتم إضافته لطاقم المنشأة بالصلاحيات المحددة.` 
-              : `A notification has been sent to (${identifier}). Once accepted, they will join the facility staff with the specified permissions.`}
+            {tt('facilityInvitation.sentNotice', { p1: identifier })}
           </Text>
           <NBtn label={tt('finv.cc8838cf')} onPress={onBack} />
         </View>

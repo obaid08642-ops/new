@@ -150,7 +150,7 @@ export function DoctorDashboardNavigator({ onLogout }: { onLogout: () => void })
      <Stack.Screen name="video_call">{({ navigation, route }: any) => {
        const appointment = route.params?.param || {};
        const appointmentId = String(appointment.id || appointment.appointment_id || '');
-       if (!appointmentId) return <NEmpty title="Unable to start call" sub="The appointment identifier is required." icon="video" />;
+       if (!appointmentId) return <NEmpty title={tt('doctorNav.unableToStartCall')} sub={tt('doctorNav.appointmentIdRequired')} icon="video" />;
        return <VideoCallRoom appointmentId={appointmentId} peerName={appointment.patient || appointment.patient_name} voiceOnly={appointment.service_type === 'audio'} onEnd={() => navigation.goBack()} />;
      }}</Stack.Screen>
    </Stack.Navigator>

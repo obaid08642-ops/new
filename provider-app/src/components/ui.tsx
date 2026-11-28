@@ -608,7 +608,7 @@ export function NOTP({ target, otp, setOtp, onVerify, loading, onResend, error }
  <TouchableOpacity onPress={cd<=0?()=>{setCd(60);onResend?.()}:undefined}
  style={{ alignItems:'center', padding:SP.md, marginTop:SP.sm }}>
  <Text style={{ color:cd>0?theme.textSub:theme.primary, fontSize:FS.md }}>
- {cd>0 ? `${t('otpResend')} (${cd}s)` : t('otpResend')}
+ {cd>0 ? t('otp.resendCountdown', { p1: cd }) : t('otpResend')}
  </Text>
  </TouchableOpacity>
  </View>

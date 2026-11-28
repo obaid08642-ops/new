@@ -3736,5 +3736,20 @@
   "phx.7054830f": "REF-XXXXX",
   "phx.aa1b2d3b": "MRI Brain with Contrast",
   "phx.65269c6e": "SMP-…",
-  "phx.e4909b56": "SA00 0000 0000 0000 0000 0000"
+  "phx.e4909b56": "SA00 0000 0000 0000 0000 0000",
+  "facilityInvitation.sentNotice": "A notification has been sent to ({p1}). Once accepted, they will join the facility staff with the specified permissions.",
+  "labQc.statLabel": "✓ STAT",
+  "oitems.visitFeeRadius": "Visit fee {p1} · radius {p2} km",
+  "pbr.fromCatalogue": "From the national catalogue{p1} · added to your inventory",
+  "realScreens.notificationsCenterTitle": "Notifications Center{p1}",
+  "drugIndex.activeIngredient": "Active: {p1}",
+  "otp.resendCountdown": "Resend Code ({p1}s)",
+  "auth.brandTagline": "Nabd Plus · Medical Service Providers",
+  "doctorNav.unableToStartCall": "Unable to start call",
+  "doctorNav.appointmentIdRequired": "The appointment identifier is required.",
+  "doctorSettings.languageArabic": "عربي",
+  "liveKit.missingAppointmentId": "Unable to start the call because its appointment identifier is missing.",
+  "dops.itemsExample": "Paracetamol 500 - 1x3\nVitamin C - 1x1",
+  "dops.nameArExample": "e.g.: sore throat",
+  "dops.icdLabel": "· ICD: {p1}"
 }

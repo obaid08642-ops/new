@@ -167,7 +167,7 @@ export function OrderingBulkScreen({ kind, onBack, onNav }: OrderingScreenProps)
                 <NBtn size="sm" variant="outline" full={false} label={tt('obulk.4e9006df')} onPress={() => { setCsv(csvTemplate()); setResult(null); }} />
                 <NBtn size="sm" variant="outline" full={false} label={tt('obulk.274129f0')} onPress={pickFile} />
               </Row>
-              <NInput multiline lines={6} label="CSV" placeholder="catalog_id,mode,price" value={csv} onChange={setCsv} />
+              <NInput multiline lines={6} label="CSV" placeholder="catalog_id,mode,price" value={csv} onChange={setCsv} /> // i18n-ok: CSV column headers the user must type verbatim, not translatable prose
               <Row>
                 <NBtn size="sm" variant="outline" full={false} label={tt('obulk.0357c2f3')} onPress={() => share(csv)} disabled={!csv} />
                 <NBtn size="sm" full={false} label={tt('obulk.13269063')} onPress={importCsv} loading={busy} disabled={!csv} />

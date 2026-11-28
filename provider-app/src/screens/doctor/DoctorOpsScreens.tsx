@@ -180,7 +180,7 @@ export function PrescriptionTemplatesScreen({ onBack }: { onBack: () => void }) 
         <NInput
           label={tt('dops.a5e2c89d')}
           value={items} onChange={setItems} multiline
-          placeholder={'Paracetamol 500 - 1x3\nVitamin C - 1x1'}
+          placeholder={tt('dops.itemsExample')}
         />
         <NBtn label={tt('dops.bad887bb')} onPress={add} loading={saving} style={{ marginTop: SP.sm, marginBottom: SP.xl }} />
 
@@ -252,7 +252,7 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
       <NHeader title={tt('dops.d3f4ba56')} onBack={onBack} />
       <NScroll pad>
         <NSecHeader title={tt('dops.972af300')} />
-        <NInput label={tt('dops.b6e20c82')} value={nameAr} onChange={setNameAr} placeholder={AR ? 'مثال: التهاب الحلق' : ''} />
+        <NInput label={tt('dops.b6e20c82')} value={nameAr} onChange={setNameAr} placeholder={tt('dops.nameArExample')} />
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.sm }}>
           <View style={{ flex: 2 }}><NInput label={tt('dops.60629813')} value={nameEn} onChange={setNameEn} placeholder={tt('phx.e43eaf37')} /></View>
           <View style={{ flex: 1 }}><NInput label="ICD" value={icd} onChange={setIcd} placeholder="J02.9" /></View>
@@ -269,7 +269,7 @@ export function SavedDiagnosesScreen({ onBack }: { onBack: () => void }) {
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{d.name_ar}</Text>
                 <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }}>
-                  {d.name_en || ''}{d.icd ? ` · ICD: ${d.icd}` : ''}{d.usage_count > 0 ? ` · ×${d.usage_count}` : ''}
+                  {d.name_en || ''}{d.icd ? tt('dops.icdLabel', { p1: d.icd }) : ''}{d.usage_count > 0 ? ` · ×${d.usage_count}` : ''}
                 </Text>
               </View>
             </View>

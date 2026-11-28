@@ -186,7 +186,7 @@ export function DoctorSettingsTab({ onLogout, onNavigate }: { onLogout: () => vo
             </View>
             <TouchableOpacity onPress={toggleLang}
               style={{ paddingHorizontal: SP.lg, paddingVertical: SP.sm, backgroundColor: theme.primaryLight, borderRadius: R.md }}>
-              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'EN' : 'عربي'}</Text>
+              <Text style={{ color: theme.primary, fontWeight: FW.bold }}>{AR ? 'EN' : tt('doctorSettings.languageArabic')}</Text>
             </TouchableOpacity>
           </View>
         </NCard>

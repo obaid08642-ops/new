@@ -28,6 +28,7 @@ import { timedFetch } from '../../api/timedFetch';
 // ══════════════════════════════════════════════════════════
 export function SplashScreen({ onDone }: { onDone: () => void }) {
  const { theme } = useTheme();
+ const { t: tt } = useLang();
  const sc = useRef(new Animated.Value(0.5)).current;
  const op = useRef(new Animated.Value(0)).current;
  const op2 = useRef(new Animated.Value(0)).current;
@@ -60,7 +61,7 @@ export function SplashScreen({ onDone }: { onDone: () => void }) {
  Nabd Plus
  </Text>
  <Text style={{ fontSize: FS.md, color: 'rgba(255,255,255,0.75)', marginTop: SP.xs }}>
- نبض بلس · مزودو الخدمة الطبية
+ {tt('auth.brandTagline')}
  </Text>
  </Animated.View>
  </View>

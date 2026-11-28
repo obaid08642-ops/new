@@ -2,21 +2,7 @@
   "note": "Literal UI strings per file (patient-web, patient-app, provider-app). Ratcheted: --update only ever lowers it. Rule: owner 2026-10-06, see QUALITY_STANDARDS.md section 8.",
   "files": {
     "provider-app/src/components/PlatformMap.web.tsx": 1,
-    "provider-app/src/components/ui.tsx": 1,
-    "provider-app/src/screens/auth/AuthScreens.tsx": 1,
-    "provider-app/src/screens/doctor/doctor/DoctorDashboardNavigator.tsx": 1,
-    "provider-app/src/screens/doctor/doctor/DoctorSettingsTab.tsx": 1,
-    "provider-app/src/screens/doctor/doctor/LiveConsultationScreen.tsx": 1,
-    "provider-app/src/screens/doctor/DoctorOpsScreens.tsx": 3,
-    "provider-app/src/screens/facility/FacilityInvitationScreen.tsx": 2,
-    "provider-app/src/screens/lab/LabQcActions.tsx": 2,
-    "provider-app/src/screens/ordering/OrderingBulkScreen.tsx": 1,
-    "provider-app/src/screens/ordering/OrderingItemsScreen.tsx": 2,
-    "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx": 2,
     "provider-app/src/screens/shared/InsuranceRequestsScreen.tsx": 2,
-    "provider-app/src/screens/shared/LiveKitRoomProvider.tsx": 1,
-    "provider-app/src/screens/shared/RealScreens.tsx": 2,
-    "provider-app/src/screens/shared/shared/DrugIndexCard.tsx": 2,
     "provider-app/src/screens/shared/shared/WithdrawalWorkflow.tsx": 1
   }
 }

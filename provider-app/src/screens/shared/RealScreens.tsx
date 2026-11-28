@@ -334,7 +334,7 @@ export function NotificationsCenterScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
-      <NHeader title={AR ? `مركز الإشعارات والتنبيهات${unreadCount ? ` (${unreadCount})` : ''}` : 'Notifications Center'} onBack={onBack} />
+      <NHeader title={tt('realScreens.notificationsCenterTitle', { p1: unreadCount ? ` (${unreadCount})` : '' })} onBack={onBack} />
       <NScroll pad>
         {loading && <Text style={{ textAlign: 'center', color: theme.textSub, marginVertical: SP.xl }}>{tt('rs.9f789a2a')}</Text>}
         {!loading && loadFailed && notifs.length === 0 && (

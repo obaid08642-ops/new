@@ -46,7 +46,7 @@ export function DrugIndexCard({ item, ctx }: any) {
      {AR ? item.name_ar : item.name_en}
      </Text>
      <Text style={{ fontSize: FS.xs, color: theme.textSub, textAlign: AR ? 'right' : 'left' }} numberOfLines={1}>
-      {AR ? `المادة الفعالة: ${item.active_ar || '—'}` : `Active: ${item.active_en || '—'}`}
+      {tt('drugIndex.activeIngredient', { p1: AR ? item.active_ar || '—' : item.active_en || '—' })}
      </Text>
      <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }} numberOfLines={1}>
       {[item.category_ar, item.form].filter(Boolean).join(' · ')}
