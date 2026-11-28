@@ -171,7 +171,7 @@ export default function Header() {
 const styles = StyleSheet.create({
   headerWrapper: {
     zIndex: 50,
-    shadowColor: '#23B5CE',
+    shadowColor: tokens('light').color.service.teal.solid.from,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: lightColors.cr,
     borderWidth: 1.5,
-    borderColor: 'white',
+    borderColor: lightColors.s,
   },
   modalOverlay: { flex: 1, backgroundColor: 'transparent' },
   langMenu: {

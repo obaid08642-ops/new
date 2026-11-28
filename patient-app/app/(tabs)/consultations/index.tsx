@@ -483,7 +483,7 @@ export default function Consultations() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
               {offers.map((p, i) => (
                 <View key={p.id || i} style={{ width: 280 }}>
-                  <OfferCard title={String(p.t ?? '')} price={String(p.price ?? '')} currency={k('consult.currency')} was={p.old != null ? String(p.old) : undefined} tag={p.disc != null ? k('consult.hub.discount', { n: String(p.disc) }) : undefined} icon="gift" tone="coral" onPress={() => p.id && router.push(`/offers/${p.id}` as Href)} theme={theme} />
+                  <OfferCard title={String(p.t ?? '')} price={String(p.price ?? '')} currency={k('consult.currency')} was={p.old != null ? String(p.old) : undefined} tag={p.disc != null ? k('consult.hub.discount', { n: String(p.disc) }) : undefined} icon="gift" tone={SERVICE_ICONS.health.tone} onPress={() => p.id && router.push(`/offers/${p.id}` as Href)} theme={theme} />
                 </View>
               ))}
             </ScrollView>

@@ -7,6 +7,7 @@ import {
   View, Image, StyleSheet, StyleProp, ViewStyle, Text,
 } from 'react-native';
 import { tokens } from '../../../../packages/design-tokens/dist/ts/tokens';
+import { SERVICE_ICONS } from '../../../../packages/ui/icons/fill';
 import { useApp } from '../../context/AppContext';
 import { dsText } from '../dsText';
 import { BorderRadius, Typography } from '../tokens';
@@ -61,7 +62,7 @@ function getInitials(name?: string): string {
 }
 
 // the 10 service tones' solid colours (white initials stay readable on every one)
-const FALLBACK_COLORS: string[] = (['coral', 'blue', 'violet', 'amber', 'pink', 'peach', 'teal', 'ink'] as const).map(
+const FALLBACK_COLORS: string[] = ([SERVICE_ICONS.pharmacy.tone, SERVICE_ICONS.consult.tone, SERVICE_ICONS.radiology.tone, SERVICE_ICONS.map.tone, SERVICE_ICONS.maternity.tone, SERVICE_ICONS.family.tone, SERVICE_ICONS.nursing.tone, 'ink'] as const).map(
   (tone) => tokens('light').color.service[tone].solid.from,
 );
 
