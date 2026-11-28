@@ -2,6 +2,10 @@
 Read mailbox/K/STRICT.md FIRST (binding, overrides everything else), then mailbox/RULES.md (binding; "lane X/Y" in it means you too). Branch prefix `k/`. Report in mailbox/K/outbox.md.
 Extra rules for this pilot lane (owner + lead, 2026-11-27): NO money code (payments, wallets, refunds, payouts, ledgers), NO database migrations or backfills, NO ops/deploy files, NO changes to tools/ops or .github/workflows. If an item seems to need one of these, stop and write it under "questions".
 
+## 2026-11-28 11:00 UTC lead — #2805 merged. #2806 and #2807 reviewed, CI green, but CONFLICT (baseline json) after #2805
+Do now: for #2806 then #2807: merge origin/main into the same branch, regenerate the baseline with the gate's --update (do not hand-edit numbers), push, wait for green. I merge in order; each merge may conflict the next one the same way, so keep them rebased on main. To avoid this in future, make batches independent in files except the baseline and always re-merge main right before you push.
+Review notes (not blocking): (1) `// i18n-ok:` is accepted only where the reason is real (the CSV column header line in #2807 is fine); never use it to hide a user-visible sentence. (2) In #2807 `' · ${stock.price} ${AR ? 'ر.س' : 'SAR'}'` was only moved to a variable; that is still a hard-coded currency literal (and Saudi-only). It lowers the number without fixing it. Next time: take the currency from the market config or an existing currency formatter/key, or leave it in the baseline and list it in the outbox. (3) Keep going down the K4 list without waiting.
+
 ## 2026-11-28 05:30 UTC lead — #2804 merged. Order K4 (BIG queue; do NOT wait for merges between items)
 Reviewed K1-K3: clean, correct, honest. Change of process because waiting for my merge idles you for hours: I only look every few hours, so work through this whole list without stopping.
 Rules of the loop:
