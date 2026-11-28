@@ -23,7 +23,6 @@
     "provider-app/src/screens/nursing/NursingRegistration.tsx": 4,
     "provider-app/src/screens/ordering/OrderingBulkScreen.tsx": 1,
     "provider-app/src/screens/ordering/OrderingItemsScreen.tsx": 2,
-    "provider-app/src/screens/radiology/RadiologyDashboard.tsx": 13,
     "provider-app/src/screens/shared/blueprint/AiMedicalCopilot.tsx": 4,
     "provider-app/src/screens/shared/blueprint/PharmacyBroadcastResponse.tsx": 2,
     "provider-app/src/screens/shared/blueprint/PromotionsDashboard.tsx": 4,

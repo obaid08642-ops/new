@@ -2490,6 +2490,8 @@
   "dav.a6bd2a2a": "Online",
   "dav.8ca476d4": "Home",
   "dav.5d7803cf": "Save Insurance Settings",
+  "radiology.catalog.nameArPlaceholder": "MRI Brain with Contrast",
+  "radiology.scanFallback": "Scan",
   "shift.32e0e307": "Unable to load shifts",
   "shift.d349ca01": "Choose a staff member",
   "shift.20fdcc3e": "Time must be HH:MM",

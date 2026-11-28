@@ -145,12 +145,13 @@ function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: R
       {orders.map(order => {
         const meta = STATE_LABELS[order.state] || STATE_LABELS.NEW_REQUEST;
         const sq = order.safety_questionnaire || {};
+        const prepPending = !order.preparation_confirmed && order.state === 'CONFIRMED';
         return (
           <NCard key={order.id} style={{ marginBottom: SP.md }} accent={meta.color} onPress={() => onOpen(order)}>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SP.sm }}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', alignItems: 'center', gap: SP.sm }}>
                 <IBg name="scan" size={16} color={tokens.mintDeep} bg={withAlpha(tokens.mintDeep, 0.12)} />
-                <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || 'Scan'}</Text></View>
+                <View><Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient_name || '—'}</Text><Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scan_name_ar || order.scan_name_en || tt('radiology.scanFallback')}</Text></View>
               </View>
               <NBadge label={AR ? meta.ar : meta.en} style={{ backgroundColor: meta.color + '22' }} labelStyle={{ color: meta.color }} size="xs" />
             </View>
@@ -158,7 +159,7 @@ function RadiologyInboxList({ orders, loading, emptyTitle, onOpen }: { orders: R
               {sq.is_pregnant !== undefined && <SafetyChip on={!!sq.is_pregnant} label={tt('tpaf.875f1870', { p1: String(sq.is_pregnant ? yes : no) })} />}
               {sq.has_pacemaker !== undefined && <SafetyChip on={!!sq.has_pacemaker} label={tt('tpaf.db225e09', { p1: String(sq.has_pacemaker ? yes : no) })} />}
               {sq.has_contrast_allergy !== undefined && <SafetyChip on={!!sq.has_contrast_allergy} label={tt('tpaf.5af2f341', { p1: String(sq.has_contrast_allergy ? yes : no) })} />}
-              {!order.preparation_confirmed && order.state === 'CONFIRMED' && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{tt('raddash.7da43bd5')}</Text></View>}
+              {prepPending && <View style={{ backgroundColor: withAlpha(tokens.warning, 0.20), borderRadius: R.sm, paddingHorizontal: 6, paddingVertical: 2 }}><Text style={{ fontSize: 9, color: tokens.warning }}>{tt('raddash.7da43bd5')}</Text></View>}
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <Text style={{ fontSize: FS.xs, color: theme.textSub }}>{order.scheduled_at ? fmtDateTime(order.scheduled_at, AR) : '—'}</Text>
@@ -314,6 +315,16 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
   }
   const sq = currentOrder.safety_questionnaire || {};
   const meta = STATE_LABELS[currentOrder.state] || STATE_LABELS.NEW_REQUEST;
+  const st = currentOrder.state;
+  const isNewRequest = st === 'NEW_REQUEST';
+  const isPendingInsurance = st === 'PENDING_INSURANCE';
+  const isConfirmedState = st === 'CONFIRMED';
+  const isArrivedCheckin = st === 'ARRIVED_CHECKIN';
+  const isInScanning = st === 'IN_SCANNING';
+  const isReportDraft = st === 'REPORT_DRAFT';
+  const isUnderReview = st === 'UNDER_REVIEW';
+  const isScanAborted = st === 'SCAN_ABORTED';
+  const isReportReady = st === 'REPORT_READY';
 
   return (
     <NScroll>
@@ -348,7 +359,7 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
       <NSecHeader title={tt('raddash.d6954ca0')} />
       <View style={{ gap: SP.md, marginBottom: SP.xl }}>
         {!['CANCELLED', 'REJECTED'].includes(String(currentOrder.state)) && <NBtn label={t('bookingChat.open')} variant="outline" onPress={() => onNav('booking_chat', currentOrder)} />}
-        {currentOrder.state === 'NEW_REQUEST' && (<>
+        {isNewRequest && (<>
           {currentOrder.payment_method === 'insurance' ? (
             <NBtn label={tt('raddash.22277872')} variant="outline" onPress={() => setShowApproval(true)} />
           ) : (
@@ -359,21 +370,21 @@ function OrderDetailScreen({ order, onBack, onNav }: { order: any; onBack: () =>
           )}
           <NBtn label={tt('raddash.6035b5a7')} variant="danger" onPress={() => setShowReject(true)} />
         </>)}
-        {currentOrder.state ==='PENDING_INSURANCE' && <NBtn label={tt('raddash.c7226cd8')} onPress={() => setShowApproval(true)} />}
-        {currentOrder.state ==='CONFIRMED' && <NBtn label={tt('raddash.5100ece5')} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:tokens.mintDeep }} />}
-        {currentOrder.state === 'ARRIVED_CHECKIN' && (<>
+        {isPendingInsurance && <NBtn label={tt('raddash.c7226cd8')} onPress={() => setShowApproval(true)} />}
+        {isConfirmedState && <NBtn label={tt('raddash.5100ece5')} loading={loading} onPress={() => doAction('checkin')} style={{ backgroundColor:tokens.mintDeep }} />}
+        {isArrivedCheckin && (<>
           <NBtn label={tt('raddash.f097e55f')} loading={loading} onPress={() => doAction('start-scan')} style={{ backgroundColor:tokens.warning }} />
           <NBtn label={tt('raddash.c82f8373')} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
-        {currentOrder.state === 'IN_SCANNING' && (<>
+        {isInScanning && (<>
           <NBtn label={tt('raddash.723cca1f')} onPress={() => onNav('reporting', currentOrder)} />
           <NBtn label={tt('raddash.b5267aba')} variant="danger" onPress={() => setShowAbort(true)} />
         </>)}
-        {currentOrder.state ==='REPORT_DRAFT' && <NBtn label={tt('raddash.223b9561')} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
-        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_can_approve !== false && <NBtn label={tt('raddash.baf5326c')} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
-        {currentOrder.state ==='UNDER_REVIEW' && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
-        {currentOrder.state ==='SCAN_ABORTED' && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{tt('tpaf.04e18f4f', { p1: String(currentOrder.abort_reason) })}</Text><NBtn label={tt('raddash.07f3aadc')} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
-        {currentOrder.state ==='REPORT_READY' && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{tt('raddash.673a0e54')}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{tt('raddash.b6fa78c1')}</Text>}</View>)}
+        {isReportDraft && <NBtn label={tt('raddash.223b9561')} loading={loading} onPress={() => doAction('submit-report-for-review')} />}
+        {isUnderReview && currentOrder.report_can_approve !== false && <NBtn label={tt('raddash.baf5326c')} loading={loading} onPress={() => doAction('approve-report')} style={{ backgroundColor:tokens.success }} />}
+        {isUnderReview && currentOrder.report_handled_by_me === true && <Text style={{ color: theme.textSub, fontSize: FS.sm, textAlign: AR ? 'right' : 'left' }}>{t('radiology.approve.handledByYou')}</Text>}
+        {isScanAborted && (<View style={{ backgroundColor:withAlpha(tokens.error, 0.12), borderRadius: R.md, padding: SP.md }}><Text style={{ color:tokens.error, fontWeight: FW.bold, textAlign:'center', marginBottom: SP.md }}>{tt('tpaf.04e18f4f', { p1: String(currentOrder.abort_reason) })}</Text><NBtn label={tt('raddash.07f3aadc')} loading={loading} onPress={() => setShowReschedule(true)} /></View>)}
+        {isReportReady && (<View style={{ backgroundColor:withAlpha(tokens.success, 0.12), borderRadius: R.md, padding: SP.lg, alignItems:'center' }}><Text style={{ color:tokens.success, fontSize: FS.lg, fontWeight: FW.bold }}>{tt('raddash.673a0e54')}</Text>{currentOrder.doctor_notified && <Text style={{ color:tokens.mintDeep, fontSize: FS.sm, marginTop: SP.sm }}>{tt('raddash.b6fa78c1')}</Text>}</View>)}
       </View>
 
       {/* Insurance approval sheet */}
@@ -570,7 +581,7 @@ function CatalogManagerTab() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: SP.md }}>
           <View style={{ flexDirection: 'row', gap: SP.sm }}>{MODALITIES.map(m => <TouchableOpacity key={m} style={{ paddingHorizontal: SP.md, paddingVertical: SP.sm, borderRadius: R.md, backgroundColor: modality === m ? tokens.mintDeep : theme.surface2, borderWidth: 1, borderColor: modality === m ? tokens.mintDeep : theme.border }} onPress={() => setModality(m)}><Text style={{ color: modality === m ? '#fff' : theme.text, fontSize: FS.sm }}>{m}</Text></TouchableOpacity>)}</View>
         </ScrollView>
-        <NInput label={tt('raddash.d91c01b5')} value={nameAr} onChange={setNameAr} placeholder="رنين مغناطيسي الدماغ بصبغة" />
+        <NInput label={tt('raddash.d91c01b5')} value={nameAr} onChange={setNameAr} placeholder={tt('radiology.catalog.nameArPlaceholder')} />
         <NInput label={tt('raddash.1f9eb88f')} value={nameEn} onChange={setNameEn} placeholder={tt('phx.aa1b2d3b')} />
         <NPriceInput label={tt('raddash.39a4471e')} value={price} onChange={setPrice} />
         <NInput label={tt('raddash.d2889ad9')} value={duration} onChange={setDuration} placeholder="30" />
