@@ -109,8 +109,8 @@ export const DSInput = forwardRef<TextInputInstance, DSInputProps>(function DSIn
             borderWidth: isFocused ? 2 : 1.5,
             borderBottomWidth: variant === 'underline' ? (isFocused ? 2 : 1.5) : undefined,
             borderTopWidth: variant === 'underline' ? 0 : undefined,
-            borderLeftWidth: variant === 'underline' ? 0 : undefined,
-            borderRightWidth: variant === 'underline' ? 0 : undefined,
+            borderStartWidth: variant === 'underline' ? 0 : undefined,
+            borderEndWidth: variant === 'underline' ? 0 : undefined,
             borderRadius: variant === 'underline' ? 0 : BorderRadius.lg,
             flexDirection: isRTL ? 'row-reverse' : 'row',
           },
@@ -155,7 +155,7 @@ export const DSInput = forwardRef<TextInputInstance, DSInputProps>(function DSIn
         {resolvedRightIcon && (
           <TouchableOpacity
             onPress={handleRightIconPress}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            hitSlop={8}
             accessibilityRole="button"
             accessibilityLabel={isPassword ? (showPassword ? dsText(lang, 'ds.input.hidePassword') : dsText(lang, 'ds.input.showPassword')) : undefined}
             style={styles.iconWrapper}

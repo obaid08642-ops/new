@@ -50,7 +50,7 @@ export default function OfflineBanner() {
 
 const styles = StyleSheet.create({
   banner: {
-    position: 'absolute', top: 0, left: 0, right: 0, zIndex: 999,
+    position: 'absolute', top: 0, start: 0, end: 0, zIndex: 999,
     paddingTop: 46, paddingBottom: 10, alignItems: 'center',
   },
   text: { fontFamily: 'ReadexPro-700', fontSize: 12 },

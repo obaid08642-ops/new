@@ -141,7 +141,7 @@ export function DSAvatar({
           style={{
             position: 'absolute',
             bottom: 0,
-            right: 0,
+            end: 0,
             width: indicatorSize,
             height: indicatorSize,
             borderRadius: indicatorSize / 2,
@@ -155,7 +155,7 @@ export function DSAvatar({
 
       {/* Badge */}
       {badgeCount !== undefined && badgeCount > 0 && (
-        <View style={{ position: 'absolute', top: -2, right: -2 }}>
+        <View style={{ position: 'absolute', top: -2, end: -2 }}>
           <DSBadge count={badgeCount} size="sm" />
         </View>
       )}
@@ -201,7 +201,7 @@ export function DSAvatarGroup({
           key={i}
           style={{
             position: 'absolute',
-            left: i * (dim - offset),
+            start: i * (dim - offset),
             zIndex: visible.length - i,
             borderWidth: 2,
             borderColor: colors.surface,
@@ -215,7 +215,7 @@ export function DSAvatarGroup({
         <View
           style={{
             position: 'absolute',
-            left: visible.length * (dim - offset),
+            start: visible.length * (dim - offset),
             width: dim,
             height: dim,
             borderRadius: dim / 2,

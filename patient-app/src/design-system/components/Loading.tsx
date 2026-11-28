@@ -52,7 +52,7 @@ export function DSLoadingOverlay({ visible, message, overlay = false }: DSLoadin
       style={[
         styles.loadingOverlay,
         overlay && {
-          position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+          position: 'absolute', top: 0, start: 0, end: 0, bottom: 0,
           backgroundColor: colors.overlay + 'CC',
           zIndex: 999,
         },

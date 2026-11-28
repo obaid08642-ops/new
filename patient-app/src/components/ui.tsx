@@ -146,7 +146,7 @@ export function Button({
       ? [colors.primary, colors.primaryDark || colors.primary] 
       : [colors.primary, colors.secondary]) as [string, string];
     return (
-      <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.88} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} style={[{ width: full ? '100%' : undefined }, style]} accessibilityRole="button" accessibilityLabel={typeof translatedLabel === 'string' ? translatedLabel : undefined} accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}>
+      <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.88} hitSlop={6} style={[{ width: full ? '100%' : undefined }, style]} accessibilityRole="button" accessibilityLabel={typeof translatedLabel === 'string' ? translatedLabel : undefined} accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}>
         <LinearGradient colors={gradientColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={base}>
           {content}
         </LinearGradient>
@@ -155,7 +155,7 @@ export function Button({
   }
 
   return (
-    <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.88} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} style={[base, style]} accessibilityRole="button" accessibilityLabel={typeof translatedLabel === 'string' ? translatedLabel : undefined} accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}>
+    <TouchableOpacity onPress={onPress} disabled={disabled || loading} activeOpacity={0.88} hitSlop={6} style={[base, style]} accessibilityRole="button" accessibilityLabel={typeof translatedLabel === 'string' ? translatedLabel : undefined} accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}>
       {content}
     </TouchableOpacity>
   );
@@ -189,7 +189,7 @@ export function Card({ children, style, onPress, padding = 16, elevated = true }
   };
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.9} hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }} accessibilityRole="button" style={[cardStyle, style]}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9} hitSlop={4} accessibilityRole="button" style={[cardStyle, style]}>
         {children}
       </TouchableOpacity>
     );
@@ -251,7 +251,7 @@ export function Input({
           textAlignVertical={multiline ? 'top' : 'center'}
         />
         {iconRight && (
-          <TouchableOpacity onPress={onIconRightPress} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity onPress={onIconRightPress} hitSlop={8}>
             <Icon name={iconRight} size={18} color={colors.textTertiary} />
           </TouchableOpacity>
         )}

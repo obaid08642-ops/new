@@ -214,8 +214,8 @@ const styles = StyleSheet.create({
   sheet: {
     position: 'absolute',
     bottom: 0,
-    left: 0,
-    right: 0,
+    start: 0,
+    end: 0,
     borderTopLeftRadius: BorderRadius['3xl'],
     borderTopRightRadius: BorderRadius['3xl'],
     overflow: 'hidden',
