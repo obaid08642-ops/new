@@ -1,6 +1,13 @@
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
+## 2026-11-28 01:13 UTC — K3 done: CredentialingScreen literals cleared
+Status: done
+PR: #2803 (CI: pending — 8 of 29 checks completed at last read, 0 failed; the rest running/queued)
+K2 PR #2801 was merged by the lead at 2026-11-28 00:11:49 UTC, so K3 (queued 2026-11-28 00:30 UTC) is now done. Screen: provider-app/src/screens/facility/facility/CredentialingScreen.tsx — ranked by real user-visible strings, all 7 of its literals are display text (LabDashboard has 12 but 5 are state-code comparisons; NursingFieldOps 7/7 state codes, skipped per K3). Literal baseline 92 -> 85: the file now carries zero literals and its baseline entry is removed. The 7 literals became 4 new keys (credentialing.scfhsLabel, credentialing.expiresLabel, credentialing.expiredDaysAgo, credentialing.expiresInDays — the last two take a {days} param via tt(key, { days }), which the t function fills), added to both locale files ar+en. Layout, tokens and logic unchanged; rendered strings verified identical in both languages. Branch k/provider-literals-credentialing from origin/main (9517ab1), commit fc7ff4f8. Diff: 4 files, 11 insertions, 4 deletions.
+Checks (real results are in the PR body): this run worked through the GitHub API only (no local checkout), so the repo's own gate/parity/tsc/jest were NOT run locally — CI is the gate. Locally I re-implemented the gate's counting rules (reproduces the baseline exactly: 7 before, 0 after in this file) and the parity leftover rule (0/0/0), and the edited screen parses with 0 TypeScript diagnostics.
+Left / blockers / questions: watching PR #2803 CI; any red check will be root-caused and fixed on the same branch. After #2803 merges, the next K3-style item per the order is FacilityResourcesScreen (6 real literals), then LabDashboard (7 real + 5 state codes). The K2 language question is answered: provider-app stays ar+en (lead, K3 order). Lane K does not merge; PR #2803 is the lead's to review and merge.
+
 ## 2026-11-27 23:09 UTC — K2 CI settled GREEN; K1 PR #2800 merged by the lead
 Status: done
 PR: #2801 (CI: green — 32 of 32 checks completed, 0 failed)
