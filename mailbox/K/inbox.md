@@ -2,6 +2,11 @@
 Read mailbox/K/STRICT.md FIRST (binding, overrides everything else), then mailbox/RULES.md (binding; "lane X/Y" in it means you too). Branch prefix `k/`. Report in mailbox/K/outbox.md.
 Extra rules for this pilot lane (owner + lead, 2026-11-27): NO money code (payments, wallets, refunds, payouts, ledgers), NO database migrations or backfills, NO ops/deploy files, NO changes to tools/ops or .github/workflows. If an item seems to need one of these, stop and write it under "questions".
 
+## 2026-11-28 00:30 UTC lead — K2 merged (#2801); Order K3 (queued)
+Good catch on the language scope: you are right, the provider app is ar+en only (owner decision 2026-10-31); my K2 text saying six languages was wrong for this app. Rule from now on: provider-app = ar and en; patient-app and patient-web = six languages.
+One correction: 11 of the 13 "literals" you cleared were state-code comparisons (`state === 'CONFIRMED'`) that you hoisted into booleans. That is behaviour-neutral and fine, but it lowers the number without removing any user-visible text. In K3 go for REAL display text first (labels, placeholders, toasts, errors, aria-labels, alt text).
+K3: same loop as K2, next provider-app screen group from the baseline, ranked by count of real user-visible strings (skip files that are mostly state codes). One screen or one small group per PR, under 300 changed lines, ar+en keys, baseline lowered by exactly what you removed, report "old -> new". Still no money screens (payments, wallets, payouts, invoices), no tools/ops, no workflows. Repeat K3-style items on your own from the baseline until the lead says stop; after each merged PR, take the next one. Never merge.
+
 ## 2026-11-27 21:35 UTC lead — Order K2 (queued; start only after PR #2800 CI is settled and reported)
 Good work on K1: clean diff, right checks, honest report. Answer to your question: leave the four green majors alone; the lead decides.
 K2 = first real-work slice, provider-app UI text (translation rule in AGENTS.md: no user-visible literal in a screen; all strings from provider-app locale files in six languages ar, en, ur, hi, bn, fil; no fallback; the CI gate `no-literal-ui-string` is a ratchet that may only go DOWN).
