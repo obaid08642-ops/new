@@ -101,9 +101,9 @@ export function NabdLogo({
     opacity: 1 - beat.value * 0.18,
   }));
 
-  const stroke = variant === 'onBrand' ? t.color.text.onBrand : t.color.brand.coral;
+  const stroke = variant !== 'onBrand' ? t.color.brand.coral : t.color.text.onBrand;
   const dot =
-    variant === 'onBrand' ? t.color.text.onBrand : t.color.brand.coral;
+    variant !== 'onBrand' ? t.color.brand.coral : t.color.text.onBrand;
 
   return (
     <Svg width={size} height={size} viewBox="0 0 240 240" testID={testID} accessibilityRole="image" accessibilityLabel={label}>

@@ -227,7 +227,7 @@ export default function PharmacyCheckoutScreen() {
 
         <Card theme={theme}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <FIcon icon="map-pin" tone="coral" size={40} theme={theme} />
+            <FIcon icon="map-pin" tone={PHARMACY_TONE} size={40} theme={theme} />
             <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
               <Text style={{ ...scale(t, 'meta', 'regular'), color: c.text.secondary, ...flow }}>{k('pharmacy.request.addressTitle')}</Text>
               <Text style={{ ...scale(t, 'bodyStrong'), color: c.text.primary, ...flow }}>
