@@ -122,7 +122,7 @@ export default function AiControlPage() {
                   <div className={`h-1.5 rounded-full ${quotaPct > 85 ? 'bg-red-500' : 'bg-teal-500'}`} style={{ width: `${quotaPct}%` }} />
                 </div>
               )}
-              <div className="text-xs text-gray-400 mt-1">أولوية {p.priority} · مفتاح {p.has_key ? '✓' : '✗'}</div>
+              <div className="text-xs text-gray-400 mt-1">أولوية {p.priority} · مفتاح {p.has_key ? '✓' : '×'}</div>
               <button
                 onClick={() => toggle(p.key, p.enabled)}
                 disabled={busy === p.key}

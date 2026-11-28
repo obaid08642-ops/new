@@ -78,7 +78,7 @@ export default function ImageSuggestionsPage() {
       {loading ? (
         <div className="p-8 text-center text-gray-500 bg-white rounded-lg border">جاري التحميل...</div>
       ) : items.length === 0 ? (
-        <div className="p-8 text-center text-gray-400 bg-white rounded-lg border">لا توجد اقتراحات {tab === 'pending' ? 'قيد الانتظار 🎉' : ''}</div>
+        <div className="p-8 text-center text-gray-400 bg-white rounded-lg border">لا توجد اقتراحات {tab === 'pending' ? 'قيد الانتظار' : ''}</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((s: any) => (

@@ -157,7 +157,7 @@ export default function AdminSecurity() {
                 fontWeight: 800, fontSize: 14, opacity: busy ? 0.6 : 1,
               }}
             >
-              {busy ? 'بانتظار البصمة...' : '🔐 تسجيل بمفتاح أمان'}
+              {busy ? 'بانتظار البصمة...' : 'تسجيل بمفتاح أمان'}
             </button>
           </div>
         </div>
@@ -207,7 +207,7 @@ export default function AdminSecurity() {
           borderRadius: 16, padding: 20, marginBottom: 24,
           background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>القفل على هذا الجهاز فقط 🔒</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>القفل على هذا الجهاز فقط</h2>
           <p style={{ color: '#93A5B3', fontSize: 13, lineHeight: 1.9, marginBottom: 12 }}>
             مربوط بالمتصفح (بصمة جهاز) لا بعنوان الإنترنت — تغيير الـ IP أو الشبكة لا يؤثر.
             عند التفعيل يُسجَّل هذا المتصفح تلقائياً وأي جهاز آخر يُرفض حتى لو امتلك كلمة المرور.

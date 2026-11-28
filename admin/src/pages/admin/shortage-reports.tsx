@@ -90,7 +90,7 @@ export default function ShortageReportsPage() {
         {loading ? (
           <div className="p-8 text-center text-gray-500">جاري التحميل...</div>
         ) : reports.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">لا توجد بلاغات {tab === 'pending' ? 'قيد الانتظار 🎉' : ''}</div>
+          <div className="p-8 text-center text-gray-400">لا توجد بلاغات {tab === 'pending' ? 'قيد الانتظار' : ''}</div>
         ) : (
           <DataTable
             bare
