@@ -106,7 +106,7 @@ export default async function ProfilePage({ params }: Props) {
   const insurer = insurance.fields.find((field) => field.key === "providerName" || field.key === "companyName");
   const base = `/${locale}`;
   const tiles = [
-    { href: `${base}/orders`, icon: "package", tone: "coral", label: a("tileOrders") },
+    { href: `${base}/orders`, icon: "package", tone: SERVICE_ICONS.pharmacy.tone, label: a("tileOrders") },
     { href: `${base}/appointments`, icon: "calendar-dots", tone: "blue", label: a("tileAppointments") },
     { href: `${base}/loyalty`, icon: "star", tone: "amber", label: a("tilePoints"), value: points === null ? undefined : nf.format(points) },
   ] as const;
@@ -135,10 +135,10 @@ export default async function ProfilePage({ params }: Props) {
         locale={locale}
         label={a("accountRows")}
         rows={[
-          { href: `${base}/health/profile`, icon: "heartbeat", tone: "coral", title: a("rowHealth") },
-          { href: `${base}/profile/addresses`, icon: "map-pin", tone: "coral", title: a("rowAddresses"), sub: addressCount === null ? undefined : a("addressCount", { count: nf.format(addressCount) }) },
+          { href: `${base}/health/profile`, icon: "heartbeat", tone: SERVICE_ICONS.health.tone, title: a("rowHealth") },
+          { href: `${base}/profile/addresses`, icon: "map-pin", tone: SERVICE_ICONS.health.tone, title: a("rowAddresses"), sub: addressCount === null ? undefined : a("addressCount", { count: nf.format(addressCount) }) },
           ...(showFamily ? [{ href: `${base}/family`, icon: "users-three", tone: "peach", title: a("rowFamily"), sub: familyCount === null ? undefined : a("familyCount", { count: nf.format(familyCount) }) } as const] : []),
-          ...(showInsurance ? [{ href: `${base}/insurance`, icon: "shield-check", tone: "teal", title: t("insurance"), sub: insurer ? <bdi>{String(insurer.value)}</bdi> : undefined } as const] : []),
+          ...(showInsurance ? [{ href: `${base}/insurance`, icon: "shield-check", tone: SERVICE_ICONS.nursing.tone, title: t("insurance"), sub: insurer ? <bdi>{String(insurer.value)}</bdi> : undefined } as const] : []),
           { href: `${base}/prescriptions`, icon: "prescription", tone: "violet", title: a("rowPrescriptions") },
           { href: `${base}/receipts`, icon: "file-text", tone: "blue", title: receipts("listTitle") },
         ]}

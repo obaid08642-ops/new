@@ -1,19 +1,14 @@
 {
   "note": "Hard-coded colours that predate the design system. Recorded once with --init. 12.A11 rebuilds the screens on tokens and each rebuilt file drops out. --update only ever LOWERS a count; it cannot raise one.",
   "totals": {
-    "patient-web": 13,
+    "patient-web": 3,
     "patient-app": 10,
     "provider-app": 212,
     "admin": 167
   },
   "files": {
-    "patient-web/app/[locale]/family/page.tsx": 1,
-    "patient-web/app/[locale]/insurance/page.tsx": 1,
-    "patient-web/app/[locale]/profile/page.tsx": 4,
-    "patient-web/app/[locale]/settings/about/page.tsx": 1,
-    "patient-web/app/[locale]/settings/page.tsx": 2,
     "patient-web/app/favicon.ico/route.ts": 2,
-    "patient-web/app/manifest.ts": 2,
+    "patient-web/app/manifest.ts": 1,
     "patient-app/app/(tabs)/consultations/index.tsx": 1,
     "patient-app/app/pharmacy/checkout.tsx": 1,
     "patient-app/src/components/Header.tsx": 2,

@@ -12,6 +12,7 @@ import { ConsultPage } from "@/components-next/consult/consult-page";
 import { BulletList, Hero, SectionCard } from "@/components-next/consult/consult-parts";
 import { Group, NavRows } from "@/components-next/settings/settings-kit";
 import { Icon } from "@/components-next/ui-generated/src/Icon";
+import { SERVICE_ICONS } from "@/components-next/ui-generated/icons/fill";
 import styles from "@/components-next/settings/settings.module.css";
 import rx from "@/components-next/pharmacy/rx.module.css";
 import forms from "@/components-next/consult/consult.module.css";
@@ -71,7 +72,7 @@ export default async function SettingsAboutPage({ params }: Props) {
 
   return (
     <ConsultPage locale={locale} title={t("aboutTitle")} backHref={`/${locale}/settings`}>
-      <Hero icon="heartbeat" tone="coral" title={t("aboutName")} sub={t("aboutLead")} />
+      <Hero icon="heartbeat" tone={SERVICE_ICONS.health.tone} title={t("aboutName")} sub={t("aboutLead")} />
       <Group id="legal" title={t("aboutLegal")}>
         <NavRows
           locale={locale}

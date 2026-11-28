@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { THEME_COLOR } from "./design-tokens/theme-color";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -8,7 +9,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Nabd Plus patient portal",
     start_url: "/",
     display: "standalone",
-    background_color: "#F5F5F7",
+    background_color: THEME_COLOR.light,
     theme_color: "#D42A38",
     lang: "ar",
     dir: "rtl",
