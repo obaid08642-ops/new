@@ -724,7 +724,7 @@ function LStep3({ data, update, submitRef }: StepProps<DiagnosticsRegData>) {
               onChange={v => update({ homeCollectionFee: v.replace(/\D/g, '') })}
               kbType="numeric"
             />
-            <Text style={{ fontSize: 14, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8, marginTop: 16 }}>{AR ? (data.centerType === 'radiology' ? 'الفئة المسموحة للتصوير' : 'الفئة المسموحة للسحب') : 'Target Genders'}</Text>
+            <Text style={{ fontSize: 14, color: theme.text, textAlign: AR ? 'right' : 'left', marginBottom: 8, marginTop: 16 }}>{data.centerType === 'radiology' ? tt('labreg.targetGendersRadiology') : tt('labreg.targetGendersLab')}</Text>
             <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: 12, marginBottom: 24 }}>
               {['all', 'male', 'female'].map(g => (
                 <TouchableOpacity key={g} onPress={() => update({ targetGenders: g })}

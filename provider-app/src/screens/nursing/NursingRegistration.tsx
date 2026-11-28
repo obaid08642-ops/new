@@ -515,7 +515,7 @@ return (
             </View>
           </TouchableOpacity>
           {active && (
-            <NPriceInput label={AR ? `سعرك لـ ${svc.ar} (ريال)` : `Your price for ${svc.en} (SAR)`} value={data.servicePrices?.[svc.id] ?? ''}
+            <NPriceInput label={tt('nreg.priceForService', { service: AR ? svc.ar : svc.en })} value={data.servicePrices?.[svc.id] ?? ''}
               onChange={(v) => update({ servicePrices: { ...data.servicePrices, [svc.id]: v } })} required
               error={showPriceErr && parsePrice(data.servicePrices?.[svc.id] ?? '') === null ? (tt('nurreg.b0595d27')) : undefined} />
           )}
@@ -557,7 +557,7 @@ return (
             </View>
           </TouchableOpacity>
           {isActive && (
-            <NPriceInput label={AR ? `سعر ${pm.ar} (ريال)` : `${pm.en} Price (SAR)`}
+            <NPriceInput label={tt('nreg.modelPrice', { model: AR ? pm.ar : pm.en })}
               value={pm.id === 'per_visit' ? data.priceVisit : pm.id === 'per_hour' ? data.priceHour : pm.id === 'per_day' ? data.priceDay : data.priceMonth}
               onChange={v => update(pm.id === 'per_visit' ? { priceVisit: v } : pm.id === 'per_hour' ? { priceHour: v } : pm.id === 'per_day' ? { priceDay: v } : { priceMonth: v })} required />
           )}

@@ -61,8 +61,8 @@ export function FacilityOrderDetail({ order, onBack, onNavigate }: any) {
     <View style={{ flex: 1, backgroundColor: theme.bg }}>
       <NHeader title={tt('rrbf.42b7afff')} onBack={onBack} />
       <ScrollView contentContainerStyle={{ padding: SP.lg }}>
-        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{order?.patient_name || 'Patient'}</Text>
-        <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order?.title_ar || order?.svc || order?.service_name || 'Service'}{order?.tracking_id ? ` · ${order.tracking_id}` : ''}{order?.total ? ` · ${order.total} SAR` : ''}</Text>
+        <Text style={{ fontSize: FS.lg, fontWeight: FW.bold, color: theme.text, textAlign: AR ? 'right' : 'left' }}>{order?.patient_name || tt('labdash.c8b7f288')}</Text>
+        <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order?.title_ar || order?.svc || order?.service_name || tt('rrbf.serviceFallback')}{order?.tracking_id ? ` · ${order.tracking_id}` : ''}{order?.total ? ` · ${order.total} ${tt('labdash.0e39e6ca')}` : ''}</Text>
 
         <View style={{ flexDirection: AR ? 'row-reverse' : 'row', gap: SP.md, marginTop: SP.xl }}>
           <NBtn label={tt('rrbf.9429cefa')} loading={acting} onPress={() => act('reject')} style={{ flex: 1, backgroundColor: theme.danger }} />
