@@ -1,5 +1,14 @@
 # Lane L outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
+
+## 2026-11-28 16:35 UTC — LOOP cycle: #2809/#2810/#2811 green; #2812 and #2813 red, root-caused and fixed on their branches
+Status: in progress
+PR: #2809 (CI: green 30/30), #2810 (CI: green 30/30), #2811 (CI: green 30/30), #2812 (CI: fix pushed, re-running, 0 failed so far), #2813 (CI: fix pushed, re-running, 0 failed so far)
+#2812 failure: Patient Mobile typecheck, one error — app/(tabs)/consultations/index.tsx used SERVICE_ICONS without importing it (my miss in the original PR; the neighbouring files import it from packages/ui-native/src). Fixed by adding it to the existing ui-native import (commit 0846639 on l/pa-raw-color). No other file in the PR had the problem (checkout PHARMACY_TONE and Avatar SERVICE_ICONS imports verified).
+#2813 failure: typecheck passed; 1 of 2488 tests failed — src/components/__tests__/ui-accessibility.test.ts pins the literal source string hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} for the shared Button in ui.tsx. Tests are not mine to edit, so the two Button hitSlops keep the object form (uniform/symmetric, RTL-identical) and the baseline was regenerated honestly from main: patient-app 48 -> 12 (not 8), total 104 -> 68 (commit 5b79b82 on l/pa-left-right). PR body updated: the ui.tsx 4 join the deliberately-left list; clearing them needs the lead to update that contract test.
+Mailbox/main re-checked this cycle: no new orders, main still 4069e2f, no merges yet, no conflicts. Items 6-7 stay parked on the token-layer decision in the entry below.
+Left: confirm both fix runs settle green next cycle.
+
 ## 2026-11-28 14:31 UTC — L1 items 6-7 (admin no-raw-color 167, admin client-token-sync 144): blocked on a token-layer decision — measured evidence
 Status: blocked
 PR: none (no branch started; opening one would be a redesign, not a ratchet slice)
