@@ -167,7 +167,7 @@ function ToastLayer({
     <>
       {/* Top toasts */}
       <View
-        style={[styles.layer, { top: insets.top + Spacing.md, left: 0, right: 0 }]}
+        style={[styles.layer, { top: insets.top + Spacing.md, start: 0, end: 0 }]}
         pointerEvents="box-none"
       >
         {topToasts.map((toast) => (
@@ -177,7 +177,7 @@ function ToastLayer({
 
       {/* Bottom toasts */}
       <View
-        style={[styles.layer, { bottom: insets.bottom + Spacing.xl, left: 0, right: 0 }]}
+        style={[styles.layer, { bottom: insets.bottom + Spacing.xl, start: 0, end: 0 }]}
         pointerEvents="box-none"
       >
         {bottomToasts.map((toast) => (
@@ -208,10 +208,8 @@ function ToastItem({
         styles.toast,
         {
           backgroundColor: colors.surface,
-          borderLeftWidth: isRTL ? 0 : 4,
-          borderRightWidth: isRTL ? 4 : 0,
-          borderLeftColor: toastColors.accent,
-          borderRightColor: toastColors.accent,
+          borderStartWidth: 4,
+          borderStartColor: toastColors.accent,
           flexDirection: isRTL ? 'row-reverse' : 'row',
           transform: [{ translateY: toast.translateY }],
           opacity: toast.opacity,
@@ -250,7 +248,7 @@ function ToastItem({
       {/* Dismiss */}
       <TouchableOpacity
         onPress={() => onDismiss(toast.id)}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        hitSlop={8}
         accessibilityRole="button"
         accessibilityLabel={dsText(lang, 'ds.toast.close')}
       >

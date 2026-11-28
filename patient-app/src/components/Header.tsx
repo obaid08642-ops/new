@@ -50,7 +50,7 @@ export default function Header() {
   if (!mainScreens.includes(currentScreen) && !currentScreen.startsWith('/(tabs)')) {
     if (!canGoBack) return null;
     return (
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 100, paddingTop: Math.max(insets.top, StatusBar.currentHeight || 44), paddingHorizontal: 16 }}>
+      <View style={{ position: 'absolute', top: 0, start: 0, end: 0, zIndex: 100, paddingTop: Math.max(insets.top, StatusBar.currentHeight || 44), paddingHorizontal: 16 }}>
         <TouchableOpacity onPress={goBack} style={[styles.iconButton, { alignSelf: isRTL ? 'flex-end' : 'flex-start', backgroundColor: tk.glass.bgStrong, borderRadius: 20, shadowColor: tk.brand.ink, shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8 }]}>
           <Text style={{ fontFamily: 'MaterialSymbolsRounded', fontSize: 24, color: tk.text.primary }}>
             {isRTL ? 'arrow_forward' : 'arrow_back'}
@@ -149,7 +149,7 @@ export default function Header() {
       <Modal visible={langMenuVisible} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setLangMenuVisible(false)}>
           <View style={styles.modalOverlay}>
-            <View style={[styles.langMenu, { backgroundColor: colors.s, borderColor: colors.bd, left: isRTL ? undefined : 60, right: isRTL ? 60 : undefined }]}>
+            <View style={[styles.langMenu, { backgroundColor: colors.s, borderColor: colors.bd, start: 60 }]}>
               {langs.map(l => {
                 const label = l === 'ar' ? 'العربية' : l === 'en' ? 'English' : l === 'ur' ? 'اردو' : l === 'tl' ? 'Tagalog' : 'हिन्दी';
                 return (
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   glowBorder: {
-    position: 'absolute', bottom: 0, left: 0, right: 0, height: 1.5,
+    position: 'absolute', bottom: 0, start: 0, end: 0, height: 1.5,
   },
   safeArea: {
     height: 56,

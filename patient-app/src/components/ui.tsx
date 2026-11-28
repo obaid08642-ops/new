@@ -189,7 +189,7 @@ export function Card({ children, style, onPress, padding = 16, elevated = true }
   };
   if (onPress) {
     return (
-      <TouchableOpacity onPress={onPress} activeOpacity={0.9} hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }} accessibilityRole="button" style={[cardStyle, style]}>
+      <TouchableOpacity onPress={onPress} activeOpacity={0.9} hitSlop={4} accessibilityRole="button" style={[cardStyle, style]}>
         {children}
       </TouchableOpacity>
     );
@@ -251,7 +251,7 @@ export function Input({
           textAlignVertical={multiline ? 'top' : 'center'}
         />
         {iconRight && (
-          <TouchableOpacity onPress={onIconRightPress} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity onPress={onIconRightPress} hitSlop={8}>
             <Icon name={iconRight} size={18} color={colors.textTertiary} />
           </TouchableOpacity>
         )}
