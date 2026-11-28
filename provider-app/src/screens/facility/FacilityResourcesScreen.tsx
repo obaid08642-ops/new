@@ -123,9 +123,7 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
                     {AR ? res.name_ar : res.name_en}
                   </Text>
                   <Text style={{ fontSize: FS.xs, color: theme.textSub, marginTop: 4, textAlign: AR ? 'right' : 'left' }}>
-                    {AR
-                      ? (res.type === 'or' ? 'غرفة عمليات' : res.type === 'consultation' ? 'عيادة' : 'معدات')
-                      : (res.type === 'or' ? 'Operating Room' : res.type === 'consultation' ? 'Clinic' : 'Equipment')}
+                    {tt(res.type === 'or' ? 'facilityResources.typeOr' : res.type === 'consultation' ? 'facilityResources.typeConsultation' : 'facilityResources.typeEquipment')}
                   </Text>
                 </View>
                 <NBadge
@@ -148,3 +146,4 @@ export function FacilityResourcesScreen({ onBack }: { onBack: () => void }) {
     </View>
   );
 }
+
