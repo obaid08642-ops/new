@@ -85,7 +85,7 @@
     "@types/node": "^22.7.5",
     "@types/nodemailer": "^8.0.1",
     "@types/opossum": "^8.1.9",
-    "@types/pdfkit": "^0.17.6",
+    "@types/pdfkit": "^0.17.7",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.70.0",
