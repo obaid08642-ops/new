@@ -186,7 +186,7 @@ export default function UsersManagementPage() {
   const handleDelete = async (u: any) => {
     const id = u.id || u._id;
     const name = u.full_name || u.phone || id;
-    if (!confirm(`⚠️ حذف نهائي!\nسيتم حذف «${name}» وبياناته من قاعدة البيانات نهائياً ولا يمكن التراجع.\n\nهل أنت متأكد تماماً؟`)) return;
+    if (!confirm(`حذف نهائي!\nسيتم حذف «${name}» وبياناته من قاعدة البيانات نهائياً ولا يمكن التراجع.\n\nهل أنت متأكد تماماً؟`)) return;
     if (!confirm(`تأكيد أخير: حذف «${name}» نهائياً من الـ backend وقاعدة البيانات؟`)) return;
     setActionBusy(id);
     try {
@@ -404,7 +404,7 @@ export default function UsersManagementPage() {
               </h2>
               <div className="flex items-center gap-2">
                 <button onClick={() => setViewUser(null)} className="bg-slate-700 hover:bg-slate-600 text-white text-sm font-bold px-4 py-2 rounded-lg">← عودة لإدارة المستخدمين</button>
-                <button onClick={() => setViewUser(null)} className="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-4 py-2 rounded-lg">✕ خروج</button>
+                <button onClick={() => setViewUser(null)} className="bg-red-600 hover:bg-red-500 text-white text-sm font-bold px-4 py-2 rounded-lg">× خروج</button>
               </div>
             </div>
             <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -525,7 +525,7 @@ export default function UsersManagementPage() {
                     <button onClick={() => handleProviderAction('approve')} disabled={!!actionBusy}
                       className="bg-green-600 hover:bg-green-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">✓ اعتماد</button>
                     <button onClick={() => handleProviderAction('reject')} disabled={!!actionBusy}
-                      className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">✕ رفض</button>
+                      className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">× رفض</button>
                     <button onClick={() => handleProviderAction('suspend')} disabled={!!actionBusy}
                       className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold px-5 py-2 rounded-lg disabled:opacity-50">⏸ إيقاف / تعليق</button>
                     {String(providerFile?.account?.status || '').toLowerCase() === 'suspended' && (

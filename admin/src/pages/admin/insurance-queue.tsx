@@ -120,7 +120,7 @@ export default function InsuranceQueuePage() {
           <div className="bg-white w-full max-w-lg h-full overflow-y-auto p-6 space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <h3 className="text-lg font-black text-slate-900">تفاصيل طلب التأمين</h3>
-              <button onClick={() => setSelectedReq(null)} className="text-slate-400 hover:text-slate-700 text-xl">✕</button>
+              <button onClick={() => setSelectedReq(null)} className="text-slate-400 hover:text-slate-700 text-xl">×</button>
             </div>
             <div className="space-y-2 text-sm">
               {[

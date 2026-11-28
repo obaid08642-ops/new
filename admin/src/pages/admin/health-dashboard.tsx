@@ -32,7 +32,7 @@ export default function HealthDashboardPage() {
           {s?.latency_ms != null && <div className="text-xs text-gray-400">{s.latency_ms}ms</div>}
         </div>
         <span className={`px-3 py-1 rounded-full text-sm font-bold ${up ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          {up ? 'يعمل ✅' : 'متوقف ❌'}
+          {up ? 'يعمل ✓' : 'متوقف ×'}
         </span>
       </div>
     );
@@ -84,7 +84,7 @@ export default function HealthDashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="text-green-600 text-sm font-bold">كل الطوابير فارغة ✅</div>
+          <div className="text-green-600 text-sm font-bold">كل الطوابير فارغة ✓</div>
         )}
       </div>
 
@@ -107,7 +107,7 @@ export default function HealthDashboardPage() {
       <h2 className="font-bold mb-3 text-gray-700">آخر الأخطاء</h2>
       <div className="bg-white rounded-lg shadow border">
         {(d.recent_errors || []).length === 0 ? (
-          <div className="p-6 text-center text-green-600 font-bold">لا أخطاء مسجلة 🎉</div>
+          <div className="p-6 text-center text-green-600 font-bold">لا أخطاء مسجلة</div>
         ) : (
           <DataTable
           bare

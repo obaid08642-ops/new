@@ -184,7 +184,7 @@ export default function MasterDashboard() {
                 { key: 'kind', header: 'النوع', className: 'font-bold', render: ({ o }) => KIND_AR[o.kind] || o.kind },
                 { key: 'state', header: 'الحالة', render: ({ o, isDelayed }) => (
                   <span className={`px-2 py-1 border rounded-full text-xs font-bold ${isDelayed ? 'bg-red-100 text-red-700 border-red-200' : 'bg-amber-50 text-amber-700 border-amber-200'}`}>
-                    {STATE_AR[o.universal_state] || o.universal_state || o.domain_state} {isDelayed ? '⚠️' : ''}
+                    {STATE_AR[o.universal_state] || o.universal_state || o.domain_state}
                   </span>
                 ) },
                 { key: 'elapsed', header: 'المنقضي', render: ({ isDelayed, elapsedLabel }) => <span className={`font-bold ${isDelayed ? 'text-red-600' : 'text-slate-500'}`}>{elapsedLabel}</span> },
@@ -238,7 +238,7 @@ export default function MasterDashboard() {
           <div className="bg-white rounded-2xl p-6 max-w-md w-full space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold text-slate-900">تفاصيل بؤرة الطلب</h3>
-              <button onClick={() => setSelectedCluster(null)} className="text-slate-400 hover:text-slate-700 text-xl leading-none">✕</button>
+              <button onClick={() => setSelectedCluster(null)} className="text-slate-400 hover:text-slate-700 text-xl leading-none">×</button>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-slate-500">المنطقة:</span><span className="font-bold">{selectedCluster.region}</span></div>
