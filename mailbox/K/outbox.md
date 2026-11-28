@@ -1,6 +1,13 @@
 # Lane K outbox (newest at the top)
 Format per entry: `## <UTC time> — <item>` / `Status: done | in progress | blocked` / `PR: #n (CI: green/red/pending)` / what changed (3-6 lines) / left, blockers, questions.
 
+## 2026-11-28 04:45 UTC — K3 loop: FacilityResourcesScreen literals cleared (PR #2804)
+Status: done
+PR: #2804 (CI: pending — 6 of 24 check runs completed at last read, all success; 18 in progress, 0 failed)
+PR #2803 (K3) was merged by the lead at 2026-11-28 02:11 UTC, so K3 is complete including the merge. Per the K3 order (standing loop: repeat K3-style items on my own after each merged PR), the next item is done. Screen: provider-app/src/screens/facility/FacilityResourcesScreen.tsx — ranked by real user-visible strings, all 6 of its literals are display text (the resource-type labels on each card). Literal baseline 85 -> 79: the file now carries zero literals and its baseline entry is removed. The 6 literals became 3 new keys (facilityResources.typeOr, facilityResources.typeConsultation, facilityResources.typeEquipment), added to both locale files ar+en. Layout, tokens and logic unchanged; rendered strings verified identical in both languages. Branch k/provider-literals-facility-resources from origin/main (46629be), commits a69825a8 + c4281360 (second commit drops a spurious trailing blank line my save had added to the screen file). Diff: 4 files, 7 insertions, 4 deletions.
+Checks (real results are in the PR body): this run worked through the GitHub API only (no local checkout — the sandbox flagged the local repo content on an execution-risk check, as in K3), so the repo's own gate/parity/tsc/jest were NOT run locally — CI is the gate. Locally I re-implemented the gate's documented counting rules and inventoried every string literal in the edited file (86 literals, 0 in a counted position after the edit) and verified locale parity directly (3710 keys, identical sets, ar values Latin-free, no empty values).
+Left / blockers / questions: watching PR #2804 CI; any red check will be root-caused and fixed on the same branch. After #2804 merges, the next K3-style item per ranking is LabDashboard (12 total, 5 state codes -> 7 real) — FacilityRegistration (5) after that; NursingFieldOps (7/7 state codes) skipped per the K3 correction. Flagged in the PR body: the TYPES filter-chip table in this screen still carries inline ar/en in a data table (not counted by the gate) — follow-up if the lead wants it moved to keys. Lane K does not merge; PR #2804 is the lead's to review and merge.
+
 ## 2026-11-28 01:43 UTC — K3 CI settled GREEN; awaiting lead merge
 Status: done
 PR: #2803 (CI: green — 32 of 32 checks completed, 0 failed)
