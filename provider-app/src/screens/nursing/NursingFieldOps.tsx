@@ -159,6 +159,11 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
   };
 
   const state: string = String(visit?.state || visit?.status || '');
+  const isNewOrAssigned = state === 'NEW_REQUEST' || state === 'PROVIDER_ASSIGNED';
+  const isConfirmedState = state === 'CONFIRMED';
+  const isInTransitState = state === 'IN_TRANSIT';
+  const isArrivedState = state === 'ARRIVED';
+  const isCareInProgress = state === 'CARE_IN_PROGRESS' || state === 'IN_PROGRESS';
 
   // Live position for the patient's map while on the way (state-free ping on the same booking).
   useEffect(() => {
@@ -204,22 +209,22 @@ export function NursingFieldOps({ order, onBack, onRefresh, onNavigate }: { orde
             </NCard>
 
             <NSecHeader title={tt('nfo.0d7ee11c')} />
-            {(state === 'NEW_REQUEST' || state === 'PROVIDER_ASSIGNED') && (
+            {isNewOrAssigned && (
               <>
                 <NBtn label={tt('nfo.8a6e9842')} loading={busy} onPress={() => void decide('accept')} />
                 <NBtn label={tt('nfo.9cf13816')} variant="danger" disabled={busy} onPress={() => void decide('reject')} />
               </>
             )}
-            {state === 'CONFIRMED' && (
+            {isConfirmedState && (
               <NBtn label={tt('nfo.438d3a9d')} loading={busy} onPress={() => void act('transit', {}, tt('nfo.149ca35e')).then((ok) => ok && load())} />
             )}
-            {state === 'IN_TRANSIT' && (
+            {isInTransitState && (
               <NBtn label={tt('nfo.26623bc9')} loading={busy} onPress={() => void doArrive()} />
             )}
-            {state === 'ARRIVED' && (
+            {isArrivedState && (
               <NBtn label={tt('nfo.829cd0b0')} loading={busy} onPress={() => void act('start-care', {}, tt('nfo.144091ea')).then((ok) => ok && load())} />
             )}
-            {(state === 'CARE_IN_PROGRESS' || state === 'IN_PROGRESS') && (
+            {isCareInProgress && (
               <NCard style={{ gap: SP.md }}>
                 <NInput label={tt('nfo.6f62e156')} value={bp} onChange={setBp} />
                 <NInput label={tt('nfo.34a7ced9')} value={glucose} onChange={setGlucose} kbType="numeric" />
