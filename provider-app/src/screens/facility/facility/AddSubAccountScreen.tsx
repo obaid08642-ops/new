@@ -139,7 +139,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
 
  <View style={{ backgroundColor: theme.surface, borderRadius: R.lg, padding: SP.md, borderWidth: 1, borderColor: theme.border, marginBottom: SP.md }}>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', marginBottom: SP.xs }}>
- <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{AR ? 'Sub-ID:' : 'Sub-ID:'}</Text>
+ <Text style={{ fontSize: FS.sm, color: theme.textSub }}>{tt('asa.subIdLabel')}</Text>
  <Text style={{ fontSize: FS.sm, fontWeight: FW.bold, color: theme.text }}>{createdCreds.subId}</Text>
  </View>
  <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between' }}>
@@ -192,9 +192,7 @@ export function AddSubAccountScreen({ onBack, preRole }: { onBack: () => void; p
  {/* Info */}
  <NCard style={{ backgroundColor: theme.infoBg, marginBottom: SP.xl }}>
  <Text style={{ fontSize: FS.sm, color: theme.info, lineHeight: 20, textAlign: AR ? 'right' : 'left' }}>
-  {AR
- ? `حساب ${selectedRole.ar}: سيحصل على Sub-ID + كلمة مرور مؤقتة على بريده الإلكتروني. صلاحياته محدودة حسب دوره.`
- : `${selectedRole.en}: Gets Sub-ID + temporary password by email. Permissions limited by role.`}
+  {tt('asa.roleInfo', { role: AR ? selectedRole.ar : selectedRole.en })}
  </Text>
  </NCard>
 

@@ -417,7 +417,7 @@ function NursingOrdersTab({ onNavigate }: any) {
           {pending.map(order => (
             <NCard key={order.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', order)}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient || 'Patient'}</Text>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{order.patient || tt('labdash.c8b7f288')}</Text>
                 <NBadge label={tt('nurdash.7a64641b')} variant="info" size="xs" />
               </View>
               <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{order.svc} - {order.price} SAR</Text>
@@ -432,7 +432,7 @@ function NursingOrdersTab({ onNavigate }: any) {
           {active.map(scan => (
             <NCard key={scan.id} style={{ marginBottom: SP.md }} onPress={() => onNavigate('order_detail', scan)}>
               <View style={{ flexDirection: AR ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{scan.patient || 'Patient'}</Text>
+                <Text style={{ fontSize: FS.md, fontWeight: FW.bold, color: theme.text }}>{scan.patient || tt('labdash.c8b7f288')}</Text>
                 <NBadge label={tt('nurdash.29e17b4a')} variant="success" size="xs" />
               </View>
               <Text style={{ color: theme.textSub, marginTop: SP.sm, textAlign: AR ? 'right' : 'left' }}>{scan.time}</Text>
@@ -623,7 +623,7 @@ function ProgressNotes({ patient, onBack }:{ patient:any; onBack:()=>void }) {
  <NInput label={tt('nurdash.30ada89d')} placeholder="36.8" value={vitals.temp} onChange={v=>setVitals(p=>({...p,temp:v}))} kbType="decimal-pad" style={{flex:1,marginBottom:0,minWidth:60}} />
  </View>
  <View style={{flexDirection:AR?'row-reverse':'row',gap:SP.sm,marginBottom:SP.lg}}>
- <NInput label="SpO2" placeholder="98%" value={vitals.spo2} onChange={v=>setVitals(p=>({...p,spo2:v}))} style={{flex:1,marginBottom:0}} />
+ <NInput label={tt('nurdash.spo2Label')} placeholder="98%" value={vitals.spo2} onChange={v=>setVitals(p=>({...p,spo2:v}))} style={{flex:1,marginBottom:0}} />
  <NInput label={tt('nurdash.bc6a278e')} placeholder="145" value={vitals.glucose} onChange={v=>setVitals(p=>({...p,glucose:v}))} kbType="numeric" style={{flex:1,marginBottom:0}} />
  </View>
  <NInput label={tt('nurdash.691e0d25')} placeholder={tt('nurdash.233e89bf')} value={note} onChange={setNote} multi lines={5} />
